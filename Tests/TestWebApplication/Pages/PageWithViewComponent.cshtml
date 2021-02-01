@@ -1,0 +1,21 @@
+﻿@page
+@model TestWebApplication.Pages.PageWithViewComp
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<div>
+    @Component.InvokeAsync("Test", new {MaxPriotiry=2,IsDone = false})
+    <vc:Test max-priority="2" is-done="false">
+    </vc:Test>
+</div>
+</body>
+</html>

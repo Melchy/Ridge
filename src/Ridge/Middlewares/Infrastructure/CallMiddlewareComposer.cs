@@ -1,0 +1,26 @@
+﻿using Ridge.Middlewares.DefaulMiddlewares;
+using Ridge.Middlewares.Public;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace Ridge.Middlewares.Infrastructure
+{
+    internal static class CallMiddlewareComposer
+    {
+        public static async Task<HttpResponseMessage> Execute(
+            List<CallMiddleware> callMiddlewares,
+            CallWebAppMiddleware callWebAppMiddleware,
+            HttpRequestMessage httpRequestMessage)
+        {
+            callMiddlewares.Reverse();
+            var lastCallExecutor = new CallMiddlewareExecutor(callWebAppMiddleware, null!, httpRequestMessage);
+            var previous = lastCallExecutor;
+            foreach (var callMiddleware in callMiddlewares)
+            {
+                previous = new CallMiddlewareExecutor(callMiddleware, previous.Execute, httpRequestMessage);
+            }
+            return await previous.Execute();
+        }
+    }
+}
