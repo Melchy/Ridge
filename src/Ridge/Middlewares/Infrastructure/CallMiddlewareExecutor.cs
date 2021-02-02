@@ -8,7 +8,7 @@ namespace Ridge.Middlewares.Infrastructure
     {
         private readonly CallMiddleware _callMiddlewareCurrent;
         private readonly CallMiddlewareDelegate _next;
-        private HttpRequestMessage _httpRequestMessage;
+        private readonly HttpRequestMessage _httpRequestMessage;
 
         public CallMiddlewareExecutor(CallMiddleware callMiddlewareCurrent,
             CallMiddlewareDelegate next,

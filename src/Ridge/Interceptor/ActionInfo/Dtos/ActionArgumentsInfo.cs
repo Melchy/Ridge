@@ -174,9 +174,6 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             IDictionary<string, object?> routeDataDictionary,
             string parameterNameInRequest)
         {
-
-            var foo = argumentValue as IEnumerable;
-
             if (argumentValue is IEnumerable)
             {
                 var genericArguments = argumentValue.GetType().GetGenericArguments();

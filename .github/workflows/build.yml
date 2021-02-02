@@ -21,5 +21,4 @@ jobs:
         dotnet-version: 3.1.201
     - name: Build with dotnet
       run: |
-        cd src/ 
         dotnet build --configuration Release

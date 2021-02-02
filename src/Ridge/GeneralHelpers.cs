@@ -166,19 +166,6 @@ namespace Ridge
                 throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Type {0} does not have constructor with {1} arguments or some arguments have incorrect types.", type.Name, args.Length));
             }
         }
-        
-        public static bool ImplementsOpenGenericType(Type type, Type genericType)
-        {
-            for (var type1 = type; type1 != (Type?) null && type1 != typeof (object); type1 = type1.BaseType)
-            {
-                var type2 = type1.IsGenericType ? type1.GetGenericTypeDefinition() : type1;
-                if (genericType == type2)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
 
         public static Dictionary<TKey, TValue> MergeDictionaries<TKey, TValue>(params IDictionary<TKey, TValue>[] dictionaries) where TKey : notnull
         {
