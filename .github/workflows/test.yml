@@ -15,5 +15,5 @@ jobs:
         dotnet-version: 3.1.201
     - name: Run tests
       run: |
-        cd Tests
+        cd Tests\RidgeTests
         dotnet test
