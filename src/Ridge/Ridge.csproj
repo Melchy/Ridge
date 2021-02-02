@@ -2,6 +2,18 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageId>Ridge</PackageId>
+        <Authors>Michal Motyčka</Authors>
+        <Product>Ridge</Product>
+        <Company>Michal Motyčka</Company>
+        <Description>Tool that alows strongly typed integration tests and subcutaneous razor tests.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Melchy/Ridge</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Melchy/Ridge</RepositoryUrl>
+        <PackageTags>Testing, integration, strongly typed, razor</PackageTags>
     </PropertyGroup>
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

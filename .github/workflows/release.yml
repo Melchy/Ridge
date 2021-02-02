@@ -1,0 +1,31 @@
+name: Release
+
+on: 
+  push:
+    tags:
+      - '*.*.*'
+    branches-ignore:
+      - '*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+    - name: Build with dotnet
+      run: |
+        cd src/ 
+        dotnet build --configuration Release
+    - name: Put tag to enviroment value
+      run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF:10}
+    - name: pack the nuget
+      run: |
+        cd src/
+        dotnet pack --configuration Release /p:Version=$RELEASE_VERSION
+    - name: release package
+      run: dotnet nuget push **/*.nupkg --api-key ${{secrets.nuget}} --source https://api.nuget.org/v3/index.json
