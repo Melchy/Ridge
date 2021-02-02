@@ -8,6 +8,9 @@ ProjectSection(SolutionItems) = preProject
 	Directory.Build.props = Directory.Build.props
 	global.json = global.json
 	readme.md = readme.md
+	.github\workflows\build.yml = .github\workflows\build.yml
+	.github\workflows\release.yml = .github\workflows\release.yml
+	.github\workflows\test.yml = .github\workflows\test.yml
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RidgeTests", "Tests\RidgeTests\RidgeTests.csproj", "{58A161C4-F29D-47A5-BADA-98CE87ABBEDD}"
