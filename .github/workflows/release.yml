@@ -20,10 +20,8 @@ jobs:
     - name: Build with dotnet
       run: |
         dotnet build --configuration Release
-    - name: Put tag to enviroment value
-      run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF:10}
     - name: pack the nuget
       run: |
-        dotnet pack --configuration Release /p:Version=$RELEASE_VERSION
+        dotnet pack --configuration Release /p:Version=${GITHUB_REF:10}
     - name: release package
       run: dotnet nuget push **/*.nupkg --api-key ${{secrets.nuget}} --source https://api.nuget.org/v3/index.json
