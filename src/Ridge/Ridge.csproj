@@ -5,7 +5,7 @@
 
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageId>Ridge</PackageId>
+        <PackageId>RidgeDotNet</PackageId>
         <Authors>Michal Motyčka</Authors>
         <Product>Ridge</Product>
         <Company>Michal Motyčka</Company>
