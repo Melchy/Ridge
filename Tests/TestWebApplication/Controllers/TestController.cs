@@ -98,7 +98,7 @@ namespace TestWebApplication.Controllers
         {
             return body;
         }
-        
+
         [HttpHead("complexFromQuery")]
         public virtual ControllerResult<ComplexArgument> ComplexFromQuery(
             [FromQuery(Name = "foo")] ComplexArgument fromQuery)
@@ -112,7 +112,7 @@ namespace TestWebApplication.Controllers
         {
             return fromRoute;
         }
-        
+
         [HttpGet("FromHeader")]
         public virtual ControllerResult<ComplexArgument> FromHeader(
             [FromHeader] ComplexArgument fromHeader)
@@ -224,7 +224,7 @@ namespace TestWebApplication.Controllers
         }
 
         [HttpGet("MethodThrowingInvalidOperationException")]
-        public virtual Task<ControllerResult<Dictionary<string,string>>> MethodThrowingInvalidOperationException()
+        public virtual ControllerResult<Dictionary<string,string>> MethodThrowingInvalidOperationException()
         {
             throw new InvalidOperationException("Correct");
         }

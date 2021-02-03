@@ -26,14 +26,14 @@ namespace Ridge.Interceptor.InterceptorFactory
         {
             CheckIfControllerActionsCanBeProxied<TController>();
             var webCaller = GetWebCaller(_httpClient, _serviceProvider.GetService<ILogger<ControllerFactory>>());
-            var pewCallMiddlewareCaller = GetPreCallMiddlewareCaller();
+            var preCallMiddlewareCaller = GetPreCallMiddlewareCaller();
             var createInfoForController = new CreateInfoForController(_serviceProvider);
             var resultFactoryForController = new ResultFactoryForController();
             var interceptor = new SendHttpRequestAsyncInterceptor<TController>(
                 webCaller,
                 createInfoForController,
                 resultFactoryForController,
-                pewCallMiddlewareCaller).ToInterceptor();
+                preCallMiddlewareCaller).ToInterceptor();
             return CreateClassFromInterceptor<TController>(interceptor);
         }
 
