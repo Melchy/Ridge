@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.ResultFactory
 {
-    public interface IResultFactory
+    internal interface IResultFactory
     {
         public Task<object> Create<T>(
             HttpResponseMessage httpResponseMessage,

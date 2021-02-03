@@ -1,4 +1,5 @@
-﻿using Ridge.Middlewares.Public;
+﻿using Ridge.Interceptor;
+using Ridge.Middlewares.Public;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -15,7 +16,9 @@ namespace Ridge.Middlewares.DefaulMiddlewares
             _value = value;
         }
         public override async Task<HttpResponseMessage> Invoke(
-            CallMiddlewareDelegate next, HttpRequestMessage httpRequestMessage)
+            CallMiddlewareDelegate next,
+            HttpRequestMessage httpRequestMessage,
+            IReadOnlyInvocationInformation invocationInformation)
         {
             httpRequestMessage.Headers.Add(_key, _value);
             return await next();

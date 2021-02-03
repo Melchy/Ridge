@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Ridge.Interceptor;
 using Ridge.Middlewares.Public;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -18,7 +19,8 @@ namespace Ridge.Middlewares.DefaulMiddlewares
         }
         public override async Task<HttpResponseMessage> Invoke(
             CallMiddlewareDelegate next,
-            HttpRequestMessage httpRequestMessage)
+            HttpRequestMessage httpRequestMessage,
+            IReadOnlyInvocationInformation invocationInformation)
         {
             var body = httpRequestMessage.Content;
             var bodyAsString = body == null ? null : await httpRequestMessage.Content.ReadAsStringAsync();

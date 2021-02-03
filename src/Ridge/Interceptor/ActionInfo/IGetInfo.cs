@@ -1,13 +1,17 @@
 ﻿using Ridge.Interceptor.ActionInfo.Dtos;
+using Ridge.Interceptor.InterceptorFactory;
+using Ridge.Middlewares;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.ActionInfo
 {
-    public interface IGetInfo
+    internal interface IGetInfo
     {
-        public ActionInfoDto GetInfo<T>(
+        public Task<ActionInfoDto> GetInfo<T>(
             IEnumerable<object> arguments,
-            MethodInfo methodInfo);
+            MethodInfo methodInfo,
+            PreCallMiddlewareCaller preCallMiddlewareCaller);
     }
 }

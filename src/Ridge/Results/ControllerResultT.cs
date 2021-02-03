@@ -68,6 +68,14 @@ namespace Ridge.Results
             }
             try
             {
+                if (string.IsNullOrEmpty(ResultAsString))
+                {
+                    return default(TResult)!;
+                }
+                if (typeof(TResult) == typeof(string))
+                {
+                    return (TResult)(object)ResultAsString;
+                }
                 return JsonConvert.DeserializeObject<TResult>(ResultAsString);
             }
             catch (JsonException e)

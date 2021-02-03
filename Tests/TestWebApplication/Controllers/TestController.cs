@@ -254,6 +254,18 @@ namespace TestWebApplication.Controllers
             return properties;
         }
 
+        [HttpGet("CustomBinderFullObject/{countryCode}")]
+        public virtual ControllerResult<string> CustomBinderFullObject([ModelBinder(BinderType = typeof(CountryCodeBinder))]CountryCodeBinded countryCodeBinded)
+        {
+            return countryCodeBinded.CountryCode;
+        }
+
+        public class CountryCodeBinded
+        {
+            public string CountryCode { get; set; } = null!;
+        }
+
+
         public class ComplexArgument
         {
             public ComplexArgument(
@@ -373,6 +385,17 @@ namespace TestWebApplication.Controllers
                 bindingContext.Result = ModelBindingResult.Success(ints.ToList());
             }
 
+            return Task.CompletedTask;
+        }
+    }
+
+
+    public class CountryCodeBinder : IModelBinder
+    {
+        public Task BindModelAsync(ModelBindingContext bindingContext)
+        {
+            var value = bindingContext.ActionContext.HttpContext.Request.RouteValues["countryCode"].ToString();
+            bindingContext.Result = ModelBindingResult.Success(new TestController.CountryCodeBinded(){CountryCode = value!});
             return Task.CompletedTask;
         }
     }

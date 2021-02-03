@@ -3,14 +3,17 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Ridge.Interceptor.ActionInfo.Dtos;
+using Ridge.Interceptor.InterceptorFactory;
+using Ridge.Middlewares;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.ActionInfo
 {
-    public class CreateInfoForController : IGetInfo
+    internal class CreateInfoForController : IGetInfo
     {
         private readonly LinkGenerator _linkGenerator;
         private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
@@ -21,11 +24,13 @@ namespace Ridge.Interceptor.ActionInfo
             _actionDescriptorCollectionProvider = serviceProvider.GetService<IActionDescriptorCollectionProvider>();
         }
 
-        public ActionInfoDto GetInfo<T>(
-            IEnumerable<object?> arguments,
-            MethodInfo methodInfo)
+        public async Task<ActionInfoDto> GetInfo<T>(
+            IEnumerable<object> arguments,
+            MethodInfo methodInfo,
+            PreCallMiddlewareCaller preCallMiddlewareCaller)
         {
             var methodActionInfo = ActionArgumentsInfo.CreateActionInfo(arguments, methodInfo);
+            await preCallMiddlewareCaller.Call(methodActionInfo);
             var actionDescriptor = GetActionDescriptor(methodInfo);
             var httpMethodAsString = GetHttpMethod(actionDescriptor);
 

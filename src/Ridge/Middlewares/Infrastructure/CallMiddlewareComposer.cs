@@ -1,4 +1,5 @@
-﻿using Ridge.Middlewares.DefaulMiddlewares;
+﻿using Ridge.Interceptor;
+using Ridge.Middlewares.DefaulMiddlewares;
 using Ridge.Middlewares.Public;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -11,14 +12,15 @@ namespace Ridge.Middlewares.Infrastructure
         public static async Task<HttpResponseMessage> Execute(
             List<CallMiddleware> callMiddlewares,
             CallWebAppMiddleware callWebAppMiddleware,
-            HttpRequestMessage httpRequestMessage)
+            HttpRequestMessage httpRequestMessage,
+            IReadOnlyInvocationInformation invocationInformation)
         {
             callMiddlewares.Reverse();
-            var lastCallExecutor = new CallMiddlewareExecutor(callWebAppMiddleware, null!, httpRequestMessage);
+            var lastCallExecutor = new CallMiddlewareExecutor(callWebAppMiddleware, null!, httpRequestMessage, invocationInformation);
             var previous = lastCallExecutor;
             foreach (var callMiddleware in callMiddlewares)
             {
-                previous = new CallMiddlewareExecutor(callMiddleware, previous.Execute, httpRequestMessage);
+                previous = new CallMiddlewareExecutor(callMiddleware, previous.Execute, httpRequestMessage, invocationInformation);
             }
             return await previous.Execute();
         }

@@ -29,10 +29,11 @@ namespace Ridge.Interceptor.InterceptorFactory
         public TPage CreateRazorPage<TPage>() where TPage : PageModel
         {
             CheckIfPageActionsCanBeProxied<TPage>(_serviceProvider);
-            var caller = GetCaller(_httpClient, _serviceProvider.GetService<ILogger<RazorPageFactory>>());
+            var caller = GetWebCaller(_httpClient, _serviceProvider.GetService<ILogger<RazorPageFactory>>());
+            var preCallMiddlewareCaller = GetPreCallMiddlewareCaller();
             var razorPageInfoFactory = new RazorPageInfoFactory(_serviceProvider);
             var resultFactoryForPages = new ResultFactoryForPages();
-            var interceptor = new SendHttpRequestAsyncInterceptor<TPage>(caller, razorPageInfoFactory, resultFactoryForPages).ToInterceptor();
+            var interceptor = new SendHttpRequestAsyncInterceptor<TPage>(caller, razorPageInfoFactory, resultFactoryForPages, preCallMiddlewareCaller).ToInterceptor();
             return CreateClassFromInterceptor<TPage>(interceptor);
         }
 

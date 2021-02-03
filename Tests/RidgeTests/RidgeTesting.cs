@@ -1,12 +1,15 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Ridge.Interceptor;
 using Ridge.Interceptor.InterceptorFactory;
 using Ridge.Middlewares.Public;
 using Ridge.Results;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -412,7 +415,7 @@ namespace RidgeTests
         }
 
         [Test]
-        public void WhenActionReturnsIncorrectTypeDefaultValueIsUsed2()
+        public void WhenActionReturnsIncorrectTypeDefaultValueIsUsed()
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
@@ -440,6 +443,16 @@ namespace RidgeTests
             var result = testController.CustomBinder(null!);
             result.Result.Should().AllBeEquivalentTo(1);
         }
+        
+        [Test]
+        public void PreModelBinderTest()
+        {
+            using var application = CreateApplication();
+            application.ControllerFactory.AddPreCallMiddleware(new TestObjectMiddleware());
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            var result = testController.CustomBinderFullObject(new TestController.CountryCodeBinded(){CountryCode = "cz"});
+            result.Result.Should().BeEquivalentTo("cz");
+        }
 
         public class ListSeparatedByCommasMiddleware : CallMiddleware
         {
@@ -449,9 +462,11 @@ namespace RidgeTests
             {
                 _data = data;
             }
+
             public override Task<HttpResponseMessage> Invoke(
                 CallMiddlewareDelegate next,
-                HttpRequestMessage httpRequestMessage)
+                HttpRequestMessage httpRequestMessage,
+                IReadOnlyInvocationInformation invocationInformation)
             {
                 httpRequestMessage.RequestUri = new Uri(
                     QueryHelpers.AddQueryString(httpRequestMessage.RequestUri.ToString(), "properties", $"{string.Join(",", _data)}"),
@@ -459,7 +474,23 @@ namespace RidgeTests
                 return next();
             }
         }
+        
+        public class TestObjectMiddleware : PreCallMiddleware
+        {
+            public override Task Invoke(
+                PreCallMiddlewareDelegate next,
+                IInvocationInformation invocationInformation)
+            {
+                var bindedObject = invocationInformation.Arguments.FirstOrDefault(x => x is TestController.CountryCodeBinded);
+                if (bindedObject == null)
+                {
+                    return next();
+                }
 
+                invocationInformation.RouteParams["countryCode"] = ((TestController.CountryCodeBinded)bindedObject).CountryCode;
+                return Task.CompletedTask;
+            }
+        }
 
         public static Application CreateApplication()
         {

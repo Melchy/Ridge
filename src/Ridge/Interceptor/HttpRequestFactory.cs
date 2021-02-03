@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Ridge.Interceptor
 {
-    public static class HttpRequestFactory
+    internal static class HttpRequestFactory
     {
         public static HttpRequestMessage Create(
             string httpMethod,

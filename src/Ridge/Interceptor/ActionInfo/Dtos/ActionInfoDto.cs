@@ -1,6 +1,6 @@
 ﻿namespace Ridge.Interceptor.ActionInfo.Dtos
 {
-    public class ActionInfoDto
+    internal class ActionInfoDto
     {
         public ActionInfoDto(string url, string httpMethod, ActionArgumentsInfo actionArgumentsInfo)
         {

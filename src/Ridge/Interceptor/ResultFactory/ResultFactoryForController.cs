@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.ResultFactory
 {
-    public class ResultFactoryForController : IResultFactory
+    internal class ResultFactoryForController : IResultFactory
     {
         public async Task<object> Create<T>(HttpResponseMessage httpResponseMessage,
             string callId,

@@ -4,28 +4,33 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 
 namespace Ridge.Interceptor.ActionInfo.Dtos
 {
-    public class ActionArgumentsInfo
+    internal class ActionArgumentsInfo : IInvocationInformation, IReadOnlyInvocationInformation
     {
-        public object? Body { get; }
-        public IDictionary<string, object?> RouteParams { get; }
-        public string BodyFormat { get; }
-        public IDictionary<string, object?> HeaderParams { get; }
+        public object? Body { get; set; }
+        public IDictionary<string, object?> RouteParams { get; set; }
+        public string BodyFormat { get; set; }
+        public IDictionary<string, object?> HeaderParams { get; set; }
+        public IEnumerable<object?> Arguments { get; }
+        IReadOnlyDictionary<string, object?> IReadOnlyInvocationInformation.HeaderParams => new ReadOnlyDictionary<string, object?>(HeaderParams);
 
         private ActionArgumentsInfo(
             object? body,
             IDictionary<string, object?> routeParams,
             string bodyFormat,
-            IDictionary<string, object?> headerParams)
+            IDictionary<string, object?> headerParams,
+            IEnumerable<object?> arguments)
         {
             Body = body;
             RouteParams = routeParams;
             BodyFormat = bodyFormat;
             HeaderParams = headerParams;
+            Arguments = arguments;
         }
 
         public void AddArea(
@@ -41,7 +46,7 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             var routeParams = GetRouteAndQueryParamsFromMethodArguments(methodParams);
             var headerParams = GetHeadersFromMethodArguments(methodParams);
             var bodyFormat = GetBodyFormat(methodParams);
-            return new ActionArgumentsInfo(body, routeParams, bodyFormat, headerParams);
+            return new ActionArgumentsInfo(body, routeParams, bodyFormat, headerParams, methodArguments);
         }
 
         private static IEnumerable<(ParameterInfo parameterReflection, object? parameterValue)> CreateParametersWithValues(IEnumerable<object?> methodArguments, MethodInfo methodInfo)

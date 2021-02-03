@@ -1,4 +1,5 @@
-﻿using Ridge.Middlewares.Public;
+﻿using Ridge.Interceptor;
+using Ridge.Middlewares.Public;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -9,19 +10,22 @@ namespace Ridge.Middlewares.Infrastructure
         private readonly CallMiddleware _callMiddlewareCurrent;
         private readonly CallMiddlewareDelegate _next;
         private readonly HttpRequestMessage _httpRequestMessage;
+        private readonly IReadOnlyInvocationInformation _invocationInformation;
 
         public CallMiddlewareExecutor(CallMiddleware callMiddlewareCurrent,
             CallMiddlewareDelegate next,
-            HttpRequestMessage httpRequestMessage)
+            HttpRequestMessage httpRequestMessage,
+            IReadOnlyInvocationInformation invocationInformation)
         {
             _callMiddlewareCurrent = callMiddlewareCurrent;
             _next = next;
             _httpRequestMessage = httpRequestMessage;
+            _invocationInformation = invocationInformation;
         }
 
-        public Task<HttpResponseMessage> Execute()
+        public async Task<HttpResponseMessage> Execute()
         {
-            return _callMiddlewareCurrent.Invoke(_next, _httpRequestMessage);
+            return await _callMiddlewareCurrent.Invoke(_next, _httpRequestMessage, _invocationInformation);
         }
     }
 }

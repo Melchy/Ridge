@@ -1,26 +1,30 @@
 ﻿using Castle.DynamicProxy;
 using Microsoft.Extensions.Logging;
+using Ridge.Middlewares;
 using Ridge.Middlewares.DefaulMiddlewares;
-using Ridge.Middlewares.Infrastructure;
 using Ridge.Middlewares.Public;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.InterceptorFactory
 {
     public abstract class RidgeFactory
     {
         private readonly List<CallMiddleware> _middlewares = new List<CallMiddleware>();
-
-        protected Func<HttpRequestMessage, Task<HttpResponseMessage>> GetCaller(HttpClient httpClient, ILogger logger)
+        private readonly List<PreCallMiddleware> _preCallMiddlewares = new List<PreCallMiddleware>();
+        internal WebCaller GetWebCaller(HttpClient httpClient, ILogger logger)
         {
-            var finalMiddleware = new CallWebAppMiddleware(httpClient, logger);
-            return (httpRequestMessage) => CallMiddlewareComposer.Execute(_middlewares, finalMiddleware, httpRequestMessage);
+            return new WebCaller(httpClient, logger, _middlewares);
         }
+
+        internal PreCallMiddlewareCaller GetPreCallMiddlewareCaller()
+        {
+            return new PreCallMiddlewareCaller(_preCallMiddlewares);
+        }
+
         protected T CreateClassFromInterceptor<T>(IInterceptor interceptor)
         {
             var controllerProxy = MyProxyGenerator.CreateProxyWithoutCallingConstructor(typeof(T), interceptor);
@@ -30,6 +34,11 @@ namespace Ridge.Interceptor.InterceptorFactory
         public void AddCallMiddleware(CallMiddleware callMiddleware)
         {
             _middlewares.Add(callMiddleware);
+        }
+
+        public void AddPreCallMiddleware(PreCallMiddleware callMiddleware)
+        {
+            _preCallMiddlewares.Add(callMiddleware);
         }
 
         public void AddHeader(string key, string value)

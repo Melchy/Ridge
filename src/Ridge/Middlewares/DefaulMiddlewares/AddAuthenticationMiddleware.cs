@@ -1,4 +1,5 @@
-﻿using Ridge.Middlewares.Public;
+﻿using Ridge.Interceptor;
+using Ridge.Middlewares.Public;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -15,7 +16,9 @@ namespace Ridge.Middlewares.DefaulMiddlewares
             _authenticationHeaderValue = authenticationHeaderValue;
         }
         public override async Task<HttpResponseMessage> Invoke(
-            CallMiddlewareDelegate next, HttpRequestMessage httpRequestMessage)
+            CallMiddlewareDelegate next,
+            HttpRequestMessage httpRequestMessage,
+            IReadOnlyInvocationInformation invocationInformation)
         {
             httpRequestMessage.Headers.Authorization = _authenticationHeaderValue;
             return await next();

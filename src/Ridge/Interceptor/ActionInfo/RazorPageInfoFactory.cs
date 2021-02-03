@@ -7,17 +7,20 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Ridge.Interceptor.ActionInfo.Dtos;
+using Ridge.Interceptor.InterceptorFactory;
+using Ridge.Middlewares;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("RidgeTests")]
 
 namespace Ridge.Interceptor.ActionInfo
 {
-    public class RazorPageInfoFactory : IGetInfo
+    internal class RazorPageInfoFactory : IGetInfo
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -25,7 +28,10 @@ namespace Ridge.Interceptor.ActionInfo
         {
             _serviceProvider = serviceProvider;
         }
-        public ActionInfoDto GetInfo<TPage>(IEnumerable<object> arguments, MethodInfo methodInfo)
+        public async Task<ActionInfoDto> GetInfo<TPage>(
+            IEnumerable<object> arguments,
+            MethodInfo methodInfo,
+            PreCallMiddlewareCaller preCallMiddlewareCaller)
         {
             var dictionaryOfUrlsAndTuplesContainingRelativePathAndArea = GetDictionaryOfPagePathsAndTuplesContainingRelativePathAndArea();
             var viewDescriptor = GetViewDescriptor<TPage>();
@@ -36,6 +42,8 @@ namespace Ridge.Interceptor.ActionInfo
             {
                 actionArgumentInfo.AddArea(pagePathAndArea.area);
             }
+
+            await preCallMiddlewareCaller.Call(actionArgumentInfo);
             var linkToPage = GetLinkToPage(pagePathAndArea, actionArgumentInfo, pageHandlerModel);
             return new ActionInfoDto(linkToPage,
                     pageHandlerModel.HttpMethod,

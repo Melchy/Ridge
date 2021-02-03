@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.ResultFactory
 {
-    public class ResultFactoryForPages : IResultFactory
+    internal class ResultFactoryForPages : IResultFactory
     {
         public async Task<object> Create<T>(HttpResponseMessage httpResponseMessage, string callId, MethodInfo methodInfo)
         {

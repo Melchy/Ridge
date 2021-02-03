@@ -1,7 +1,9 @@
 ﻿using Castle.DynamicProxy;
 using Ridge.CallData;
 using Ridge.Interceptor.ActionInfo;
+using Ridge.Interceptor.InterceptorFactory;
 using Ridge.Interceptor.ResultFactory;
+using Ridge.Middlewares;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -11,18 +13,21 @@ namespace Ridge.Interceptor
 {
     public class SendHttpRequestAsyncInterceptor<T> : AsyncInterceptorBase
     {
+        private readonly WebCaller _webCaller;
         private readonly IGetInfo _getInfo;
         private readonly IResultFactory _resultFactory;
-        private readonly Func<HttpRequestMessage, Task<HttpResponseMessage>> _requestBuilder;
+        private readonly PreCallMiddlewareCaller _preCallMiddlewareCaller;
 
-        public SendHttpRequestAsyncInterceptor(
-            Func<HttpRequestMessage, Task<HttpResponseMessage>> requestBuilder,
+        internal SendHttpRequestAsyncInterceptor(
+            WebCaller webCaller,
             IGetInfo getInfo,
-            IResultFactory resultFactory)
+            IResultFactory resultFactory,
+            PreCallMiddlewareCaller preCallMiddlewareCaller)
         {
+            _webCaller = webCaller;
             _getInfo = getInfo;
             _resultFactory = resultFactory;
-            _requestBuilder = requestBuilder;
+            _preCallMiddlewareCaller = preCallMiddlewareCaller;
         }
 
         /// <summary>
@@ -39,7 +44,7 @@ namespace Ridge.Interceptor
             // Force asynchronous run. Synchronous run can cause race condition.
             await Task.Yield();
             var callId = Guid.NewGuid();
-            var actionInfo = _getInfo.GetInfo<T>(invocation.Arguments.ToList(), invocation.MethodInvocationTarget);
+            var actionInfo = await _getInfo.GetInfo<T>(invocation.Arguments.ToList(), invocation.MethodInvocationTarget, _preCallMiddlewareCaller);
             using var request = HttpRequestFactory.Create(
                 actionInfo.HttpMethod,
                 actionInfo.Url,
@@ -50,7 +55,7 @@ namespace Ridge.Interceptor
             CallDataDictionary.InsertEmptyDataToIndicateTestCall(callId);
 
 
-            var result = await _requestBuilder(request);
+            var result = await _webCaller.Call(request, actionInfo.ActionArgumentsInfo);
 
             var returnValue = await _resultFactory.Create<T>(result, callId.ToString(), invocation.MethodInvocationTarget);
             invocation.ReturnValue = returnValue;
