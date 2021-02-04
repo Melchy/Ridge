@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Ridge.Filters
 {
-    public class PageResultFilter : RidgeFilter, IAsyncPageFilter
+    internal class PageResultFilter : RidgeFilter, IAsyncPageFilter
     {
         public async Task OnPageHandlerExecutionAsync(PageHandlerExecutingContext context, PageHandlerExecutionDelegate next)
         {

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Ridge
 {
-    public static class GeneralHelpers
+    internal static class GeneralHelpers
     {
         public static object CreateObjectWithoutCallingConstructor(Type type)
         {

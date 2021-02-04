@@ -4,7 +4,7 @@ using Ridge.CallData;
 using System;
 using System.Threading.Tasks;
 
-namespace Ridge
+namespace Ridge.Setup
 {
     internal class ExceptionSavingMiddleware
     {

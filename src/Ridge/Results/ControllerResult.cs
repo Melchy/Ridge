@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -11,7 +12,7 @@ namespace Ridge.Results
     /// <summary>
     /// This part of ControllerResult is used by asp.net
     /// </summary>
-    public partial class ControllerResult : IActionResult, IResultWrapper
+    public partial class ControllerResult : IConvertToActionResult
     {
         private ActionResult _actionResult { get; }
 
@@ -33,10 +34,9 @@ namespace Ridge.Results
             return new ControllerResult(actionResult);
         }
 
-        public Task ExecuteResultAsync(
-            ActionContext context)
+        public IActionResult Convert()
         {
-            throw new InvalidOperationException("This method should never be called.");
+            return _actionResult;
         }
     }
 

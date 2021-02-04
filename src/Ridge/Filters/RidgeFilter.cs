@@ -6,7 +6,7 @@ using System;
 
 namespace Ridge.Filters
 {
-    public class RidgeFilter : IOrderedFilter
+    internal class RidgeFilter : IOrderedFilter
     {
         // This filter should be one of the last filters applied
         public int Order { get => Int32.MaxValue - 1;  }
