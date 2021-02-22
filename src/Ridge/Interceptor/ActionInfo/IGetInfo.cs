@@ -9,7 +9,7 @@ namespace Ridge.Interceptor.ActionInfo
 {
     internal interface IGetInfo
     {
-        public Task<ActionInfoDto> GetInfo<T>(
+        public ActionInfoDto GetInfo<T>(
             IEnumerable<object> arguments,
             MethodInfo methodInfo,
             PreCallMiddlewareCaller preCallMiddlewareCaller);

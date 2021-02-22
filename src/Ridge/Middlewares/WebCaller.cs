@@ -21,7 +21,7 @@ namespace Ridge.Middlewares
             _logger = logger;
             _middlewares = middlewares;
         }
-        public Task<HttpResponseMessage> Call(HttpRequestMessage httpRequestMessage, IReadOnlyInvocationInformation invocationInformation)
+        public HttpResponseMessage Call(HttpRequestMessage httpRequestMessage, IReadOnlyInvocationInformation invocationInformation)
         {
             var finalMiddleware = new CallWebAppMiddleware(_httpClient, _logger);
             return CallMiddlewareComposer.Execute(_middlewares, finalMiddleware, httpRequestMessage, invocationInformation);

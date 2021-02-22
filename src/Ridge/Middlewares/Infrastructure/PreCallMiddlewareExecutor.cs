@@ -20,9 +20,9 @@ namespace Ridge.Middlewares.Infrastructure
             _invocationInformation = invocationInformation;
         }
 
-        public async Task Execute()
+        public void Execute()
         {
-            await _preCallMiddlewareCurrent.Invoke(_next, _invocationInformation);
+            _preCallMiddlewareCurrent.Invoke(_next, _invocationInformation);
         }
     }
 }

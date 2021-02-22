@@ -33,7 +33,7 @@ namespace Ridge.Interceptor.InterceptorFactory
                 webCaller,
                 createInfoForController,
                 resultFactoryForController,
-                preCallMiddlewareCaller).ToInterceptor();
+                preCallMiddlewareCaller);
             return CreateClassFromInterceptor<TController>(interceptor);
         }
 

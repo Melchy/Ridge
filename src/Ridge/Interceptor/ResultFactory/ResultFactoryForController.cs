@@ -11,12 +11,12 @@ namespace Ridge.Interceptor.ResultFactory
 {
     internal class ResultFactoryForController : IResultFactory
     {
-        public async Task<object> Create<T>(HttpResponseMessage httpResponseMessage,
+        public object Create<T>(HttpResponseMessage httpResponseMessage,
             string callId,
             MethodInfo methodInfo)
         {
             var actionReturnType = GeneralHelpers.GetReturnTypeOrGenericArgumentOfTask(methodInfo);
-            var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
+            var resultString = httpResponseMessage.Content.ReadAsStringAsync().Result;
             CallDataDto callDataDto = CallDataDictionary.GetData(callId);
             if (callDataDto.Exception != null)
             {

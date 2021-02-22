@@ -24,13 +24,13 @@ namespace Ridge.Interceptor.ActionInfo
             _actionDescriptorCollectionProvider = serviceProvider.GetService<IActionDescriptorCollectionProvider>();
         }
 
-        public async Task<ActionInfoDto> GetInfo<T>(
+        public ActionInfoDto GetInfo<T>(
             IEnumerable<object> arguments,
             MethodInfo methodInfo,
             PreCallMiddlewareCaller preCallMiddlewareCaller)
         {
             var methodActionInfo = ActionArgumentsInfo.CreateActionInfo(arguments, methodInfo);
-            await preCallMiddlewareCaller.Call(methodActionInfo);
+            preCallMiddlewareCaller.Call(methodActionInfo);
             var actionDescriptor = GetActionDescriptor(methodInfo);
             var httpMethodAsString = GetHttpMethod(actionDescriptor);
 

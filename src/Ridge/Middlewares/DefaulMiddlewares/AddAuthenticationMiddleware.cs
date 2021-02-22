@@ -15,13 +15,13 @@ namespace Ridge.Middlewares.DefaulMiddlewares
         {
             _authenticationHeaderValue = authenticationHeaderValue;
         }
-        public override async Task<HttpResponseMessage> Invoke(
+        public override HttpResponseMessage Invoke(
             CallMiddlewareDelegate next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyInvocationInformation invocationInformation)
         {
             httpRequestMessage.Headers.Authorization = _authenticationHeaderValue;
-            return await next();
+            return next();
         }
     }
 }

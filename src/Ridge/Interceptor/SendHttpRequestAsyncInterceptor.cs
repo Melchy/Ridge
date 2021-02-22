@@ -4,14 +4,16 @@ using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.InterceptorFactory;
 using Ridge.Interceptor.ResultFactory;
 using Ridge.Middlewares;
+using Ridge.Results;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Ridge.Interceptor
 {
-    public class SendHttpRequestAsyncInterceptor<T> : AsyncInterceptorBase
+    public class SendHttpRequestAsyncInterceptor<T> : IInterceptor
     {
         private readonly WebCaller _webCaller;
         private readonly IGetInfo _getInfo;
@@ -30,21 +32,12 @@ namespace Ridge.Interceptor
             _preCallMiddlewareCaller = preCallMiddlewareCaller;
         }
 
-        /// <summary>
-        /// This method is called if method returns
-        /// Task, void
-        /// </summary>
-        protected override Task InterceptAsync(IInvocation invocation, Func<IInvocation, Task> proceed)
+        [SuppressMessage("", "CA1508", Justification="False positive")]
+        public void Intercept(
+            IInvocation invocation)
         {
-            throw new InvalidOperationException($"Interceptor works only when page returns CustomActionResult<T>.");
-        }
-
-        protected override async Task<TResult> InterceptAsync<TResult>(IInvocation invocation, Func<IInvocation, Task<TResult>> proceed)
-        {
-            // Force asynchronous run. Synchronous run can cause race condition.
-            await Task.Yield();
             var callId = Guid.NewGuid();
-            var actionInfo = await _getInfo.GetInfo<T>(invocation.Arguments.ToList(), invocation.MethodInvocationTarget, _preCallMiddlewareCaller);
+            var actionInfo = _getInfo.GetInfo<T>(invocation.Arguments.ToList(), invocation.MethodInvocationTarget, _preCallMiddlewareCaller);
             using var request = HttpRequestFactory.Create(
                 actionInfo.HttpMethod,
                 actionInfo.Url,
@@ -54,12 +47,16 @@ namespace Ridge.Interceptor
                 actionInfo.ActionArgumentsInfo.HeaderParams);
             CallDataDictionary.InsertEmptyDataToIndicateTestCall(callId);
 
+            var result = _webCaller.Call(request, actionInfo.ActionArgumentsInfo);
 
-            var result = await _webCaller.Call(request, actionInfo.ActionArgumentsInfo);
-
-            var returnValue = await _resultFactory.Create<T>(result, callId.ToString(), invocation.MethodInvocationTarget);
+            var returnValue = _resultFactory.Create<T>(result, callId.ToString(), invocation.MethodInvocationTarget);
+            var returnType = invocation.Method.ReturnType;
+            if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                invocation.ReturnValue = Task.FromResult((dynamic)returnValue);
+                return;
+            }
             invocation.ReturnValue = returnValue;
-            return (TResult)returnValue;
         }
     }
 }

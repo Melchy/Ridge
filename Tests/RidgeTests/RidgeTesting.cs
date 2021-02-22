@@ -463,7 +463,7 @@ namespace RidgeTests
                 _data = data;
             }
 
-            public override Task<HttpResponseMessage> Invoke(
+            public override HttpResponseMessage Invoke(
                 CallMiddlewareDelegate next,
                 HttpRequestMessage httpRequestMessage,
                 IReadOnlyInvocationInformation invocationInformation)
@@ -477,18 +477,18 @@ namespace RidgeTests
         
         public class TestObjectMiddleware : PreCallMiddleware
         {
-            public override Task Invoke(
+            public override void Invoke(
                 PreCallMiddlewareDelegate next,
                 IInvocationInformation invocationInformation)
             {
                 var bindedObject = invocationInformation.Arguments.FirstOrDefault(x => x is TestController.CountryCodeBinded);
                 if (bindedObject == null)
                 {
-                    return next();
+                    next();
+                    return;
                 }
 
                 invocationInformation.RouteParams["countryCode"] = ((TestController.CountryCodeBinded)bindedObject).CountryCode;
-                return Task.CompletedTask;
             }
         }
 

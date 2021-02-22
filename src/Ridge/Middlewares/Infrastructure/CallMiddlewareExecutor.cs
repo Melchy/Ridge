@@ -23,9 +23,9 @@ namespace Ridge.Middlewares.Infrastructure
             _invocationInformation = invocationInformation;
         }
 
-        public async Task<HttpResponseMessage> Execute()
+        public HttpResponseMessage Execute()
         {
-            return await _callMiddlewareCurrent.Invoke(_next, _httpRequestMessage, _invocationInformation);
+            return _callMiddlewareCurrent.Invoke(_next, _httpRequestMessage, _invocationInformation);
         }
     }
 }

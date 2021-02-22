@@ -6,6 +6,6 @@ namespace Ridge.Middlewares.Public
 {
     public abstract class CallMiddleware
     {
-        public abstract Task<HttpResponseMessage> Invoke(CallMiddlewareDelegate next, HttpRequestMessage httpRequestMessage, IReadOnlyInvocationInformation invocationInformation);
+        public abstract HttpResponseMessage Invoke(CallMiddlewareDelegate next, HttpRequestMessage httpRequestMessage, IReadOnlyInvocationInformation invocationInformation);
     }
 }

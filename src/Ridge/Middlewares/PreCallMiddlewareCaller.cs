@@ -16,10 +16,10 @@ namespace Ridge.Middlewares
             _middlewares = middlewares;
         }
 
-        public async Task Call(IInvocationInformation invocationInformation)
+        public void Call(IInvocationInformation invocationInformation)
         {
             var finalMiddleware = new FinalPreCallMiddleware();
-            await PreCallMiddlewareComposer.Execute(_middlewares, finalMiddleware, invocationInformation);
+            PreCallMiddlewareComposer.Execute(_middlewares, finalMiddleware, invocationInformation);
         }
     }
 }

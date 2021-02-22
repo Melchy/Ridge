@@ -9,7 +9,7 @@ namespace Ridge.Middlewares.Infrastructure
 {
     internal static class CallMiddlewareComposer
     {
-        public static async Task<HttpResponseMessage> Execute(
+        public static HttpResponseMessage Execute(
             List<CallMiddleware> callMiddlewares,
             CallWebAppMiddleware callWebAppMiddleware,
             HttpRequestMessage httpRequestMessage,
@@ -22,7 +22,7 @@ namespace Ridge.Middlewares.Infrastructure
             {
                 previous = new CallMiddlewareExecutor(callMiddleware, previous.Execute, httpRequestMessage, invocationInformation);
             }
-            return await previous.Execute();
+            return previous.Execute();
         }
     }
 }

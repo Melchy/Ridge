@@ -6,7 +6,7 @@ namespace Ridge.Interceptor.ResultFactory
 {
     internal interface IResultFactory
     {
-        public Task<object> Create<T>(
+        public object Create<T>(
             HttpResponseMessage httpResponseMessage,
             string callId,
             MethodInfo methodInfo);

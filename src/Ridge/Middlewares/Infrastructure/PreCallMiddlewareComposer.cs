@@ -9,7 +9,7 @@ namespace Ridge.Middlewares.Infrastructure
 {
     internal static class PreCallMiddlewareComposer
     {
-        public static async Task Execute(
+        public static void Execute(
             List<PreCallMiddleware> preCallMiddlewares,
             FinalPreCallMiddleware finalPreCallMiddleware,
             IInvocationInformation invocationInformation)
@@ -21,7 +21,7 @@ namespace Ridge.Middlewares.Infrastructure
             {
                 previous = new PreCallMiddlewareExecutor(callMiddleware, previous.Execute, invocationInformation);
             }
-            await previous.Execute();
+            previous.Execute();
         }
     }
 }

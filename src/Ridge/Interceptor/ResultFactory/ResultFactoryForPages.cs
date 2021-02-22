@@ -10,9 +10,9 @@ namespace Ridge.Interceptor.ResultFactory
 {
     internal class ResultFactoryForPages : IResultFactory
     {
-        public async Task<object> Create<T>(HttpResponseMessage httpResponseMessage, string callId, MethodInfo methodInfo)
+        public object Create<T>(HttpResponseMessage httpResponseMessage, string callId, MethodInfo methodInfo)
         {
-            var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
+            var resultString = httpResponseMessage.Content.ReadAsStringAsync().Result;
             CallDataDto callDataDto = CallDataDictionary.GetData(callId);
             if (callDataDto.Exception != null)
             {

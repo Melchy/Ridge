@@ -3,5 +3,5 @@ using System.Threading.Tasks;
 
 namespace Ridge.Middlewares.Public
 {
-    public delegate Task<HttpResponseMessage> CallMiddlewareDelegate();
+    public delegate HttpResponseMessage CallMiddlewareDelegate();
 }

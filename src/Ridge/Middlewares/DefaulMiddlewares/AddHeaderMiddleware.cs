@@ -15,13 +15,13 @@ namespace Ridge.Middlewares.DefaulMiddlewares
             _key = key;
             _value = value;
         }
-        public override async Task<HttpResponseMessage> Invoke(
+        public override HttpResponseMessage Invoke(
             CallMiddlewareDelegate next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyInvocationInformation invocationInformation)
         {
             httpRequestMessage.Headers.Add(_key, _value);
-            return await next();
+            return next();
         }
     }
 }

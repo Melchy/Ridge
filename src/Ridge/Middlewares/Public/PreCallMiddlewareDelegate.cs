@@ -2,5 +2,5 @@
 
 namespace Ridge.Middlewares.Public
 {
-    public delegate Task PreCallMiddlewareDelegate();
+    public delegate void PreCallMiddlewareDelegate();
 }

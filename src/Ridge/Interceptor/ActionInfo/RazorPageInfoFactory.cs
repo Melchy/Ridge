@@ -28,7 +28,7 @@ namespace Ridge.Interceptor.ActionInfo
         {
             _serviceProvider = serviceProvider;
         }
-        public async Task<ActionInfoDto> GetInfo<TPage>(
+        public ActionInfoDto GetInfo<TPage>(
             IEnumerable<object> arguments,
             MethodInfo methodInfo,
             PreCallMiddlewareCaller preCallMiddlewareCaller)
@@ -43,7 +43,7 @@ namespace Ridge.Interceptor.ActionInfo
                 actionArgumentInfo.AddArea(pagePathAndArea.area);
             }
 
-            await preCallMiddlewareCaller.Call(actionArgumentInfo);
+            preCallMiddlewareCaller.Call(actionArgumentInfo);
             var linkToPage = GetLinkToPage(pagePathAndArea, actionArgumentInfo, pageHandlerModel);
             return new ActionInfoDto(linkToPage,
                     pageHandlerModel.HttpMethod,

@@ -17,13 +17,13 @@ namespace Ridge.Middlewares.DefaulMiddlewares
             _httpClient = httpClient;
             _logger = logger;
         }
-        public override async Task<HttpResponseMessage> Invoke(
+        public override HttpResponseMessage Invoke(
             CallMiddlewareDelegate next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyInvocationInformation invocationInformation)
         {
             var body = httpRequestMessage.Content;
-            var bodyAsString = body == null ? null : await httpRequestMessage.Content.ReadAsStringAsync();
+            var bodyAsString = body == null ? null : httpRequestMessage.Content.ReadAsStringAsync().Result;
             var headers = JsonConvert.SerializeObject(httpRequestMessage.Headers);
             _logger.LogError("Created request: Url - '{Url}', body - '{Body}', headers - '{Headers}', HttpMethod: {HttpMethod}",
                 httpRequestMessage.RequestUri,
@@ -31,7 +31,7 @@ namespace Ridge.Middlewares.DefaulMiddlewares
                 headers,
                 httpRequestMessage.Method
             );
-            return await _httpClient.SendAsync(httpRequestMessage);
+            return _httpClient.SendAsync(httpRequestMessage).Result;
         }
     }
 }

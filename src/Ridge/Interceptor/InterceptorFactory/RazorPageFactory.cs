@@ -33,7 +33,7 @@ namespace Ridge.Interceptor.InterceptorFactory
             var preCallMiddlewareCaller = GetPreCallMiddlewareCaller();
             var razorPageInfoFactory = new RazorPageInfoFactory(_serviceProvider);
             var resultFactoryForPages = new ResultFactoryForPages();
-            var interceptor = new SendHttpRequestAsyncInterceptor<TPage>(caller, razorPageInfoFactory, resultFactoryForPages, preCallMiddlewareCaller).ToInterceptor();
+            var interceptor = new SendHttpRequestAsyncInterceptor<TPage>(caller, razorPageInfoFactory, resultFactoryForPages, preCallMiddlewareCaller);
             return CreateClassFromInterceptor<TPage>(interceptor);
         }
 
