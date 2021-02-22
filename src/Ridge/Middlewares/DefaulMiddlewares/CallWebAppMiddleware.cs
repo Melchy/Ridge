@@ -17,13 +17,14 @@ namespace Ridge.Middlewares.DefaulMiddlewares
             _httpClient = httpClient;
             _logger = logger;
         }
+#pragma warning disable CS1998
         public override HttpResponseMessage Invoke(
             CallMiddlewareDelegate next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyInvocationInformation invocationInformation)
         {
             var body = httpRequestMessage.Content;
-            var bodyAsString = body == null ? null : httpRequestMessage.Content.ReadAsStringAsync().Result;
+            var bodyAsString = body == null ? null :  Task.Run(async () => httpRequestMessage.Content.ReadAsStringAsync().Result).GetAwaiter().GetResult();;
             var headers = JsonConvert.SerializeObject(httpRequestMessage.Headers);
             _logger.LogError("Created request: Url - '{Url}', body - '{Body}', headers - '{Headers}', HttpMethod: {HttpMethod}",
                 httpRequestMessage.RequestUri,
@@ -34,4 +35,5 @@ namespace Ridge.Middlewares.DefaulMiddlewares
             return _httpClient.SendAsync(httpRequestMessage).Result;
         }
     }
+#pragma warning restore CS1998
 }
