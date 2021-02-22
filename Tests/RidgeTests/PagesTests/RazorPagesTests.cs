@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Ridge.CallData;
 using RidgeTests.PagesTests.Infrastructure;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using TestWebApplication.Pages;
 
@@ -112,6 +113,7 @@ namespace RidgeTests.PagesTests
         
         [Test]
         [Parallelizable(ParallelScope.None)]
+        [SuppressMessage("", "CA1508", Justification="False positive")]
         public async Task WhenControllerCallerIsTurnedOffEverythingWorksNormally()
         {
             CallDataDictionary.Clear();
@@ -126,15 +128,17 @@ namespace RidgeTests.PagesTests
         
         [Test]
         [Parallelizable(ParallelScope.None)]
+        [SuppressMessage("", "CA1508", Justification="False positive")]
         public async Task WhenControllerCallerIsTurnedOffMiddlewareIsNotHit()
         {
             CallDataDictionary.Clear();
-            using var application = ApplicationBuilder.CreateApplication();
+            using (var application = ApplicationBuilder.CreateApplication())
+            {
+                var response = await application.HttpClient.GetAsync($"{nameof(GeneralPageModel)}?handler=ThrowsInvalidOperationException");
 
-            var response = await application.HttpClient.GetAsync($"{nameof(GeneralPageModel)}?handler=ThrowsInvalidOperationException");
-
-            response.IsSuccessStatusCode.Should().BeFalse();
-            CallDataDictionary.IsEmpty().Should().BeTrue();
+                response.IsSuccessStatusCode.Should().BeFalse();
+                CallDataDictionary.IsEmpty().Should().BeTrue();
+            }
         }
         
     }
