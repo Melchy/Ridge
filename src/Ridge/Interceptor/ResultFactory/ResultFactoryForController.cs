@@ -1,5 +1,4 @@
-﻿using FluentReflections;
-using Ridge.CallData;
+﻿using Ridge.CallData;
 using Ridge.Results;
 using System;
 using System.Net.Http;
@@ -28,7 +27,7 @@ namespace Ridge.Interceptor.ResultFactory
             {
                 return GeneralHelpers.CreateInstance(actionReturnType, httpResponseMessage, resultString, httpResponseMessage.StatusCode);
             }
-            else if(actionReturnType.Reflection().IsOrImplements(typeof(ControllerResult<>)))
+            else if(GeneralHelpers.IsOrImplements(actionReturnType,typeof(ControllerResult<>)))
             {
                 return GeneralHelpers.CreateInstance(actionReturnType, httpResponseMessage, resultString, httpResponseMessage.StatusCode);
             }

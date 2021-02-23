@@ -1,6 +1,4 @@
-﻿using CommonExtensionMethods;
-using FluentReflections;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
+﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.AspNetCore.Routing;
@@ -36,7 +34,7 @@ namespace Ridge.Interceptor.ActionInfo
             var dictionaryOfUrlsAndTuplesContainingRelativePathAndArea = GetDictionaryOfPagePathsAndTuplesContainingRelativePathAndArea();
             var viewDescriptor = GetViewDescriptor<TPage>();
             var pagePathAndArea = dictionaryOfUrlsAndTuplesContainingRelativePathAndArea[viewDescriptor.RelativePath];
-            var pageHandlerModel = GetPageHandlerModel<TPage>(methodInfo);
+            var pageHandlerModel = GetPageHttpMethodAndHandlerName<TPage>(methodInfo);
             var actionArgumentInfo = ActionArgumentsInfo.CreateActionInfo(arguments, methodInfo);
             if (pagePathAndArea.area != null)
             {
@@ -44,39 +42,38 @@ namespace Ridge.Interceptor.ActionInfo
             }
 
             await preCallMiddlewareCaller.Call(actionArgumentInfo);
-            var linkToPage = GetLinkToPage(pagePathAndArea, actionArgumentInfo, pageHandlerModel);
+            var linkToPage = GetLinkToPage(pagePathAndArea, actionArgumentInfo, pageHandlerModel.handlerName);
             return new ActionInfoDto(linkToPage,
-                    pageHandlerModel.HttpMethod,
+                    pageHandlerModel.httpMethod,
                     actionArgumentInfo);
         }
 
         private string GetLinkToPage(
-            (string pagePath, string? area) pagePathAndArea, ActionArgumentsInfo actionArgumentsInfo, PageHandlerModel pageHandlerModel)
+            (string pagePath, string? area) pagePathAndArea, ActionArgumentsInfo actionArgumentsInfo, string handlerName)
         {
             var linkGenerator = _serviceProvider.GetService<LinkGenerator>();
             var linkToPage = linkGenerator.GetPathByPage(pagePathAndArea.pagePath,
                 values: actionArgumentsInfo.RouteParams,
-                handler: pageHandlerModel.HandlerName);
+                handler: handlerName);
             if (linkToPage == null)
             {
                 throw new InvalidOperationException($"Could not create link to page. Tested values: {Environment.NewLine}" +
                                                     $"Page path: {pagePathAndArea.pagePath}, RouteParams: {JsonConvert.SerializeObject(actionArgumentsInfo.RouteParams)}," +
-                                                    $"handler name {pageHandlerModel.HandlerName}");
+                                                    $"handler name {handlerName}");
             }
 
             return linkToPage;
         }
 
-        private PageHandlerModel GetPageHandlerModel<TPage>(
+        private (string httpMethod, string handlerName) GetPageHttpMethodAndHandlerName<TPage>(
             MethodInfo methodInfo)
         {
-            var pageApplicationModelPartsProvider = _serviceProvider.GetService<IPageApplicationModelPartsProvider>();
-            var pageHandlerModel = pageApplicationModelPartsProvider.CreateHandlerModel(methodInfo);
-            if (pageHandlerModel == null)
+            if (!RazorPageMethodHelpers.IsMethodValidHandler(methodInfo))
             {
                 throw new InvalidOperationException($"Method {methodInfo.Name} in class {typeof(TPage)} is not valid handler.");
             }
-            return pageHandlerModel;
+
+            return RazorPageMethodHelpers.GetHttpMethodAndHandlerName(methodInfo);
         }
 
         private CompiledViewDescriptor GetViewDescriptor<TPage>()
@@ -84,13 +81,12 @@ namespace Ridge.Interceptor.ActionInfo
             var viewsFeature = GetViewFeature(_serviceProvider);
             var modelTypesWithViewDescriptors = viewsFeature.ViewDescriptors.Select(compiledViewDescriptor =>
             {
-                var modelType = compiledViewDescriptor.Type.Reflection()
-                    .GetPropertyOrField("Model").GetType();
+                var modelType = GeneralHelpers.GetProperty(compiledViewDescriptor.Type, "Model").PropertyType;
                 return (modelType, compiledViewDescriptor);
             });
             var pageType = typeof(TPage);
             var viewDescriptor = modelTypesWithViewDescriptors
-                .First(x => x.modelType.Type == pageType)
+                .First(x => x.modelType == pageType)
                 .compiledViewDescriptor;
             return viewDescriptor;
         }
@@ -111,8 +107,12 @@ namespace Ridge.Interceptor.ActionInfo
         private static (string pagePath, string? area) GetUrlFromRouteValues(IDictionary<string, string> routerValues)
         {
             var resultUrl = routerValues["page"];
-            var area = routerValues.GetOrDefault("area");
-            return (resultUrl, area);
+            var found = routerValues.TryGetValue("area", out var area);
+            if (found)
+            {
+                return (resultUrl, area);
+            }
+            return (resultUrl, null);
         }
 
         private static ViewsFeature GetViewFeature(IServiceProvider serviceProvider)

@@ -25,8 +25,7 @@ namespace Ridge.Interceptor
             if (httpMethodObject == HttpMethod.Post ||
                 httpMethodObject == HttpMethod.Get ||
                 httpMethodObject == HttpMethod.Delete ||
-                httpMethodObject == HttpMethod.Put ||
-                httpMethodObject == HttpMethod.Patch)
+                httpMethodObject == HttpMethod.Put)
             {
                 request.Content = CreateContent(contentType, contentData);
             }

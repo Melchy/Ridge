@@ -45,7 +45,7 @@ namespace Ridge
             );
             var propertiesAndFields = dictionaryOfProperties.Concat(dictionaryOfFields);
             return propertiesAndFields
-                .ToDictionary(pair => pair.Key, pair => pair.Value);
+                .ToDictionary(pair => pair.Key, pair => pair.Value)!;
         }
 
         public static bool IsSimpleType(Type type)
@@ -72,18 +72,6 @@ namespace Ridge
             }
             
             return Convert.GetTypeCode(type) != TypeCode.Object;
-        }
-
-        public static string RemoveSuffixIfExists(string source, string suffix)
-        {
-            if (source.EndsWith(suffix, StringComparison.InvariantCulture))
-            {
-                return source[..^suffix.Length];
-            }
-            else
-            {
-                return source;
-            }
         }
 
         public static IEnumerable<MethodInfo> GetPublicMethods(Type type)
@@ -146,6 +134,47 @@ namespace Ridge
             }
 
             return actionReturnType;
+        }
+
+        public static PropertyInfo GetProperty(Type type, string propertyName)
+        {
+            var property = type.GetProperty(propertyName, BindingFlagsAny.Get());
+            if (property == null)
+            {
+                throw new InvalidOperationException($"Property with name {propertyName} not found on type {type.Name}");
+            }
+            return property;
+        }
+
+        public static bool IsOrImplements(Type child,Type parentOrGivenObject)
+        {
+            if (parentOrGivenObject.IsGenericTypeDefinition) //open generic types can not be checked using IsAssignableFrom
+            {
+                return ImplementsOpenGenericType(child, parentOrGivenObject);
+            }
+
+            return parentOrGivenObject.IsAssignableFrom(child);
+        }
+
+        private static bool ImplementsOpenGenericType(Type type, Type generic)
+        {
+            var toCheck = type;
+            while (toCheck != null && toCheck != typeof(object)) {
+                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+                if (generic == cur) {
+                    return true;
+                }
+                toCheck = toCheck.BaseType;
+            }
+            return false;
+        }
+
+        public static class BindingFlagsAny
+        {
+            public static BindingFlags Get()
+            {
+                return BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+            }
         }
 
         [SuppressMessage("","CA1508", Justification = "false positive")]

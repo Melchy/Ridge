@@ -1,6 +1,4 @@
-﻿using Castle.DynamicProxy;
-using FluentReflections;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Ridge.Interceptor.ActionInfo;
@@ -48,7 +46,7 @@ namespace Ridge.Interceptor.InterceptorFactory
             {
                 returnType = returnType.GenericTypeArguments[0];
             }
-            if (returnType != typeof(ControllerResult) && !returnType.Reflection().IsOrImplements(typeof(ControllerResult<>)))
+            if (returnType != typeof(ControllerResult) && !GeneralHelpers.IsOrImplements(returnType,typeof(ControllerResult<>)))
             {
                 throw new InvalidOperationException($"Controller method must return {nameof(ControllerResult)} or {nameof(ControllerResult)}<T>");
             }

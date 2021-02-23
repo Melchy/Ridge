@@ -1,5 +1,4 @@
 ﻿using Castle.DynamicProxy;
-using FluentReflections;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +27,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
         public TPage CreateRazorPage<TPage>() where TPage : PageModel
         {
-            CheckIfPageActionsCanBeProxied<TPage>(_serviceProvider);
+            CheckIfPageActionsCanBeProxied<TPage>();
             var caller = GetWebCaller(_httpClient, _serviceProvider.GetService<ILogger<RazorPageFactory>>());
             var preCallMiddlewareCaller = GetPreCallMiddlewareCaller();
             var razorPageInfoFactory = new RazorPageInfoFactory(_serviceProvider);
@@ -37,11 +36,10 @@ namespace Ridge.Interceptor.InterceptorFactory
             return CreateClassFromInterceptor<TPage>(interceptor);
         }
 
-        private static void CheckIfPageActionsCanBeProxied<T>(IServiceProvider serviceProvider)
+        private static void CheckIfPageActionsCanBeProxied<T>()
         {
-            var pageApplicationModelPartsProvider = serviceProvider.GetService<IPageApplicationModelPartsProvider>();
             var potentialActions = typeof(T).GetMethods();
-            var actions = potentialActions.Where(x => pageApplicationModelPartsProvider.CreateHandlerModel(x) != null);
+            var actions = potentialActions.Where(x => RazorPageMethodHelpers.IsMethodValidHandler(x));
             CheckNonVirtualMethods<T>(actions);
             CheckReturnTypes<T>(actions);
         }
@@ -51,7 +49,7 @@ namespace Ridge.Interceptor.InterceptorFactory
             var methodsWithInvalidReturnType = actions.Where(x =>
             {
                 var returnType = GetReturnTypeOrGenericArgumentOfTask(x);
-                if (!returnType.Reflection().IsOrImplements(typeof(PageResult<>)))
+                if (!GeneralHelpers.IsOrImplements(returnType, typeof(PageResult<>)))
                 {
                     return true;
                 }

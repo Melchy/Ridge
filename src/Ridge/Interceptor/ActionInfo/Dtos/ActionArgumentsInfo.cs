@@ -1,5 +1,4 @@
-﻿using CommonExtensionMethods;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections;
@@ -246,7 +245,7 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 throw new InvalidOperationException($"Parameter must have attribute implementing {nameof(IModelNameProvider)}");
             }
 
-            if (modelNameProvider.Name.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(modelNameProvider.Name))
             {
                 // This value can not be null. Null is only for return parameter
                 return parameter.Name!;
