@@ -1,14 +1,17 @@
 ﻿using Castle.DynamicProxy;
+using FluentReflections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.ResultFactory;
+using Ridge.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.InterceptorFactory
 {
@@ -33,8 +36,22 @@ namespace Ridge.Interceptor.InterceptorFactory
                 webCaller,
                 createInfoForController,
                 resultFactoryForController,
-                preCallMiddlewareCaller).ToInterceptor();
+                preCallMiddlewareCaller,
+                EnsureControllerResultReturnType);
             return CreateClassFromInterceptor<TController>(interceptor);
+        }
+
+        private void EnsureControllerResultReturnType(MethodInfo method)
+        {
+            var returnType = method.ReturnType;
+            if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                returnType = returnType.GenericTypeArguments[0];
+            }
+            if (returnType != typeof(ControllerResult) && !returnType.Reflection().IsOrImplements(typeof(ControllerResult<>)))
+            {
+                throw new InvalidOperationException($"Controller method must return {nameof(ControllerResult)} or {nameof(ControllerResult)}<T>");
+            }
         }
 
         private static void CheckIfControllerActionsCanBeProxied<T>()

@@ -38,7 +38,7 @@ namespace RidgeTests
             var result = testController.Return10();
             result.Result.Should().Be(10);
         }
-        
+
         [Test]
         public async Task AsyncCallWithResult()
         {
@@ -47,7 +47,7 @@ namespace RidgeTests
             var result = await testController.ReturnAsync();
             result.Result.Should().Be(10);
         }
-        
+
         [Test]
         public async Task AsyncCallWithoutResult()
         {
@@ -55,24 +55,6 @@ namespace RidgeTests
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.BadRequestAsync();
             result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-        
-        [Test]
-        public async Task AsyncCallReturningIActionResult()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.IActionResultAsync();
-            result.StatusCode.Should().Be(HttpStatusCode.OK);
-        }
-
-        [Test]
-        public void SyncCallReturningIActionResult()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = testController.IActionResult();
-            result.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         [Test]
@@ -453,6 +435,43 @@ namespace RidgeTests
             var result = testController.CustomBinderFullObject(new TestController.CountryCodeBinded(){CountryCode = "cz"});
             result.Result.Should().BeEquivalentTo("cz");
         }
+
+        [Test]
+        public void MethodsReturningVoidAreNotSupported()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            Action actionResult = () => testController.MethodReturningVoid();
+            actionResult.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void AsyncMethodsReturningTaskAreNotSupported()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            Func<Task> actionResult = () => testController.MethodReturningTask();
+            actionResult.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void MethodsReturningTaskAreNotSupported()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            Func<Task> actionResult = () => testController.MethodReturningTaskNotAsync();
+            actionResult.Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void MethodsReturningTaskWithIncorrectGenericType()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            Func<Task> actionResult = () => testController.MethodReturningIncorrectTypeInTask();
+            actionResult.Should().Throw<InvalidOperationException>();
+        }
+
 
         public class ListSeparatedByCommasMiddleware : CallMiddleware
         {

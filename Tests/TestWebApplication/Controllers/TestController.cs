@@ -319,7 +319,31 @@ namespace TestWebApplication.Controllers
             Zero = 0,
         }
 
-        
+        [HttpGet("MethodReturningVoid")]
+        public virtual void MethodReturningVoid()
+        {
+            return;
+        }
+
+        [HttpGet("AsyncMethodReturningTask")]
+        public virtual async Task MethodReturningTask()
+        {
+            await Task.Yield();
+        }
+
+        [HttpGet("MethodReturningTaskNotAsync")]
+        public virtual Task MethodReturningTaskNotAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        [HttpGet("MethodReturningTaskNotAsync")]
+        public virtual async Task<ActionResult> MethodReturningIncorrectTypeInTask()
+        {
+            await Task.CompletedTask;
+            return Ok();
+        }
+
         [HttpGet("OverloadedAction")]
         public virtual ControllerResult OverloadedAction()
         {
