@@ -21,7 +21,7 @@ namespace Ridge.Results
         }
 
 #pragma warning disable CS8618
-        private ControllerResult(ActionResult actionResult) : base(actionResult)
+        public ControllerResult(ActionResult actionResult) : base(actionResult)
         {
             _actionResult = actionResult;
         }

@@ -17,7 +17,7 @@ namespace Ridge.Results
         private ActionResult _actionResult { get; }
 
 #pragma warning disable CS8618
-        protected ControllerResult(ActionResult actionResult)
+        public ControllerResult(ActionResult actionResult)
         {
             _actionResult = actionResult;
         }
