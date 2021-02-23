@@ -13,12 +13,12 @@ namespace RidgeTests.PagesTests
     public class RazorPagesTests
     {
         [Test]
-        public void GetPageSimpleCase()
+        public async Task GetPageSimpleCase()
         {
             using var application = ApplicationBuilder.CreateApplication();
             var page = application.RazorPageFactory.CreateRazorPage<GeneralPageModel>();
 
-            var response = page.OnGet();
+            var response = await page.OnGet();
             
             response.Model.Test.ParamFromBody.Should().Be("asd");
             response.Response.Should().Contain("body");
@@ -49,13 +49,13 @@ namespace RidgeTests.PagesTests
         }
         
         [Test]
-        public void FromBodyQueryRouteIsSupported()
+        public async Task FromBodyQueryRouteIsSupported()
         {
             using var application = ApplicationBuilder.CreateApplication();
 
             var page = application.RazorPageFactory.CreateRazorPage<GeneralPageModel>();
             
-            var response = page.OnGetFoo2("returnValue", "testQuery");
+            var response = await page.OnGetFoo2("returnValue", "testQuery");
             response.Model.Test.ParamFromBody.Should().Be("returnValue");
             response.Model.Test.ParamFromQuery.Should().Be("testQuery");
             response.Response.Should().Contain("body");

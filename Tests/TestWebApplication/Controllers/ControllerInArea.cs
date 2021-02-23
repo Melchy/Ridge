@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ridge.Results;
+using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers
 {
@@ -8,8 +9,9 @@ namespace TestWebApplication.Controllers
     public class ControllerInArea : ControllerBase
     {
         [HttpGet("index")]
-        public virtual ControllerResult Index()
+        public virtual async Task<ControllerResult> Index()
         {
+            await Task.CompletedTask;
             return Ok();
         }
     }

@@ -26,7 +26,7 @@ namespace TestWebApplication.Pages
             return await Task.FromResult(new OkObjectResult("Redirected!!"));
         }
 
-        public virtual PageResult<GeneralPageModel> OnGet()
+        public virtual async Task<PageResult<GeneralPageModel>> OnGet()
         {
             return Page();
         }
@@ -47,7 +47,7 @@ namespace TestWebApplication.Pages
             return await Task.FromResult(Page());
         }
 
-        public virtual PageResult<GeneralPageModel> OnGetFoo2([FromBody] string ParamFromBody, [FromQuery] string ParamFromQuery)
+        public virtual async Task<PageResult<GeneralPageModel>> OnGetFoo2([FromBody] string ParamFromBody, [FromQuery] string ParamFromQuery)
         {
             Test.ParamFromBody = ParamFromBody;
             Test.ParamFromQuery = ParamFromQuery;

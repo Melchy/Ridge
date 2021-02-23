@@ -42,7 +42,7 @@ namespace Ridge.Interceptor
         protected override void Intercept(
             IInvocation invocation)
         {
-            invocation.ReturnValue = CallControllerAsync(invocation.Arguments, invocation.Method).GetAwaiter().GetResult();
+            throw new InvalidOperationException("Synchronous methods are not supported by ridge.");
         }
 
 
