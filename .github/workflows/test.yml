@@ -5,7 +5,7 @@ on:
         branches:
             - '**'
 jobs:
-    testNet5:
+    test:
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v2
@@ -13,26 +13,10 @@ jobs:
                 uses: actions/setup-dotnet@v1
                 with:
                     dotnet-version: 5.0.103
-            -   name: Run tests
-                run: |
-                    cd 'Tests/RidgeTests'
-                    dotnet test --framework net5
-    testNetCore31:
-        runs-on: ubuntu-latest
-        steps:
-            -   uses: actions/checkout@v2
             -   name: Setup .NET Core
                 uses: actions/setup-dotnet@v1
                 with:
                     dotnet-version: 3.1.201
-            -   name: Run tests
-                run: |
-                    cd 'Tests/RidgeTests'
-                    dotnet test --framework netcoreapp3.1
-    testNetCore30:
-        runs-on: ubuntu-latest
-        steps:
-            -   uses: actions/checkout@v2
             -   name: Setup .NET Core
                 uses: actions/setup-dotnet@v1
                 with:
@@ -40,4 +24,4 @@ jobs:
             -   name: Run tests
                 run: |
                     cd 'Tests/RidgeTests'
-                    dotnet test --framework netcoreapp3.0
+                    dotnet test
