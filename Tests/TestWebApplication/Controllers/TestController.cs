@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Castle.Core.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using Microsoft.Extensions.Logging;
 using Ridge.Results;
 using System.ComponentModel;
 
@@ -14,6 +15,12 @@ namespace TestWebApplication.Controllers
     [Route("[controller]")]
     public class TestController : ControllerBase
     {
+        private readonly ILogger<TestController> _logger;
+
+        public TestController(ILogger<TestController> logger)
+        {
+            _logger = logger;
+        }
         [HttpGet("GetWithBody")]
         public virtual async Task<ControllerResult<int>> HttpGetWithBody([FromBody] int foo)
         {
@@ -420,7 +427,7 @@ namespace TestWebApplication.Controllers
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            var value = bindingContext.ActionContext.HttpContext.Request.RouteValues["countryCode"].ToString();
+            var value = bindingContext!.ActionContext!.HttpContext!.Request!.RouteValues["countryCode"]!.ToString();
             bindingContext.Result = ModelBindingResult.Success(new TestController.CountryCodeBinded(){CountryCode = value!});
             return Task.CompletedTask;
         }

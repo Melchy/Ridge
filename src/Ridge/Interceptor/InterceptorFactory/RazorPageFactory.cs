@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.ResultFactory;
+using Ridge.LogWriter;
 using Ridge.Results;
 using System;
 using System.Collections.Generic;
@@ -19,16 +20,18 @@ namespace Ridge.Interceptor.InterceptorFactory
     {
         private readonly HttpClient _httpClient;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogWriter? _logWriter;
 
-        public RazorPageFactory(HttpClient httpClient, IServiceProvider serviceProvider)
+        public RazorPageFactory(HttpClient httpClient, IServiceProvider serviceProvider, ILogWriter? logWriter = null)
         {
             _httpClient = httpClient;
             _serviceProvider = serviceProvider;
+            _logWriter = logWriter;
         }
         public TPage CreateRazorPage<TPage>() where TPage : PageModel
         {
             CheckIfPageActionsCanBeProxied<TPage>();
-            var caller = GetWebCaller(_httpClient, _serviceProvider.GetService<ILogger<RazorPageFactory>>());
+            var caller = GetWebCaller(_httpClient, _logWriter);
             var preCallMiddlewareCaller = GetPreCallMiddlewareCaller();
             var razorPageInfoFactory = new RazorPageInfoFactory(_serviceProvider);
             var resultFactoryForPages = new ResultFactoryForPages();

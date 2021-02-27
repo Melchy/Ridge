@@ -21,7 +21,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.RazorPages" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
+        <PackageReference Include="NUnit" Version="3.6.0" />
         <PackageReference Include="stakx.DynamicProxy.AsyncInterceptor" Version="0.1.0" />
+        <PackageReference Include="xunit.abstractions" Version="2.0.1" />
     </ItemGroup>
 </Project>

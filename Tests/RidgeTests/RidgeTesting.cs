@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Ridge.Interceptor;
 using Ridge.Interceptor.InterceptorFactory;
+using Ridge.LogWriter;
 using Ridge.Middlewares.Public;
 using Ridge.Results;
 using System;
@@ -132,12 +133,12 @@ namespace RidgeTests
             (
                 integer: 10,
                 str: "test",
-                dateTime: DateTime.Today,
+                dateTime: DateTime.UtcNow.Date,
                 innerObject: new TestController.InnerObject(str: "InnerStr")
             ));
             result.Result.Integer.Should().Be(10);
             result.Result.Str.Should().Be("test");
-            result.Result.DateTime.Should().Be(DateTime.Today);
+            result.Result.DateTime.ToString("dd/MM/yyyy").Should().Be(DateTime.UtcNow.ToString("dd/MM/yyyy"));
             result.Result.InnerObject!.Str.Should().Be("InnerStr");
         }
         
@@ -470,7 +471,7 @@ namespace RidgeTests
                 IReadOnlyInvocationInformation invocationInformation)
             {
                 httpRequestMessage.RequestUri = new Uri(
-                    QueryHelpers.AddQueryString(httpRequestMessage.RequestUri.ToString(), "properties", $"{string.Join(",", _data)}"),
+                    QueryHelpers.AddQueryString(httpRequestMessage.RequestUri!.ToString(), "properties", $"{string.Join(",", _data)}"),
                     UriKind.Relative);
                 return next();
             }
@@ -497,11 +498,10 @@ namespace RidgeTests
         {
             var webAppFactory = new WebApplicationFactory<Startup>();
             var client = webAppFactory.CreateClient();
-
             return new Application
             (
                 webAppFactory,
-                new ControllerFactory(client, webAppFactory.Services)
+                new ControllerFactory(client, webAppFactory.Services, new NunitLogWriter())
             );
         }
     }

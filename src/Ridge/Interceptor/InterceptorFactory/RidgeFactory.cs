@@ -1,5 +1,6 @@
 ﻿using Castle.DynamicProxy;
 using Microsoft.Extensions.Logging;
+using Ridge.LogWriter;
 using Ridge.Middlewares;
 using Ridge.Middlewares.DefaulMiddlewares;
 using Ridge.Middlewares.Public;
@@ -15,7 +16,7 @@ namespace Ridge.Interceptor.InterceptorFactory
     {
         private readonly List<CallMiddleware> _middlewares = new List<CallMiddleware>();
         private readonly List<PreCallMiddleware> _preCallMiddlewares = new List<PreCallMiddleware>();
-        internal WebCaller GetWebCaller(HttpClient httpClient, ILogger logger)
+        internal WebCaller GetWebCaller(HttpClient httpClient, ILogWriter? logger)
         {
             return new WebCaller(httpClient, logger, _middlewares);
         }

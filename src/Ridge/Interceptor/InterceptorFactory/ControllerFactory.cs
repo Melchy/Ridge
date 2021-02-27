@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.ResultFactory;
+using Ridge.LogWriter;
 using Ridge.Results;
 using System;
 using System.Collections.Generic;
@@ -17,16 +18,18 @@ namespace Ridge.Interceptor.InterceptorFactory
     {
         private readonly HttpClient _httpClient;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogWriter? _logWriter;
 
-        public ControllerFactory(HttpClient httpClient, IServiceProvider serviceProvider)
+        public ControllerFactory(HttpClient httpClient, IServiceProvider serviceProvider, ILogWriter? logWriter = null)
         {
             _httpClient = httpClient;
             _serviceProvider = serviceProvider;
+            _logWriter = logWriter;
         }
         public TController CreateController<TController>()
         {
             CheckIfControllerActionsCanBeProxied<TController>();
-            var webCaller = GetWebCaller(_httpClient, _serviceProvider.GetService<ILogger<ControllerFactory>>());
+            var webCaller = GetWebCaller(_httpClient, _logWriter);
             var preCallMiddlewareCaller = GetPreCallMiddlewareCaller();
             var createInfoForController = new CreateInfoForController(_serviceProvider);
             var resultFactoryForController = new ResultFactoryForController();

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Ridge.Interceptor;
+using Ridge.Interceptor.InterceptorFactory;
+using Ridge.LogWriter;
 using Ridge.Middlewares.DefaulMiddlewares;
 using Ridge.Middlewares.Infrastructure;
 using Ridge.Middlewares.Public;
@@ -12,10 +14,10 @@ namespace Ridge.Middlewares
     internal class WebCaller
     {
         private readonly HttpClient _httpClient;
-        private readonly ILogger _logger;
+        private readonly ILogWriter? _logger;
         private readonly List<CallMiddleware> _middlewares;
 
-        public WebCaller(HttpClient httpClient, ILogger logger, List<CallMiddleware> middlewares)
+        public WebCaller(HttpClient httpClient, ILogWriter? logger, List<CallMiddleware> middlewares)
         {
             _httpClient = httpClient;
             _logger = logger;
