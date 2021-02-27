@@ -1,27 +1,27 @@
 name: Release
 
-on: 
-  push:
-    tags:
-      - '*.*.*'
-    branches-ignore:
-      - '*'
-
+on:
+    push:
+        tags:
+            - '*.*.*'
+        branches-ignore:
+            - '*'
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.201
-    - name: Build with dotnet
-      run: |
-        dotnet build --configuration Release
-    - name: pack the nuget
-      run: |
-        dotnet pack --configuration Release /p:Version=${GITHUB_REF:10}
-    - name: release package
-      run: dotnet nuget push **/*.nupkg --api-key ${{secrets.nuget}} --source https://api.nuget.org/v3/index.json
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v2
+            -   name: Setup .NET Core
+                uses: actions/setup-dotnet@v1
+                with:
+                    dotnet-version: 5.0.103
+            -   name: Build with dotnet
+                run: |
+                    cd src/Ridge
+                    dotnet build --configuration Release
+            -   name: pack the nuget
+                run: |
+                    cd src/Ridge
+                    dotnet pack --configuration Release /p:Version=${GITHUB_REF:10}
+            -   name: release package
+                run: dotnet nuget push **/*.nupkg --api-key ${{secrets.nuget}} --source https://api.nuget.org/v3/index.json

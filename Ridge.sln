@@ -7,7 +7,6 @@ ProjectSection(SolutionItems) = preProject
 	.editorconfig = .editorconfig
 	Directory.Build.props = Directory.Build.props
 	readme.md = readme.md
-	.github\workflows\build.yml = .github\workflows\build.yml
 	.github\workflows\release.yml = .github\workflows\release.yml
 	.github\workflows\test.yml = .github\workflows\test.yml
 EndProjectSection
