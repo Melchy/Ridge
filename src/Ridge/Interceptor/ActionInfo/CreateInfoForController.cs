@@ -30,14 +30,15 @@ namespace Ridge.Interceptor.ActionInfo
             PreCallMiddlewareCaller preCallMiddlewareCaller)
         {
             var methodActionInfo = ActionArgumentsInfo.CreateActionInfo(arguments, methodInfo);
-            await preCallMiddlewareCaller.Call(methodActionInfo);
             var actionDescriptor = GetActionDescriptor(methodInfo);
             var httpMethodAsString = GetHttpMethod(actionDescriptor);
 
             var routeDescription = actionDescriptor.RouteValues.ToDictionary(x => x.Key, x => (object?)x.Value);
-            var routeParams = GeneralHelpers.MergeDictionaries(routeDescription, methodActionInfo.RouteParams);
-            var url = CreateUri(routeParams);
-            return new ActionInfoDto(url, httpMethodAsString, methodActionInfo);
+            methodActionInfo.RouteParams = GeneralHelpers.MergeDictionaries(routeDescription, methodActionInfo.RouteParams);
+            methodActionInfo.HttpMethod = httpMethodAsString;
+            await preCallMiddlewareCaller.Call(methodActionInfo);
+            var url = CreateUri(methodActionInfo.RouteParams);
+            return new ActionInfoDto(url, methodActionInfo);
         }
 
         private ControllerActionDescriptor GetActionDescriptor(MethodInfo methodInfo)

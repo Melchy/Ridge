@@ -17,6 +17,7 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
         public IDictionary<string, object?> HeaderParams { get; set; }
         public IEnumerable<object?> Arguments { get; }
         IReadOnlyDictionary<string, object?> IReadOnlyInvocationInformation.HeaderParams => new ReadOnlyDictionary<string, object?>(HeaderParams);
+        public string HttpMethod { get; set; } = null!;
 
         private ActionArgumentsInfo(
             object? body,

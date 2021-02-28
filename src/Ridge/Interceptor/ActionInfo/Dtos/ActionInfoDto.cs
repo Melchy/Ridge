@@ -2,15 +2,13 @@
 {
     internal class ActionInfoDto
     {
-        public ActionInfoDto(string url, string httpMethod, ActionArgumentsInfo actionArgumentsInfo)
+        public ActionInfoDto(string url, ActionArgumentsInfo actionArgumentsInfo)
         {
             Url = url;
-            HttpMethod = httpMethod;
             ActionArgumentsInfo = actionArgumentsInfo;
         }
 
         public string Url { get; }
-        public string HttpMethod { get; }
         public ActionArgumentsInfo ActionArgumentsInfo { get; }
     }
 }

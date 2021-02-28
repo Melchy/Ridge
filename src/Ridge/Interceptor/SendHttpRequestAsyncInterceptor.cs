@@ -61,7 +61,7 @@ namespace Ridge.Interceptor
             var callId = Guid.NewGuid();
             var actionInfo = await _getInfo.GetInfo<T>(arguments.ToList(), method, _preCallMiddlewareCaller);
             using var request = HttpRequestFactory.Create(
-                actionInfo.HttpMethod,
+                actionInfo.ActionArgumentsInfo.HttpMethod,
                 actionInfo.Url,
                 actionInfo.ActionArgumentsInfo.Body,
                 callId,

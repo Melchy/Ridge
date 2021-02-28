@@ -9,5 +9,6 @@ namespace Ridge.Interceptor
         public string BodyFormat { get; }
         public IReadOnlyDictionary<string, object?> HeaderParams { get; }
         public IEnumerable<object?> Arguments { get; }
+        public string HttpMethod { get; }
     }
 }

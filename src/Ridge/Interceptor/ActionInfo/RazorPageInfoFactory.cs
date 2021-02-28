@@ -41,10 +41,10 @@ namespace Ridge.Interceptor.ActionInfo
                 actionArgumentInfo.AddArea(pagePathAndArea.area);
             }
 
+            actionArgumentInfo.HttpMethod = pageHandlerModel.httpMethod;
             await preCallMiddlewareCaller.Call(actionArgumentInfo);
             var linkToPage = GetLinkToPage(pagePathAndArea, actionArgumentInfo, pageHandlerModel.handlerName);
             return new ActionInfoDto(linkToPage,
-                    pageHandlerModel.httpMethod,
                     actionArgumentInfo);
         }
 
