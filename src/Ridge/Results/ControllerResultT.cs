@@ -1,7 +1,9 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 
@@ -10,31 +12,34 @@ namespace Ridge.Results
     /// <summary>
     /// This part of ControllerResult is used by asp.net
     /// </summary>
-    public partial class ControllerResult<TResult> : ControllerResult
+    public partial class ControllerResult<TResult> : ControllerResult, IConvertToActionResult
     {
-        private ActionResult _actionResult { get; }
-
-        public ControllerResult(
-            TResult actionResult) : this(new OkObjectResult(actionResult))
+        public ControllerResult(TResult value)
         {
-
+            ActionResultT = new ActionResult<TResult>(value);
         }
 
-#pragma warning disable CS8618
-        public ControllerResult(ActionResult actionResult) : base(actionResult)
+        public ControllerResult(ActionResult result)
         {
-            _actionResult = actionResult;
-        }
-#pragma warning restore CS8618
-
-        public static implicit operator ControllerResult<TResult>(ActionResult actionResult)
-        {
-            return new ControllerResult<TResult>(actionResult);
+            ActionResultT = new ActionResult<TResult>(result);
         }
 
-        public static implicit operator ControllerResult<TResult>(TResult actionResult)
+        [DebuggerHidden]
+        public ActionResult<TResult> ActionResultT { get; }
+
+        public static implicit operator ControllerResult<TResult>(TResult value)
         {
-            return new ControllerResult<TResult>(new OkObjectResult(actionResult));
+            return new ControllerResult<TResult>(value);
+        }
+
+        public static implicit operator ControllerResult<TResult>(ActionResult result)
+        {
+            return new ControllerResult<TResult>(result);
+        }
+
+        IActionResult IConvertToActionResult.Convert()
+        {
+            return ((IConvertToActionResult)ActionResultT).Convert();
         }
     }
 
@@ -52,7 +57,7 @@ namespace Ridge.Results
             string resultAsString,
             HttpStatusCode statusCode) : base(httpResponseMessage, resultAsString, statusCode)
         {
-            _actionResult = null!;
+            ActionResultT = null!;
         }
 
         /// <summary>

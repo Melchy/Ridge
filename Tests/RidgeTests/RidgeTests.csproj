@@ -17,19 +17,19 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\Ridge\Ridge.csproj" />
     </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'" >
+    <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
         <ProjectReference Include="..\TestWebApplication\TestWebApplication.csproj">
             <SetTargetFramework>TargetFramework=netcoreapp3.0</SetTargetFramework>
         </ProjectReference>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.0.3" />
     </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'" >
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
         <ProjectReference Include="..\TestWebApplication\TestWebApplication.csproj">
             <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
         </ProjectReference>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.12" />
     </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'net5'" >
+    <ItemGroup Condition="'$(TargetFramework)' == 'net5'">
         <ProjectReference Include="..\TestWebApplication\TestWebApplication.csproj">
             <SetTargetFramework>TargetFramework=net5</SetTargetFramework>
         </ProjectReference>

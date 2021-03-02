@@ -14,21 +14,20 @@ namespace Ridge.Results
     /// </summary>
     public partial class ControllerResult : IConvertToActionResult
     {
-        private ActionResult _actionResult { get; }
+        [DebuggerHidden]
+        public ActionResult ActionResult { get; }
 
 #pragma warning disable CS8618
         public ControllerResult(ActionResult actionResult)
         {
-            _actionResult = actionResult;
+            ActionResult = actionResult ?? throw new ArgumentNullException(nameof(actionResult));;
         }
-#pragma warning restore CS8618
 
-        [DebuggerHidden]
-        public ActionResult GetInnerActionResult()
+        protected ControllerResult()
         {
-            return _actionResult;
         }
 
+#pragma warning restore CS8618
         public static implicit operator ControllerResult(ActionResult actionResult)
         {
             return new ControllerResult(actionResult);
@@ -36,7 +35,7 @@ namespace Ridge.Results
 
         public IActionResult Convert()
         {
-            return _actionResult;
+            return ActionResult;
         }
     }
 
@@ -76,7 +75,7 @@ namespace Ridge.Results
             HttpResponseMessage = httpResponseMessage;
             ResultAsString = resultAsString;
             StatusCode = statusCode;
-            _actionResult = null!;
+            ActionResult = null!;
         }
     }
 }

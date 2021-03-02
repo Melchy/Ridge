@@ -427,8 +427,8 @@ namespace TestWebApplication.Controllers
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            var value = bindingContext!.ActionContext!.HttpContext!.Request!.RouteValues["countryCode"]!.ToString();
-            bindingContext.Result = ModelBindingResult.Success(new TestController.CountryCodeBinded(){CountryCode = value!});
+            var countryCode = bindingContext.ActionContext.HttpContext.Request.RouteValues["countryCode"]!.ToString();
+            bindingContext.Result = ModelBindingResult.Success(new TestController.CountryCodeBinded(){CountryCode = countryCode!});
             return Task.CompletedTask;
         }
     }
