@@ -26,18 +26,24 @@ namespace Ridge.Interceptor.InterceptorFactory
             _serviceProvider = serviceProvider;
             _logWriter = logWriter;
         }
+
+        /// <summary>
+        /// Creates Controller instance with intercepted calls.
+        /// </summary>
+        /// <typeparam name="TController"></typeparam>
+        /// <returns></returns>
         public TController CreateController<TController>()
         {
             CheckIfControllerActionsCanBeProxied<TController>();
             var webCaller = GetWebCaller(_httpClient, _logWriter);
-            var preCallMiddlewareCaller = GetPreCallMiddlewareCaller();
+            var actionInfoTransformerCaller = GetActionInfoTransformerCaller();
             var createInfoForController = new CreateInfoForController(_serviceProvider);
             var resultFactoryForController = new ResultFactoryForController();
             var interceptor = new SendHttpRequestAsyncInterceptor<TController>(
                 webCaller,
                 createInfoForController,
                 resultFactoryForController,
-                preCallMiddlewareCaller,
+                actionInfoTransformerCaller,
                 EnsureControllerResultReturnType);
             return CreateClassFromInterceptor<TController>(interceptor);
         }

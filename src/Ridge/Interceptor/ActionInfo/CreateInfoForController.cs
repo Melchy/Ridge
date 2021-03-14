@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Ridge.Interceptor.ActionInfo.Dtos;
 using Ridge.Interceptor.InterceptorFactory;
-using Ridge.Middlewares;
+using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,21 +24,21 @@ namespace Ridge.Interceptor.ActionInfo
             _actionDescriptorCollectionProvider = serviceProvider.GetService<IActionDescriptorCollectionProvider>();
         }
 
-        public async Task<ActionInfoDto> GetInfo<T>(
-            IEnumerable<object> arguments,
+        public async Task<(string url, Dtos.ActionInfo actionArgumentsInfo)> GetInfo<T>(
+            IEnumerable<object?> arguments,
             MethodInfo methodInfo,
-            PreCallMiddlewareCaller preCallMiddlewareCaller)
+            ActionInfoTransformersCaller actionInfoTransformersCaller)
         {
-            var methodActionInfo = ActionArgumentsInfo.CreateActionInfo(arguments, methodInfo);
+            var methodActionInfo = Dtos.ActionInfo.CreateActionInfo(arguments, methodInfo);
             var actionDescriptor = GetActionDescriptor(methodInfo);
             var httpMethodAsString = GetHttpMethod(actionDescriptor);
 
             var routeDescription = actionDescriptor.RouteValues.ToDictionary(x => x.Key, x => (object?)x.Value);
             methodActionInfo.RouteParams = GeneralHelpers.MergeDictionaries(routeDescription, methodActionInfo.RouteParams);
             methodActionInfo.HttpMethod = httpMethodAsString;
-            await preCallMiddlewareCaller.Call(methodActionInfo);
+            await actionInfoTransformersCaller.Call(methodActionInfo, new InvocationInfo(arguments, methodInfo));
             var url = CreateUri(methodActionInfo.RouteParams);
-            return new ActionInfoDto(url, methodActionInfo);
+            return (url, methodActionInfo);
         }
 
         private ControllerActionDescriptor GetActionDescriptor(MethodInfo methodInfo)

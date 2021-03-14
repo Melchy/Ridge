@@ -1,24 +1,25 @@
 ﻿using Ridge.Interceptor;
-using Ridge.Middlewares.Public;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace Ridge.Middlewares.DefaulMiddlewares
+namespace Ridge.Pipeline.Public.DefaulPipelineParts
 {
-    internal class AddAuthenticationMiddleware : CallMiddleware
+    internal class AddAuthenticationPipelinePart : IHttpRequestPipelinePart
     {
         private readonly AuthenticationHeaderValue _authenticationHeaderValue;
 
 
-        public AddAuthenticationMiddleware(AuthenticationHeaderValue authenticationHeaderValue)
+        public AddAuthenticationPipelinePart(AuthenticationHeaderValue authenticationHeaderValue)
         {
             _authenticationHeaderValue = authenticationHeaderValue;
         }
-        public override async Task<HttpResponseMessage> Invoke(
-            CallMiddlewareDelegate next,
+        public async Task<HttpResponseMessage> Invoke(
+            Func<Task<HttpResponseMessage>> next,
             HttpRequestMessage httpRequestMessage,
-            IReadOnlyInvocationInformation invocationInformation)
+            IReadOnlyActionInfo actionInfo,
+            InvocationInfo invocationInfo)
         {
             httpRequestMessage.Headers.Authorization = _authenticationHeaderValue;
             return await next();

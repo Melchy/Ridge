@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Ridge.Interceptor.ActionInfo.Dtos;
 using Ridge.Interceptor.InterceptorFactory;
-using Ridge.Middlewares;
+using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,39 +26,38 @@ namespace Ridge.Interceptor.ActionInfo
         {
             _serviceProvider = serviceProvider;
         }
-        public async Task<ActionInfoDto> GetInfo<TPage>(
-            IEnumerable<object> arguments,
+        public async Task<(string url, Dtos.ActionInfo actionArgumentsInfo)> GetInfo<TPage>(
+            IEnumerable<object?> arguments,
             MethodInfo methodInfo,
-            PreCallMiddlewareCaller preCallMiddlewareCaller)
+            ActionInfoTransformersCaller actionInfoTransformersCaller)
         {
             var dictionaryOfUrlsAndTuplesContainingRelativePathAndArea = GetDictionaryOfPagePathsAndTuplesContainingRelativePathAndArea();
             var viewDescriptor = GetViewDescriptor<TPage>();
             var pagePathAndArea = dictionaryOfUrlsAndTuplesContainingRelativePathAndArea[viewDescriptor.RelativePath];
             var pageHandlerModel = GetPageHttpMethodAndHandlerName<TPage>(methodInfo);
-            var actionArgumentInfo = ActionArgumentsInfo.CreateActionInfo(arguments, methodInfo);
+            var actionArgumentInfo = Dtos.ActionInfo.CreateActionInfo(arguments, methodInfo);
             if (pagePathAndArea.area != null)
             {
                 actionArgumentInfo.AddArea(pagePathAndArea.area);
             }
 
             actionArgumentInfo.HttpMethod = pageHandlerModel.httpMethod;
-            await preCallMiddlewareCaller.Call(actionArgumentInfo);
+            await actionInfoTransformersCaller.Call(actionArgumentInfo, new InvocationInfo(arguments, methodInfo));
             var linkToPage = GetLinkToPage(pagePathAndArea, actionArgumentInfo, pageHandlerModel.handlerName);
-            return new ActionInfoDto(linkToPage,
-                    actionArgumentInfo);
+            return (linkToPage, actionArgumentInfo);
         }
 
         private string GetLinkToPage(
-            (string pagePath, string? area) pagePathAndArea, ActionArgumentsInfo actionArgumentsInfo, string handlerName)
+            (string pagePath, string? area) pagePathAndArea, Dtos.ActionInfo actionInfo, string handlerName)
         {
             var linkGenerator = _serviceProvider.GetService<LinkGenerator>();
             var linkToPage = linkGenerator.GetPathByPage(pagePathAndArea.pagePath,
-                values: actionArgumentsInfo.RouteParams,
+                values: actionInfo.RouteParams,
                 handler: handlerName);
             if (linkToPage == null)
             {
                 throw new InvalidOperationException($"Could not create link to page. Tested values: {Environment.NewLine}" +
-                                                    $"Page path: {pagePathAndArea.pagePath}, RouteParams: {JsonConvert.SerializeObject(actionArgumentsInfo.RouteParams)}," +
+                                                    $"Page path: {pagePathAndArea.pagePath}, RouteParams: {JsonConvert.SerializeObject(actionInfo.RouteParams)}," +
                                                     $"handler name {handlerName}");
             }
 

@@ -1,27 +1,28 @@
 ﻿using Newtonsoft.Json;
 using Ridge.Interceptor;
-using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
-using Ridge.Middlewares.Public;
+using Ridge.Pipeline.Public;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Ridge.Middlewares.DefaulMiddlewares
+namespace Ridge.Pipeline.Infrastructure
 {
-    public class CallWebAppMiddleware : CallMiddleware
+    internal class CallWebAppPipelinePart : IHttpRequestPipelinePart
     {
         private readonly HttpClient _httpClient;
         private readonly ILogWriter? _logger;
 
-        public CallWebAppMiddleware(HttpClient httpClient, ILogWriter? logger)
+        public CallWebAppPipelinePart(HttpClient httpClient, ILogWriter? logger)
         {
             _httpClient = httpClient;
             _logger = logger;
         }
-        public override async Task<HttpResponseMessage> Invoke(
-            CallMiddlewareDelegate next,
+        public async Task<HttpResponseMessage> Invoke(
+            Func<Task<HttpResponseMessage>> next,
             HttpRequestMessage httpRequestMessage,
-            IReadOnlyInvocationInformation invocationInformation)
+            IReadOnlyActionInfo actionInfo,
+            InvocationInfo invocationInfo)
         {
             if (_logger != null)
             {

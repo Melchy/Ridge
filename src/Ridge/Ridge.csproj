@@ -18,6 +18,7 @@
         <PackageReference Include="Castle.Core" Version="4.4.1" />
         <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" PrivateAssets="All" />
         <PackageReference Include="JsonNet.ContractResolvers" Version="1.1.0" />
+        <PackageReference Include="MediatR" Version="9.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.RazorPages" Version="2.2.0" />

@@ -1,9 +1,12 @@
 ﻿using Castle.DynamicProxy;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Ridge.LogWriter;
-using Ridge.Middlewares;
-using Ridge.Middlewares.DefaulMiddlewares;
-using Ridge.Middlewares.Public;
+using Ridge.Pipeline;
+using Ridge.Pipeline.Public;
+using Ridge.Pipeline.Public.DefaulPipelineParts;
+using Ridge.Transformers;
+using Ridge.Transformers.DefaultTransformers;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -14,16 +17,16 @@ namespace Ridge.Interceptor.InterceptorFactory
 {
     public abstract class RidgeFactory
     {
-        private readonly List<CallMiddleware> _middlewares = new List<CallMiddleware>();
-        private readonly List<PreCallMiddleware> _preCallMiddlewares = new List<PreCallMiddleware>();
+        private readonly List<IHttpRequestPipelinePart> _pipelineParts = new List<IHttpRequestPipelinePart>();
+        private readonly List<IActionInfoTransformer> _actionInfoTransformers = new List<IActionInfoTransformer>();
         internal WebCaller GetWebCaller(HttpClient httpClient, ILogWriter? logger)
         {
-            return new WebCaller(httpClient, logger, _middlewares);
+            return new WebCaller(httpClient, logger, _pipelineParts);
         }
 
-        internal PreCallMiddlewareCaller GetPreCallMiddlewareCaller()
+        internal ActionInfoTransformersCaller GetActionInfoTransformerCaller()
         {
-            return new PreCallMiddlewareCaller(_preCallMiddlewares);
+            return new ActionInfoTransformersCaller(_actionInfoTransformers);
         }
 
         protected T CreateClassFromInterceptor<T>(IInterceptor interceptor)
@@ -32,35 +35,55 @@ namespace Ridge.Interceptor.InterceptorFactory
             return (T)controllerProxy;
         }
 
-        public void AddCallMiddleware(CallMiddleware callMiddleware)
+        /// <summary>
+        /// Adds Call pipeline part which can transform request after url is constructed
+        /// </summary>
+        /// <param name="httpRequestPipelinePart"></param>
+        public void AddPipelinePart(IHttpRequestPipelinePart httpRequestPipelinePart)
         {
-            _middlewares.Add(callMiddleware);
+            _pipelineParts.Add(httpRequestPipelinePart);
         }
 
-        public void AddPreCallMiddleware(PreCallMiddleware callMiddleware)
+        /// <summary>
+        /// Adds transformer which can transform request before url is constructed
+        /// </summary>
+        /// <param name="actionInfoTransformer"></param>
+        public void AddActionInfoTransformer(IActionInfoTransformer actionInfoTransformer)
         {
-            _preCallMiddlewares.Add(callMiddleware);
+            _actionInfoTransformers.Add(actionInfoTransformer);
         }
 
-        public void AddHeader(string key, string value)
+        /// <summary>
+        /// Adds transformer which adds header to the request
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void AddHeader(string key, string? value)
         {
-            var addHeaderMiddleware = new AddHeaderMiddleware(key, value);
-            _middlewares.Add(addHeaderMiddleware);
+            var addHeaderTransformer = new AddHeaderActionInfoTransformer(key, value);
+            _actionInfoTransformers.Add(addHeaderTransformer);
         }
 
-        public void AddHeaders(IReadOnlyDictionary<string, string> headers)
+        /// <summary>
+        /// Adds multiple transformers which add headers
+        /// </summary>
+        /// <param name="headers"></param>
+        public void AddHeaders(IDictionary<string, string?> headers)
         {
             foreach (var header in headers)
             {
-                var addHeaderMiddleware = new AddHeaderMiddleware(header.Key, header.Value);
-                _middlewares.Add(addHeaderMiddleware);
+                AddHeader(header.Key, header.Value);
             }
         }
 
+        /// <summary>
+        /// Adds pipeline part which sets Authorization
+        /// </summary>
+        /// <param name="authenticationHeaderValue"></param>
         public void AddAuthorization(AuthenticationHeaderValue authenticationHeaderValue)
         {
-            var addAuthenticationMiddleware = new AddAuthenticationMiddleware(authenticationHeaderValue);
-            _middlewares.Add(addAuthenticationMiddleware);
+            var addAuthenticationPipelinePart = new AddAuthenticationPipelinePart(authenticationHeaderValue);
+            _pipelineParts.Add(addAuthenticationPipelinePart);
         }
 
         /// <summary>

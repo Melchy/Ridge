@@ -9,28 +9,25 @@ using System.Reflection;
 
 namespace Ridge.Interceptor.ActionInfo.Dtos
 {
-    internal class ActionArgumentsInfo : IInvocationInformation, IReadOnlyInvocationInformation
+    internal class ActionInfo : IActionInfo, IReadOnlyActionInfo
     {
         public object? Body { get; set; }
         public IDictionary<string, object?> RouteParams { get; set; }
         public string BodyFormat { get; set; }
-        public IDictionary<string, object?> HeaderParams { get; set; }
-        public IEnumerable<object?> Arguments { get; }
-        IReadOnlyDictionary<string, object?> IReadOnlyInvocationInformation.HeaderParams => new ReadOnlyDictionary<string, object?>(HeaderParams);
+        public IDictionary<string, object?> Headers { get; set; }
+        IReadOnlyDictionary<string, object?> IReadOnlyActionInfo.Headers => new ReadOnlyDictionary<string, object?>(Headers);
         public string HttpMethod { get; set; } = null!;
 
-        private ActionArgumentsInfo(
+        private ActionInfo(
             object? body,
             IDictionary<string, object?> routeParams,
             string bodyFormat,
-            IDictionary<string, object?> headerParams,
-            IEnumerable<object?> arguments)
+            IDictionary<string, object?> headerParams)
         {
             Body = body;
             RouteParams = routeParams;
             BodyFormat = bodyFormat;
-            HeaderParams = headerParams;
-            Arguments = arguments;
+            Headers = headerParams;
         }
 
         public void AddArea(
@@ -39,14 +36,14 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             RouteParams["area"] = area;
         }
 
-        public static ActionArgumentsInfo CreateActionInfo(IEnumerable<object?> methodArguments, MethodInfo methodInfo)
+        public static ActionInfo CreateActionInfo(IEnumerable<object?> methodArguments, MethodInfo methodInfo)
         {
             var methodParams = CreateParametersWithValues(methodArguments, methodInfo);
             var body = GetBody(methodParams);
             var routeParams = GetRouteAndQueryParamsFromMethodArguments(methodParams);
             var headerParams = GetHeadersFromMethodArguments(methodParams);
             var bodyFormat = GetBodyFormat(methodParams);
-            return new ActionArgumentsInfo(body, routeParams, bodyFormat, headerParams, methodArguments);
+            return new ActionInfo(body, routeParams, bodyFormat, headerParams);
         }
 
         private static IEnumerable<(ParameterInfo parameterReflection, object? parameterValue)> CreateParametersWithValues(IEnumerable<object?> methodArguments, MethodInfo methodInfo)

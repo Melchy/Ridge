@@ -28,14 +28,20 @@ namespace Ridge.Interceptor.InterceptorFactory
             _serviceProvider = serviceProvider;
             _logWriter = logWriter;
         }
+
+        /// <summary>
+        /// Creates Razor page with intercepted methods.
+        /// </summary>
+        /// <typeparam name="TPage"></typeparam>
+        /// <returns></returns>
         public TPage CreateRazorPage<TPage>() where TPage : PageModel
         {
             CheckIfPageActionsCanBeProxied<TPage>();
             var caller = GetWebCaller(_httpClient, _logWriter);
-            var preCallMiddlewareCaller = GetPreCallMiddlewareCaller();
+            var actionInfoTransformerCaller = GetActionInfoTransformerCaller();
             var razorPageInfoFactory = new RazorPageInfoFactory(_serviceProvider);
             var resultFactoryForPages = new ResultFactoryForPages();
-            var interceptor = new SendHttpRequestAsyncInterceptor<TPage>(caller, razorPageInfoFactory, resultFactoryForPages, preCallMiddlewareCaller);
+            var interceptor = new SendHttpRequestAsyncInterceptor<TPage>(caller, razorPageInfoFactory, resultFactoryForPages, actionInfoTransformerCaller);
             return CreateClassFromInterceptor<TPage>(interceptor);
         }
 

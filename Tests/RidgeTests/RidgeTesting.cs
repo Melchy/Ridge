@@ -2,12 +2,14 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Ridge.Interceptor;
 using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
-using Ridge.Middlewares.Public;
+using Ridge.Pipeline.Public;
 using Ridge.Results;
+using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -314,7 +316,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             application.ControllerFactory.AddHeader("foo", "foo");
             application.ControllerFactory.AddAuthorization(new AuthenticationHeaderValue("Bearer","key"));
-            application.ControllerFactory.AddHeaders(new Dictionary<string, string>()
+            application.ControllerFactory.AddHeaders(new Dictionary<string, string?>()
             {
                 ["header1"] = "header",
                 ["header2"] = "header2",
@@ -323,10 +325,10 @@ namespace RidgeTests
             
             var result = await testController.MethodReturningHeaders();
 
-            result.Result["foo"].Should().Be("foo");
-            result.Result["header1"].Should().Be("header");
-            result.Result["header2"].Should().Be("header2");
-            result.Result["Authorization"].Should().Be("Bearer key");
+            result.Result["foo"].First().Should().Be("foo");
+            result.Result["header1"].First().Should().Be("header");
+            result.Result["header2"].First().Should().Be("header2");
+            result.Result["Authorization"].First().Should().Be("Bearer key");
         }
 
         [Test]
@@ -403,7 +405,7 @@ namespace RidgeTests
         public async Task ModelBinderIsSupported()
         {
             using var application = CreateApplication();
-            application.ControllerFactory.AddCallMiddleware(new ListSeparatedByCommasMiddleware(new List<int>(){1,1,1}));
+            application.ControllerFactory.AddPipelinePart(new ListSeparatedByCommasPipelinePart(new List<int>(){1,1,1}));
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.CustomBinder(null!);
             result.Result.Should().AllBeEquivalentTo(1);
@@ -413,7 +415,7 @@ namespace RidgeTests
         public async Task PreModelBinderTest()
         {
             using var application = CreateApplication();
-            application.ControllerFactory.AddPreCallMiddleware(new TestObjectMiddleware());
+            application.ControllerFactory.AddActionInfoTransformer(new TestObjectActionInfoTransformer());
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.CustomBinderFullObject(new TestController.CountryCodeBinded(){CountryCode = "cz"});
             result.Result.Should().BeEquivalentTo("cz");
@@ -456,19 +458,20 @@ namespace RidgeTests
         }
 
 
-        public class ListSeparatedByCommasMiddleware : CallMiddleware
+        public class ListSeparatedByCommasPipelinePart : IHttpRequestPipelinePart
         {
             private readonly IEnumerable<int> _data;
 
-            public ListSeparatedByCommasMiddleware(IEnumerable<int> data)
+            public ListSeparatedByCommasPipelinePart(IEnumerable<int> data)
             {
                 _data = data;
             }
 
-            public override Task<HttpResponseMessage> Invoke(
-                CallMiddlewareDelegate next,
+            public Task<HttpResponseMessage> Invoke(
+                Func<Task<HttpResponseMessage>> next,
                 HttpRequestMessage httpRequestMessage,
-                IReadOnlyInvocationInformation invocationInformation)
+                IReadOnlyActionInfo actionInfo,
+                InvocationInfo invocationInfo)
             {
                 httpRequestMessage.RequestUri = new Uri(
                     QueryHelpers.AddQueryString(httpRequestMessage.RequestUri!.ToString(), "properties", $"{string.Join(",", _data)}"),
@@ -477,19 +480,19 @@ namespace RidgeTests
             }
         }
         
-        public class TestObjectMiddleware : PreCallMiddleware
+        public class TestObjectActionInfoTransformer : IActionInfoTransformer
         {
-            public override Task Invoke(
-                PreCallMiddlewareDelegate next,
-                IInvocationInformation invocationInformation)
+            public Task Transform(
+                IActionInfo actionInfo,
+                InvocationInfo invocationInfo)
             {
-                var bindedObject = invocationInformation.Arguments.FirstOrDefault(x => x is TestController.CountryCodeBinded);
+                var bindedObject = invocationInfo.Arguments.FirstOrDefault(x => x is TestController.CountryCodeBinded);
                 if (bindedObject == null)
                 {
-                    return next();
+                    return Task.CompletedTask;
                 }
 
-                invocationInformation.RouteParams["countryCode"] = ((TestController.CountryCodeBinded)bindedObject).CountryCode;
+                actionInfo.RouteParams["countryCode"] = ((TestController.CountryCodeBinded)bindedObject).CountryCode;
                 return Task.CompletedTask;
             }
         }

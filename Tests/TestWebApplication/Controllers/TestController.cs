@@ -226,10 +226,10 @@ namespace TestWebApplication.Controllers
         }
 
         [HttpPost("MethodReturningHeaders")]
-        public virtual async Task<ControllerResult<Dictionary<string,string>>> MethodReturningHeaders()
+        public virtual async Task<ControllerResult<Dictionary<string,List<string>>>> MethodReturningHeaders()
         {
             return HttpContext.Request.Headers.ToDictionary(x=>x.Key, 
-                x=>x.Value.First());
+                x=>x.Value.ToList());
         }
 
         [HttpGet("MethodThrowingInvalidOperationException")]
