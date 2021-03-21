@@ -167,7 +167,7 @@ public async Task ComplexTest()
     // Register transformer which allows us to work with custom model binder
     controllerFactory.AddActionInfoTransformer(new CustomModelBinderTransformer());
     // add httpRequestTransformation which allows us to transform final http request
-    controllerFactory.AddPipelinePart(new HttpRequestTransformationPipelinePart());
+    controllerFactory.AddHttpRequestPipelinePart(new HttpRequestTransformationPipelinePart());
     var testController = controllerFactory.CreateController<ExamplesController>();
     var response = await testController.ComplexExample(
         complexObjectFromQuery: new ComplexObject()
