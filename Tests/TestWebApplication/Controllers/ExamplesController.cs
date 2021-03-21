@@ -27,7 +27,6 @@ namespace TestWebApplication.Controllers.Examples
             [FromQuery] List<string> listOfSimpleTypesFromQuery,
             [FromBody] List<ComplexObject> complexObjectsFromBody,
             [FromRoute] int fromRoute,
-            // custom model binder are supported by using request transformers
             [ModelBinder(BinderType = typeof(CountryCodeBinder))] string customModelBinder,
             // From services arguments are ignored and injected correctly by ASP.Net
             [FromServices] ExamplesController examplesController
