@@ -346,7 +346,7 @@ namespace TestWebApplication.Controllers
             return Task.CompletedTask;
         }
 
-        [HttpGet("MethodReturningTaskNotAsync")]
+        [HttpGet("MethodReturningIncorrectTypeInTask")]
         public virtual async Task<ActionResult> MethodReturningIncorrectTypeInTask()
         {
             await Task.CompletedTask;

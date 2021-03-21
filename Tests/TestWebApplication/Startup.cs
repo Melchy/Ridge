@@ -60,7 +60,10 @@ namespace TestWebApplication
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
+                    name: "complexExample", "{controller}/{action}/{fromRoute}/{boundFromCustomModelBinder}");
+                endpoints.MapControllerRoute(
                     name: "foo", "{controller}/{action}/");
+
             });
         }
     }

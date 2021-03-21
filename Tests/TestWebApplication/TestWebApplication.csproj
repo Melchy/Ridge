@@ -4,7 +4,7 @@
         <TargetFrameworks>net5;netcoreapp3.1;netcoreapp3.0</TargetFrameworks>
     </PropertyGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'netcoreapp3.0' or '$(TargetFramework)' == 'net5'" >
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'netcoreapp3.0' or '$(TargetFramework)' == 'net5'">
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     </ItemGroup>
     <ItemGroup>
