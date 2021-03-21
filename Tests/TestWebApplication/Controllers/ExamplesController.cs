@@ -23,7 +23,6 @@ namespace TestWebApplication.Controllers.Examples
         // route for this action is defined in startup in following way
         // endpoints.MapControllerRoute(name: "complexExample", "{controller}/{action}/{fromRoute}/{boundFromCustomModelBinder}");
         public virtual async Task<ControllerResult<ResponseObject>> ComplexExample(
-            // list of complex object in [FromQuery] is currently not supported
             [FromQuery] ComplexObject complexObjectFromQuery,
             [FromQuery] List<string> listOfSimpleTypesFromQuery,
             [FromBody] List<ComplexObject> complexObjectsFromBody,
