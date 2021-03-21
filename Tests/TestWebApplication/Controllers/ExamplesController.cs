@@ -23,12 +23,15 @@ namespace TestWebApplication.Controllers.Examples
         // route for this action is defined in startup in following way
         // endpoints.MapControllerRoute(name: "complexExample", "{controller}/{action}/{fromRoute}/{boundFromCustomModelBinder}");
         public virtual async Task<ControllerResult<ResponseObject>> ComplexExample(
-            [FromQuery] ComplexObject complexObjectFromQuery, // list of complex object in [FromQuery] is currently not supported
+            // list of complex object in [FromQuery] is currently not supported
+            [FromQuery] ComplexObject complexObjectFromQuery,
             [FromQuery] List<string> listOfSimpleTypesFromQuery,
             [FromBody] List<ComplexObject> complexObjectsFromBody,
             [FromRoute] int fromRoute,
-            [ModelBinder(BinderType = typeof(CountryCodeBinder))] string customModelBinder, // custom model binder are supported by using request transformers
-            [FromServices] ExamplesController examplesController // From services arguments are ignored by ridge and injected correctly by ASP.Net
+            // custom model binder are supported by using request transformers
+            [ModelBinder(BinderType = typeof(CountryCodeBinder))] string customModelBinder,
+            // From services arguments are ignored and injected correctly by ASP.Net
+            [FromServices] ExamplesController examplesController
             )
         {
             return new ResponseObject
@@ -45,7 +48,7 @@ namespace TestWebApplication.Controllers.Examples
     public class ComplexObject
     {
         public string Str { get; set; }
-        public double Double { get; set; }
+        public NestedComplexObject NestedComplexObject { get; set; }
 
     }
 
@@ -55,16 +58,12 @@ namespace TestWebApplication.Controllers.Examples
         public int Integer { get; set; }
     }
 
-    public class CustomBinderObject
-    {
-        public string Str { get; set; } = null!;
-    }
-
     public class CountryCodeBinder : IModelBinder
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            var str = bindingContext.ActionContext.HttpContext.Request.RouteValues["boundFromCustomModelBinder"]!.ToString();
+            var str = bindingContext.ActionContext.HttpContext
+                .Request.RouteValues["boundFromCustomModelBinder"]!.ToString();
             bindingContext.Result = ModelBindingResult.Success(str);
             return Task.CompletedTask;
         }

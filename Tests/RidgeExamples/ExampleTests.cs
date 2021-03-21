@@ -54,7 +54,11 @@ namespace RidgeExamples
                 complexObjectFromQuery: new ComplexObject()
                 {
                     Str = "str",
-                    Double = 2.0,
+                    NestedComplexObject = new NestedComplexObject()
+                    {
+                        Integer = 1,
+                        Str = "string"
+                    },
                 },
                 listOfSimpleTypesFromQuery:new List<string>()
                 {
@@ -64,17 +68,23 @@ namespace RidgeExamples
                 {
                     new ComplexObject()
                     {
-                        Double = 3.0,
                         Str = "str",
+                        NestedComplexObject = new NestedComplexObject()
+                        {
+                            Integer = 5,
+                            Str = "bar"
+                        }
                     }
                 },
                 fromRoute: 1,
-                customModelBinder: "customModelBinder", // this value is used only because we added CustomModelBinderTransformer
+                // this value is used only because we added CustomModelBinderTransformer
+                customModelBinder: "customModelBinder",
                 examplesController:null); // this value wont be used
 
             Assert.AreEqual("str", response.Result.ComplexObjectFromQuery.Str);
+            Assert.AreEqual("string", response.Result.ComplexObjectFromQuery.NestedComplexObject.Str);
             Assert.AreEqual("foo", response.Result.ListOfSimpleTypesFromQuery.First());
-            Assert.AreEqual(3.0, response.Result.ComplexObjectsFromBody.First().Double);
+            Assert.AreEqual(5, response.Result.ComplexObjectsFromBody.First().NestedComplexObject.Integer);
             Assert.AreEqual(1, response.Result.FromRoute);
             Assert.AreEqual("customModelBinder", response.Result.CustomModelBinder);
         }
@@ -86,7 +96,8 @@ namespace RidgeExamples
             IActionInfo actionInfo, //action info contains information about request
             InvocationInfo invocationInfo)
         {
-            // using ElementAt is not recommended. Better way would be to wrap customModelBinder argument in custom class and search for this class
+            // using ElementAt is not recommended.
+            // Better way would be to wrap customModelBinder argument in custom class and search for that class
             actionInfo.RouteParams.Add("boundFromCustomModelBinder", invocationInfo.Arguments.ElementAt(4));
             return Task.CompletedTask;
         }

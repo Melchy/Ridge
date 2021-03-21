@@ -68,7 +68,7 @@ public void ExampleTest()
 * Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`
 * Add `services.AddRidge();` to your `ConfigureServices` method in `Startup`
 
-### Minimal startup example
+### Startup example
 
 ```csharp
 public class Startup
@@ -95,19 +95,22 @@ public class Startup
 }
 ```
 
-## Full featured example
+## Complex example
 
 ```csharp
 // notice that you do not have to use endpoint routing
 // route for this action is defined in startup in following way
 // endpoints.MapControllerRoute(name: "complexExample", "{controller}/{action}/{fromRoute}/{boundFromCustomModelBinder}");
 public virtual async Task<ControllerResult<ResponseObject>> ComplexExample(
-    [FromQuery] ComplexObject complexObjectFromQuery, // list of complex object in [FromQuery] is currently not supported
+    // list of complex object in [FromQuery] is currently not supported
+    [FromQuery] ComplexObject complexObjectFromQuery,
     [FromQuery] List<string> listOfSimpleTypesFromQuery,
     [FromBody] List<ComplexObject> complexObjectsFromBody,
     [FromRoute] int fromRoute,
-    [ModelBinder(BinderType = typeof(CountryCodeBinder))] string customModelBinder, // custom model binder are supported by using request transformers
-    [FromServices] ExamplesController examplesController // From services arguments are ignored by ridge and injected correctly by ASP.Net
+    // custom model binder are supported by using request transformers
+    [ModelBinder(BinderType = typeof(CountryCodeBinder))] string customModelBinder,
+    // From services arguments are ignored and injected correctly by ASP.Net
+    [FromServices] ExamplesController examplesController
     )
 {
     return new ResponseObject
@@ -124,7 +127,7 @@ public virtual async Task<ControllerResult<ResponseObject>> ComplexExample(
 public class ComplexObject
 {
     public string Str { get; set; }
-    public double Double { get; set; }
+    public NestedComplexObject NestedComplexObject { get; set; }
 
 }
 
@@ -134,16 +137,12 @@ public class NestedComplexObject
     public int Integer { get; set; }
 }
 
-public class CustomBinderObject
-{
-    public string Str { get; set; } = null!;
-}
-
 public class CountryCodeBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
-        var str = bindingContext.ActionContext.HttpContext.Request.RouteValues["boundFromCustomModelBinder"]!.ToString();
+        var str = bindingContext.ActionContext.HttpContext
+            .Request.RouteValues["boundFromCustomModelBinder"]!.ToString();
         bindingContext.Result = ModelBindingResult.Success(str);
         return Task.CompletedTask;
     }
@@ -176,7 +175,11 @@ public async Task ComplexTest()
         complexObjectFromQuery: new ComplexObject()
         {
             Str = "str",
-            Double = 2.0,
+            NestedComplexObject = new NestedComplexObject()
+            {
+                Integer = 1,
+                Str = "string"
+            },
         },
         listOfSimpleTypesFromQuery:new List<string>()
         {
@@ -186,17 +189,23 @@ public async Task ComplexTest()
         {
             new ComplexObject()
             {
-                Double = 3.0,
                 Str = "str",
+                NestedComplexObject = new NestedComplexObject()
+                {
+                    Integer = 5,
+                    Str = "bar"
+                }
             }
         },
         fromRoute: 1,
-        customModelBinder: "customModelBinder", // this value is used only because we added CustomModelBinderTransformer
+        // this value is used only because we added CustomModelBinderTransformer
+        customModelBinder: "customModelBinder",
         examplesController:null); // this value wont be used
 
     Assert.AreEqual("str", response.Result.ComplexObjectFromQuery.Str);
+    Assert.AreEqual("string", response.Result.ComplexObjectFromQuery.NestedComplexObject.Str);
     Assert.AreEqual("foo", response.Result.ListOfSimpleTypesFromQuery.First());
-    Assert.AreEqual(3.0, response.Result.ComplexObjectsFromBody.First().Double);
+    Assert.AreEqual(5, response.Result.ComplexObjectsFromBody.First().NestedComplexObject.Integer);
     Assert.AreEqual(1, response.Result.FromRoute);
     Assert.AreEqual("customModelBinder", response.Result.CustomModelBinder);
 }
@@ -208,7 +217,8 @@ public class CustomModelBinderTransformer : IActionInfoTransformer
         IActionInfo actionInfo, //action info contains information about request
         InvocationInfo invocationInfo)
     {
-        // using ElementAt is not recommended. Better way would be to wrap customModelBinder argument in custom class and search for this class
+        // using ElementAt is not recommended.
+        // Better way would be to wrap customModelBinder argument in custom class and search for that class
         actionInfo.RouteParams.Add("boundFromCustomModelBinder", invocationInfo.Arguments.ElementAt(4));
         return Task.CompletedTask;
     }
