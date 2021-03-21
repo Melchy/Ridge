@@ -39,7 +39,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         /// Adds Call pipeline part which can transform request after url is constructed
         /// </summary>
         /// <param name="httpRequestPipelinePart"></param>
-        public void AddPipelinePart(IHttpRequestPipelinePart httpRequestPipelinePart)
+        public void AddHttpRequestPipelinePart(IHttpRequestPipelinePart httpRequestPipelinePart)
         {
             _pipelineParts.Add(httpRequestPipelinePart);
         }

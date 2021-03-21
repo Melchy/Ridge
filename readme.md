@@ -240,3 +240,5 @@ public class HttpRequestTransformationPipelinePart : IHttpRequestPipelinePart
     }
 }
 ```
+
+## Features which are not supported

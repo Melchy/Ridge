@@ -405,7 +405,7 @@ namespace RidgeTests
         public async Task ModelBinderIsSupported()
         {
             using var application = CreateApplication();
-            application.ControllerFactory.AddPipelinePart(new ListSeparatedByCommasPipelinePart(new List<int>(){1,1,1}));
+            application.ControllerFactory.AddHttpRequestPipelinePart(new ListSeparatedByCommasPipelinePart(new List<int>(){1,1,1}));
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.CustomBinder(null!);
             result.Result.Should().AllBeEquivalentTo(1);
