@@ -14,8 +14,7 @@ namespace Ridge.Results
     /// </summary>
     public partial class ControllerResult : IConvertToActionResult
     {
-        [DebuggerHidden]
-        public ActionResult ActionResult { get; }
+        protected ActionResult ActionResult { get; }
 
 #pragma warning disable CS8618
         public ControllerResult(ActionResult actionResult)
@@ -33,7 +32,7 @@ namespace Ridge.Results
             return new ControllerResult(actionResult);
         }
 
-        public IActionResult Convert()
+        IActionResult IConvertToActionResult.Convert()
         {
             return ActionResult;
         }

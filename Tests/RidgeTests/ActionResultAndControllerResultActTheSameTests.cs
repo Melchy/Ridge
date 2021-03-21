@@ -103,7 +103,6 @@ namespace RidgeTests
             var actionResult = new ActionResult<int>(1);
             var controllerResult = new ControllerResult<int>(1);
 
-            controllerResult.ActionResult.Should().Be(actionResult.Result);
             var controllerResultInnerValue = ((IConvertToActionResult)controllerResult).Convert();
             var actionResultInnerValue = ((IConvertToActionResult)actionResult).Convert();
             controllerResultInnerValue.Should().BeOfType(actionResultInnerValue.GetType());
@@ -117,7 +116,6 @@ namespace RidgeTests
             ActionResult<int> actionResult = 1;
             ControllerResult<int> controllerResult = 1;
 
-            controllerResult.ActionResult.Should().Be(actionResult.Result);
             var controllerResultInnerValue = ((IConvertToActionResult)controllerResult).Convert();
             var actionResultInnerValue = ((IConvertToActionResult)actionResult).Convert();
             controllerResultInnerValue.Should().BeOfType(actionResultInnerValue.GetType());

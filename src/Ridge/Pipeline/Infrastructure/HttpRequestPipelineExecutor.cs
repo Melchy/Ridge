@@ -50,7 +50,7 @@ namespace Ridge.Pipeline.Infrastructure
 
             public async Task<HttpResponseMessage> Execute()
             {
-                return await _pipelinePartCurrent.Invoke(_next, _httpRequestMessage, _actionInfo, _invocationInfo);
+                return await _pipelinePartCurrent.InvokeAsync(_next, _httpRequestMessage, _actionInfo, _invocationInfo);
             }
         }
     }

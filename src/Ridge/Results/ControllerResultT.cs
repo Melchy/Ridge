@@ -24,8 +24,7 @@ namespace Ridge.Results
             ActionResultT = new ActionResult<TResult>(result);
         }
 
-        [DebuggerHidden]
-        public ActionResult<TResult> ActionResultT { get; }
+        private ActionResult<TResult> ActionResultT { get; }
 
         public static implicit operator ControllerResult<TResult>(TResult value)
         {

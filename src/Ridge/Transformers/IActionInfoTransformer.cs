@@ -11,6 +11,6 @@ namespace Ridge.Transformers
         /// <param name="actionInfo">Information about action which should be transformed by your transformer.</param>
         /// <param name="invocationInfo">Information about method which was called.</param>
         /// <returns></returns>
-        public Task Transform(IActionInfo actionInfo, InvocationInfo invocationInfo);
+        public Task TransformAsync(IActionInfo actionInfo, InvocationInfo invocationInfo);
     }
 }

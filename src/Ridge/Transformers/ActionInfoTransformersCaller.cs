@@ -17,7 +17,7 @@ namespace Ridge.Transformers
         {
             foreach (var actionInfoTransformer in _transformers)
             {
-                await actionInfoTransformer.Transform(actionInfo, invocationInfo);
+                await actionInfoTransformer.TransformAsync(actionInfo, invocationInfo);
             }
         }
     }

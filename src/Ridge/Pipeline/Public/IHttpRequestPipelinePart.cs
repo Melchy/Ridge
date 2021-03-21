@@ -16,6 +16,6 @@ namespace Ridge.Pipeline.Public
         /// <param name="actionInfo">Read only information about action which will be called.</param>
         /// <param name="invocationInfo">Information about method which was called.</param>
         /// <returns></returns>
-        public Task<HttpResponseMessage> Invoke(Func<Task<HttpResponseMessage>> next, HttpRequestMessage httpRequestMessage, IReadOnlyActionInfo actionInfo, InvocationInfo invocationInfo);
+        public Task<HttpResponseMessage> InvokeAsync(Func<Task<HttpResponseMessage>> next, HttpRequestMessage httpRequestMessage, IReadOnlyActionInfo actionInfo, InvocationInfo invocationInfo);
     }
 }

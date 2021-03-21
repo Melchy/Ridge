@@ -14,7 +14,7 @@ namespace Ridge.Transformers.DefaultTransformers
             _value = value;
         }
 
-        public async Task Transform(
+        public async Task TransformAsync(
             IActionInfo actionInfo,
             InvocationInfo invocationInfo)
         {

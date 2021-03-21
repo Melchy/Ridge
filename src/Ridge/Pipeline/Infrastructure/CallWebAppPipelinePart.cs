@@ -18,7 +18,7 @@ namespace Ridge.Pipeline.Infrastructure
             _httpClient = httpClient;
             _logger = logger;
         }
-        public async Task<HttpResponseMessage> Invoke(
+        public async Task<HttpResponseMessage> InvokeAsync(
             Func<Task<HttpResponseMessage>> next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyActionInfo actionInfo,

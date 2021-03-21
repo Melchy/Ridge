@@ -5,7 +5,7 @@ using System;
 
 namespace Ridge.Setup
 {
-    public class ControllerResultTypeMapper : IActionResultTypeMapper
+    internal class ControllerResultTypeMapper : IActionResultTypeMapper
     {
         public virtual Type GetResultDataType(Type returnType)
         {

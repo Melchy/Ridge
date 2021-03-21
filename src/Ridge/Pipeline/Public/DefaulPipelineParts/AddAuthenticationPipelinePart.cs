@@ -15,7 +15,7 @@ namespace Ridge.Pipeline.Public.DefaulPipelineParts
         {
             _authenticationHeaderValue = authenticationHeaderValue;
         }
-        public async Task<HttpResponseMessage> Invoke(
+        public async Task<HttpResponseMessage> InvokeAsync(
             Func<Task<HttpResponseMessage>> next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyActionInfo actionInfo,

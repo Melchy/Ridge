@@ -467,7 +467,7 @@ namespace RidgeTests
                 _data = data;
             }
 
-            public Task<HttpResponseMessage> Invoke(
+            public Task<HttpResponseMessage> InvokeAsync(
                 Func<Task<HttpResponseMessage>> next,
                 HttpRequestMessage httpRequestMessage,
                 IReadOnlyActionInfo actionInfo,
@@ -482,7 +482,7 @@ namespace RidgeTests
         
         public class TestObjectActionInfoTransformer : IActionInfoTransformer
         {
-            public Task Transform(
+            public Task TransformAsync(
                 IActionInfo actionInfo,
                 InvocationInfo invocationInfo)
             {
