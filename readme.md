@@ -51,12 +51,15 @@ public void ExampleTest()
     // Create controller factory
     var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
     // Create instance of controller using controllerFactory
+    // This is where the magic happens. Ridge replaces controller implementation
+    // with custom code which transforms method calls to http calls.
     var testController = controllerFactory.CreateController<TestController>();
     // Make standard method call which will be transformed into Http call.
+    // Equivalent call using WebAppFactory would look like this:
+    // var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
     var response = testController.ReturnGivenNumber(10);
     Assert.AreEqual(10, response.Result);
-    // Equivalent call would look like this:
-    // var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
+    
 }
 ```
 
