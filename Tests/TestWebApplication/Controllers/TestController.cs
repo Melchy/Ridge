@@ -57,6 +57,12 @@ namespace TestWebApplication.Controllers
         {
             return await Task.FromResult(10);
         }
+
+        [HttpDelete("ReturnSync")]
+        public virtual ControllerResult ReturnSync()
+        {
+            return Ok();
+        }
         
         [HttpPatch]
         public virtual async Task<ControllerResult> IActionResultAsync()
@@ -381,6 +387,23 @@ namespace TestWebApplication.Controllers
         public virtual async Task<ActionResult> MethodNotReturningControllerResult()
         {
             return NoContent();
+        }
+
+        [HttpGet("SyncThrow")]
+        public virtual ControllerResult SyncThrow()
+        {
+            throw new InvalidOperationException("Error");
+        }
+
+        public virtual IActionResult SyncNotReturningControllerResult()
+        {
+            return Ok();
+        }
+
+        [HttpGet("ReturnSyncWithResult")]
+        public virtual ControllerResult<string> ReturnSyncWithResult()
+        {
+            return "ok";
         }
     }
 

@@ -25,6 +25,43 @@ namespace RidgeTests
     public class RidgeTesting
     {
         [Test]
+        public async Task SyncCallWithoutResult()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            var result = testController.ReturnSync();
+            result.IsSuccessStatusCode.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task SyncCallWithResult()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            var result = testController.ReturnSyncWithResult();
+            result.IsSuccessStatusCode.Should().BeTrue();
+            result.Result.Should().Be("ok");
+        }
+
+        [Test]
+        public async Task SyncCallThrowingNotWrappedException()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            Action result = () => testController.SyncThrow();
+            result.Should().Throw<InvalidOperationException>().WithMessage("Error");
+        }
+
+        [Test]
+        public async Task SyncMethodWithIncorrectReturnType()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            Action sutCall = () => testController.SyncNotReturningControllerResult();
+            sutCall.Should().Throw<InvalidOperationException>().WithMessage("*ControllerResult*");
+        }
+
+        [Test]
         public async Task AsyncCallWithResult()
         {
             using var application = CreateApplication();

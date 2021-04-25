@@ -8,10 +8,12 @@ using Ridge.Results;
 using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ridge.Interceptor
@@ -38,9 +40,27 @@ namespace Ridge.Interceptor
             _methodValidation = methodValidation;
         }
 
+        /// <summary>
+        /// Sync over async is tricky.
+        /// We can not use CallControllerAsync(invocation.Arguments, invocation.Method).GetAwaiter().GetResult() or
+        /// CallControllerAsync(invocation.Arguments, invocation.Method).Wait() these calls can cause deadlock.
+        /// Issue: Issue: https://github.com/xunit/xunit/issues/864?fbclid=IwAR1d4nLltbDGyO6SlhCYmBBskw_OJfycxBxRf_82gR_M-g-68lLmcFNGjFU
+        ///
+        /// Task.Run(() => CallControllerAsync(invocation.Arguments, invocation.Method)).GetAwaiter().GetResult()
+        /// causes thread starvation when used in xunit test on single processor machine.
+        /// Issue: https://github.com/JSkimming/Castle.Core.AsyncInterceptor/pull/54#issuecomment-480953342
+        /// This solution replaces the synchronization context which should cause that new task are not limited by number of threads
+        /// dictated in xunit synchronization context.
+        /// </summary>
+        /// <param name="invocation"></param>
         public void InterceptSynchronous(IInvocation invocation)
         {
-            throw new InvalidOperationException("Synchronous methods are not supported by ridge.");
+            //var foo = SynchronizationContext.Current;
+            //using (NoSynchronizationContextScope.Enter())
+
+            {
+                invocation.ReturnValue = Task.Run(() => CallControllerAsync(invocation.Arguments, invocation.Method)).GetAwaiter().GetResult();
+            }
         }
 
         public void InterceptAsynchronous(IInvocation invocation)

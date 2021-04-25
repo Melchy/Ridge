@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using TestWebApplication;
 using TestWebApplication.Controllers;
