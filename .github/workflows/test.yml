@@ -21,7 +21,11 @@ jobs:
                 uses: actions/setup-dotnet@v1
                 with:
                     dotnet-version: 3.0.103
-            -   name: Run tests
+            -   name: Run tests general
                 run: |
                     cd 'Tests/RidgeTests'
+                    dotnet test
+            -   name: Run tests xunit
+                run: |
+                    cd 'Tests/RidgeXunitTest'
                     dotnet test
