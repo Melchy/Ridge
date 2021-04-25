@@ -32,7 +32,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         /// </summary>
         /// <typeparam name="TController"></typeparam>
         /// <returns></returns>
-        public TController CreateController<TController>()
+        public TController CreateController<TController>() where TController : class
         {
             CheckIfControllerActionsCanBeProxied<TController>();
             var webCaller = GetWebCaller(_httpClient, _logWriter);

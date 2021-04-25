@@ -27,7 +27,7 @@ namespace Ridge.Interceptor.ResultFactory
             {
                 return GeneralHelpers.CreateInstance(actionReturnType, httpResponseMessage, resultString, httpResponseMessage.StatusCode);
             }
-            else if(GeneralHelpers.IsOrImplements(actionReturnType,typeof(ControllerResult<>)))
+            else if (GeneralHelpers.IsOrImplements(actionReturnType,typeof(ControllerResult<>)))
             {
                 return GeneralHelpers.CreateInstance(actionReturnType, httpResponseMessage, resultString, httpResponseMessage.StatusCode);
             }

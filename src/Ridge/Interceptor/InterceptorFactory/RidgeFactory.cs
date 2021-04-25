@@ -29,9 +29,9 @@ namespace Ridge.Interceptor.InterceptorFactory
             return new ActionInfoTransformersCaller(_actionInfoTransformers);
         }
 
-        protected T CreateClassFromInterceptor<T>(IInterceptor interceptor)
+        protected T CreateClassFromInterceptor<T>(IAsyncInterceptor interceptor) where T : class
         {
-            var controllerProxy = MyProxyGenerator.CreateProxyWithoutCallingConstructor(typeof(T), interceptor);
+            var controllerProxy = ProxyGeneratorWithoutCallingCtor.CreateProxyWithoutCallingConstructor(typeof(T), interceptor.ToInterceptor());
             return (T)controllerProxy;
         }
 
@@ -93,33 +93,33 @@ namespace Ridge.Interceptor.InterceptorFactory
         /// Castle also needs to create instance even when used with CreateClassProxyTypeWithTarget so we have to
         /// use little hack to set interceptor.
         /// </summary>
-        private class MyProxyGenerator : ProxyGenerator
+        private class ProxyGeneratorWithoutCallingCtor : ProxyGenerator
         {
             public static object CreateProxyWithoutCallingConstructor(Type type, IInterceptor interceptor)
             {
-                MyProxyGenerator generator = new MyProxyGenerator();
-                return generator.CreateClassProxyWithoutCallingConstructor(type, interceptor);
+                ProxyGeneratorWithoutCallingCtor generatorWithoutCallingCtor = new ProxyGeneratorWithoutCallingCtor();
+                return generatorWithoutCallingCtor.CreateClassProxyWithoutCallingConstructor(type, interceptor);
             }
 
-            private object CreateClassProxyWithoutCallingConstructor(Type type, IInterceptor sourcererInterceptor)
+            private object CreateClassProxyWithoutCallingConstructor(Type type, IInterceptor interceptor)
             {
-                var prxType = CreateClassProxyType(type, Array.Empty<Type>(), ProxyGenerationOptions.Default);
-                var instance = GeneralHelpers.CreateObjectWithoutCallingConstructor(prxType);
-                SetInterceptors(instance, sourcererInterceptor);
+                var proxyType = CreateClassProxyType(type, Array.Empty<Type>(), ProxyGenerationOptions.Default);
+                var instance = GeneralHelpers.CreateObjectWithoutCallingConstructor(proxyType);
+                SetInterceptor(instance, interceptor);
                 return instance;
             }
 
-            private void SetInterceptors(object proxy, params IInterceptor[] interceptors)
+            private void SetInterceptor(object proxy, IInterceptor interceptor)
             {
                 var field = proxy.GetType().GetField("__interceptors", BindingFlags.Instance | BindingFlags.NonPublic);
                 if (field == null)
                 {
-                    throw new InvalidOperationException("Internal castle windsor property - __interceptors not found. This should never happen.");
+                    throw new InvalidOperationException("Internal castle windsor property - __interceptors not found.");
                 }
-                field.SetValue(proxy, interceptors);
+                field.SetValue(proxy, new IInterceptor[] {interceptor});
             }
 
-            private MyProxyGenerator()
+            private ProxyGeneratorWithoutCallingCtor()
             {
 
             }

@@ -6,7 +6,6 @@ using Ridge.Interceptor.ResultFactory;
 using Ridge.Pipeline;
 using Ridge.Results;
 using Ridge.Transformers;
-using stakx.DynamicProxy;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -17,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Ridge.Interceptor
 {
-    public class SendHttpRequestAsyncInterceptor<T> : AsyncInterceptor
+    public class SendHttpRequestAsyncInterceptor<T> : IAsyncInterceptor
     {
         private readonly WebCaller _webCaller;
         private readonly IGetInfo _getInfo;
@@ -39,17 +38,25 @@ namespace Ridge.Interceptor
             _methodValidation = methodValidation;
         }
 
-        protected override void Intercept(
-            IInvocation invocation)
+        public void InterceptSynchronous(IInvocation invocation)
         {
             throw new InvalidOperationException("Synchronous methods are not supported by ridge.");
         }
 
-
-        protected override async ValueTask InterceptAsync(
-            IAsyncInvocation invocation)
+        public void InterceptAsynchronous(IInvocation invocation)
         {
-            invocation.Result = await CallControllerAsync(invocation.Arguments, invocation.Method);
+            throw new InvalidOperationException($"Method must return Task<{nameof(ControllerResult)}>");
+        }
+
+        public void InterceptAsynchronous<TResult>(IInvocation invocation)
+        {
+            invocation.ReturnValue = InternalInterceptAsynchronous<TResult>(invocation);
+        }
+
+        private async Task<TResult> InternalInterceptAsynchronous<TResult>(IInvocation invocation)
+        {
+            var foo = await CallControllerAsync(invocation.Arguments, invocation.Method);
+            return (TResult)foo!;
         }
 
         [SuppressMessage("", "CA1508", Justification = "false positive")]
