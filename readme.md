@@ -48,7 +48,7 @@ public async Task ExampleTest()
     // https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0
     var webAppFactory = new WebApplicationFactory<Startup>();
     var client = webAppFactory.CreateClient();
-    // Create controller factory
+    // Create controller factory using ridge package
     var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
 
 
