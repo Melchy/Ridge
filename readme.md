@@ -42,24 +42,40 @@ public virtual ControllerResult<int> ReturnGivenNumber(
 //...
 
 [Test]
-public void ExampleTest()
+public async Task ExampleTest()
 {
-    // Create WebAppFactory
+    // Create webAppFactory
     // https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0
-    using var webAppFactory = new WebApplicationFactory<Startup>();
+    var webAppFactory = new WebApplicationFactory<Startup>();
     var client = webAppFactory.CreateClient();
     // Create controller factory
     var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
-    // Create instance of controller using controllerFactory
+
+
+    // Create instance of controller using controllerFactory.
     // This is where the magic happens. Ridge replaces controller implementation
     // with custom code which transforms method calls to http calls.
-    var testController = controllerFactory.CreateController<TestController>();
+    var testController = controllerFactory.CreateController<ExamplesController>();
     // Make standard method call which will be transformed into Http call.
+    var response = await testController.ReturnGivenNumber(10);
     // Equivalent call using WebAppFactory would look like this:
     // var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
-    var response = testController.ReturnGivenNumber(10);
+
+
+    //Assert httpResponseMessage
+    var httpResponseMessage = response.HttpResponseMessage;
+    var content = await httpResponseMessage.Content.ReadAsStringAsync();
+    Assert.AreEqual(10, int.Parse(content));
+    Assert.True(httpResponseMessage.IsSuccessStatusCode);
+
+    //You can use special ridge properties to simplify assertion.
+    //Instead of Assert.True(response.HttpResponseMessage.IsSuccessStatusCode)
+    Assert.True(response.IsSuccessStatusCode);
+    // Instead of
+    // var content = await httpResponseMessage.Content.ReadAsStringAsync();
+    // Assert.AreEqual(10, int.Parse(content));
+    // Use:
     Assert.AreEqual(10, response.Result);
-    
 }
 ```
 
