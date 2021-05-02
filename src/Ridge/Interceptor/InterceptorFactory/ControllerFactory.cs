@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.ResultFactory;
 using Ridge.LogWriter;
-using Ridge.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,20 +41,22 @@ namespace Ridge.Interceptor.InterceptorFactory
                 createInfoForController,
                 resultFactoryForController,
                 actionInfoTransformerCaller,
-                EnsureControllerResultReturnType);
+                EnsureCorrectReturnType);
             return CreateClassFromInterceptor<TController>(interceptor);
         }
 
-        private void EnsureControllerResultReturnType(MethodInfo method)
+        private void EnsureCorrectReturnType(MethodInfo method)
         {
             var returnType = method.ReturnType;
             if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
             {
                 returnType = returnType.GenericTypeArguments[0];
             }
-            if (returnType != typeof(ControllerResult) && !GeneralHelpers.IsOrImplements(returnType,typeof(ControllerResult<>)))
+
+            if (!GeneralHelpers.IsOrImplements(returnType, typeof(ActionResult<>))
+                && !GeneralHelpers.IsOrImplements(returnType, typeof(IActionResult)))
             {
-                throw new InvalidOperationException($"Controller method must return {nameof(ControllerResult)} or {nameof(ControllerResult)}<T>");
+                throw new InvalidOperationException($"Controller method must return {nameof(ActionResult)} or {nameof(ActionResult)}<T> or {nameof(IActionResult)}");
             }
         }
 

@@ -1,6 +1,4 @@
 ﻿using Castle.DynamicProxy;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using Ridge.LogWriter;
 using Ridge.Pipeline;
 using Ridge.Pipeline.Public;

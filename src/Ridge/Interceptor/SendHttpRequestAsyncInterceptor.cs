@@ -1,19 +1,14 @@
 ﻿using Castle.DynamicProxy;
 using Ridge.CallData;
 using Ridge.Interceptor.ActionInfo;
-using Ridge.Interceptor.InterceptorFactory;
 using Ridge.Interceptor.ResultFactory;
 using Ridge.Pipeline;
-using Ridge.Results;
 using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ridge.Interceptor
@@ -65,7 +60,7 @@ namespace Ridge.Interceptor
 
         public void InterceptAsynchronous(IInvocation invocation)
         {
-            throw new InvalidOperationException($"Method must return Task<{nameof(ControllerResult)}>");
+            throw new InvalidOperationException($"Method must return can not return {nameof(Task)}");
         }
 
         public void InterceptAsynchronous<TResult>(IInvocation invocation)

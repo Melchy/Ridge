@@ -1,6 +1,4 @@
-﻿using Ridge.Interceptor.ActionInfo.Dtos;
-using Ridge.Interceptor.InterceptorFactory;
-using Ridge.Transformers;
+﻿using Ridge.Transformers;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;

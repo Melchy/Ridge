@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
+using Ridge.CallResult.Controller.Extensions;
 using Ridge.Interceptor;
 using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
@@ -26,15 +27,34 @@ namespace RidgeExamples
             // https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0
             var webAppFactory = new WebApplicationFactory<Startup>();
             var client = webAppFactory.CreateClient();
-            // Create controller factory
+            // Create controller factory using ridge package
             var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
-            // Create instance of controller using controllerFactory
+
+
+            // Create instance of controller using controllerFactory.
+            // This is where the magic happens. Ridge replaces controller implementation
+            // with custom code which transforms method calls to http calls.
             var testController = controllerFactory.CreateController<ExamplesController>();
             // Make standard method call which will be transformed into Http call.
             var response = await testController.ReturnGivenNumber(10);
-            Assert.AreEqual(10, response.Result);
-            // Equivalent call would look like this:
+            // Equivalent call using WebAppFactory would look like this:
             // var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
+
+
+            //Assert httpResponseMessage
+            var httpResponseMessage = response.HttpResponseMessage();
+            var content = await httpResponseMessage.Content.ReadAsStringAsync();
+            Assert.AreEqual(10, int.Parse(content));
+            Assert.True(httpResponseMessage.IsSuccessStatusCode);
+
+            //You can use special ridge properties to simplify assertion.
+            //Instead of Assert.True(response.HttpResponseMessage.IsSuccessStatusCode)
+            Assert.True(response.IsSuccessStatusCode());
+            // Instead of
+            // var content = await httpResponseMessage.Content.ReadAsStringAsync();
+            // Assert.AreEqual(10, int.Parse(content));
+            // Use:
+            Assert.AreEqual(10, response.GetResult());
         }
 
         [Test]
@@ -81,12 +101,12 @@ namespace RidgeExamples
                 customModelBinder: "customModelBinder",
                 examplesController:null); // this value wont be used
 
-            Assert.AreEqual("str", response.Result.ComplexObjectFromQuery.Str);
-            Assert.AreEqual("string", response.Result.ComplexObjectFromQuery.NestedComplexObject.Str);
-            Assert.AreEqual("foo", response.Result.ListOfSimpleTypesFromQuery.First());
-            Assert.AreEqual(5, response.Result.ComplexObjectsFromBody.First().NestedComplexObject.Integer);
-            Assert.AreEqual(1, response.Result.FromRoute);
-            Assert.AreEqual("customModelBinder", response.Result.CustomModelBinder);
+            Assert.AreEqual("str", response.GetResult().ComplexObjectFromQuery.Str);
+            Assert.AreEqual("string", response.GetResult().ComplexObjectFromQuery.NestedComplexObject.Str);
+            Assert.AreEqual("foo", response.GetResult().ListOfSimpleTypesFromQuery.First());
+            Assert.AreEqual(5, response.GetResult().ComplexObjectsFromBody.First().NestedComplexObject.Integer);
+            Assert.AreEqual(1, response.GetResult().FromRoute);
+            Assert.AreEqual("customModelBinder", response.GetResult().CustomModelBinder);
         }
     }
 

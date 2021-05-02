@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Ridge.CallResult.Controller.Extensions;
 using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using TestWebApplication;
 using TestWebApplication.Controllers;
@@ -27,7 +27,7 @@ namespace RidgeXunitTest
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<ControllerInArea>();
             var result = await testController.Index();
-            result.IsSuccessStatusCode.Should().BeTrue();
+            result.IsSuccessStatusCode().Should().BeTrue();
         }
 
         public Application CreateApplication()

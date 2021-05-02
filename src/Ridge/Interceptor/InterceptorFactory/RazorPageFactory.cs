@@ -1,8 +1,4 @@
-﻿using Castle.DynamicProxy;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.ResultFactory;
 using Ridge.LogWriter;

@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Ridge.Interceptor.InterceptorFactory;
 using System;
-using System.Diagnostics;
-using System.Net.Mime;
-using System.Threading;
 using System.Threading.Tasks;
 using TestWebApplication;
 using TestWebApplication.Controllers;

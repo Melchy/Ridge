@@ -1,14 +1,13 @@
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
+using Ridge.CallResult.Controller.Extensions;
 using Ridge.Interceptor;
 using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
 using Ridge.Pipeline.Public;
-using Ridge.Results;
 using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
@@ -30,7 +29,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = testController.ReturnSync();
-            result.IsSuccessStatusCode.Should().BeTrue();
+            result.IsSuccessStatusCode().Should().BeTrue();
         }
 
         [Test]
@@ -39,8 +38,8 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = testController.ReturnSyncWithResult();
-            result.IsSuccessStatusCode.Should().BeTrue();
-            result.Result.Should().Be("ok");
+            result.IsSuccessStatusCode().Should().BeTrue();
+            result.GetResult().Should().Be("ok");
         }
 
         [Test]
@@ -57,8 +56,8 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            Action sutCall = () => testController.SyncNotReturningControllerResult();
-            sutCall.Should().Throw<InvalidOperationException>().WithMessage("*ControllerResult*");
+            Action sutCall = () => testController.SyncNotReturningActionResult();
+            sutCall.Should().Throw<InvalidOperationException>().WithMessage("*ActionResult*");
         }
 
         [Test]
@@ -67,7 +66,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.ReturnAsync();
-            result.Result.Should().Be(10);
+            result.GetResult().Should().Be(10);
         }
 
         [Test]
@@ -76,7 +75,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.BadRequestAsync();
-            result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            result.StatusCode().Should().Be(HttpStatusCode.BadRequest);
         }
 
         [Test]
@@ -85,7 +84,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<ControllerInArea>();
             var result = await testController.Index();
-            result.IsSuccessStatusCode.Should().BeTrue();
+            result.IsSuccessStatusCode().Should().BeTrue();
         }
         
         [Test]
@@ -106,7 +105,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.OverloadedAction();
-            result.IsSuccessStatusCode.Should().BeTrue();
+            result.IsSuccessStatusCode().Should().BeTrue();
         }
         
         [Test]
@@ -115,11 +114,11 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.SimpleArguments(1,DateTime.Today, TestController.TestEnum.Zero, 100, DateTime.Today);
-            result.Result.FromRoute.Should().Be(1);
-            result.Result.Body.Should().Be(DateTime.Today);
-            result.Result.FromQuery.Should().Be(TestController.TestEnum.Zero);
-            result.Result.FromRoute2.Should().Be(100);
-            result.Result.FromQuery2.Should().Be(DateTime.Today);
+            result.GetResult().FromRoute.Should().Be(1);
+            result.GetResult().Body.Should().Be(DateTime.Today);
+            result.GetResult().FromQuery.Should().Be(TestController.TestEnum.Zero);
+            result.GetResult().FromRoute2.Should().Be(100);
+            result.GetResult().FromQuery2.Should().Be(DateTime.Today);
         }
         
         [Test]
@@ -134,10 +133,10 @@ namespace RidgeTests
                 dateTime: DateTime.Today,
                 innerObject: new TestController.InnerObject(str: "InnerStr")
             ));
-            result.Result.Integer.Should().Be(10);
-            result.Result.Str.Should().Be("test");
-            result.Result.DateTime.Should().Be(DateTime.Today);
-            result.Result.InnerObject!.Str.Should().Be("InnerStr");
+            result.GetResult().Integer.Should().Be(10);
+            result.GetResult().Str.Should().Be("test");
+            result.GetResult().DateTime.Should().Be(DateTime.Today);
+            result.GetResult().InnerObject!.Str.Should().Be("InnerStr");
 
         }
         
@@ -156,11 +155,11 @@ namespace RidgeTests
                     List = new List<string>(){"a", "b"}
                 }
             ));
-            result.Result.Integer.Should().Be(10);
-            result.Result.Str.Should().Be("test");
-            result.Result.DateTime.Should().Be(DateTime.Today);
-            result.Result.InnerObject!.Str.Should().Be("test");
-            result.Result.InnerObject.List.Should().ContainInOrder("a", "b");
+            result.GetResult().Integer.Should().Be(10);
+            result.GetResult().Str.Should().Be("test");
+            result.GetResult().DateTime.Should().Be(DateTime.Today);
+            result.GetResult().InnerObject!.Str.Should().Be("test");
+            result.GetResult().InnerObject!.List.Should().ContainInOrder("a", "b");
         }
         
         [Test]
@@ -175,10 +174,10 @@ namespace RidgeTests
                 dateTime: DateTime.UtcNow.Date,
                 innerObject: new TestController.InnerObject(str: "InnerStr")
             ));
-            result.Result.Integer.Should().Be(10);
-            result.Result.Str.Should().Be("test");
-            result.Result.DateTime.ToString("dd/MM/yyyy").Should().Be(DateTime.UtcNow.ToString("dd/MM/yyyy"));
-            result.Result.InnerObject!.Str.Should().Be("InnerStr");
+            result.GetResult().Integer.Should().Be(10);
+            result.GetResult().Str.Should().Be("test");
+            result.GetResult().DateTime.ToString("dd/MM/yyyy").Should().Be(DateTime.UtcNow.ToString("dd/MM/yyyy"));
+            result.GetResult().InnerObject!.Str.Should().Be("InnerStr");
         }
         
         [Test]
@@ -202,7 +201,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.FromHeaderSimple(1);
-            result.Result.Should().Be(1);
+            result.GetResult().Should().Be(1);
         }
 
         [Test]
@@ -211,7 +210,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.FromQueryWithNameComplexArgument(new TestController.Test(){Foo = 1});
-            result.Result.Foo.Should().Be(1);
+            result.GetResult().Foo.Should().Be(1);
         }
 
         [Test]
@@ -220,7 +219,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.FromQueryWithNameSimpleArgument(1);
-            result.Result.Should().Be(1);
+            result.GetResult().Should().Be(1);
         }
 
 
@@ -242,7 +241,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.DefaultPropertiesInCtorTest(new ObjectWithDefaultProperties());
-            result.Result.Str.Should().Be("test");
+            result.GetResult().Str.Should().Be("test");
         }
 
         [Test]
@@ -251,9 +250,9 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.NullsTest(null, null, null, "asd");
-            result.Result.Item1.Should().Be(null);
-            result.Result.Item2.Should().Be(null);
-            result.Result.Item3.Should().Be(null);
+            result.GetResult().Item1.Should().Be(null);
+            result.GetResult().Item2.Should().Be(null);
+            result.GetResult().Item3.Should().Be(null);
         }
 
         [Test]
@@ -262,7 +261,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.ArrayInFromQuery(new List<int>(){1,1,1});
-            result.Result.Should().AllBeEquivalentTo(1);
+            result.GetResult().Should().AllBeEquivalentTo(1);
         }
 
 
@@ -290,7 +289,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.FromRouteWithNameSimpleArgument(1);
-            result.Result.Should().Be(1);
+            result.GetResult().Should().Be(1);
         }
 
         [Test]
@@ -299,7 +298,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<ControllerWithoutAttributeRouting>();
             var result = await testController.HttpGetWithoutBody();
-            result.IsSuccessStatusCode.Should().BeTrue();
+            result.IsSuccessStatusCode().Should().BeTrue();
         }
         
         [Test]
@@ -308,7 +307,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.FromServices(null);
-            result.Result.Should().BeTrue();
+            result.GetResult().Should().BeTrue();
         }
         
         [Test]
@@ -332,7 +331,7 @@ namespace RidgeTests
                 ),
             };
             var result = await testController.ArrayInBody(data);
-            result.Result.Should().SatisfyRespectively(x =>
+            result.GetResult().Should().SatisfyRespectively(x =>
                 {
                     x.Integer.Should().Be(10);
                     x.Str.Should().Be("test");
@@ -362,10 +361,10 @@ namespace RidgeTests
             
             var result = await testController.MethodReturningHeaders();
 
-            result.Result["foo"].First().Should().Be("foo");
-            result.Result["header1"].First().Should().Be("header");
-            result.Result["header2"].First().Should().Be("header2");
-            result.Result["Authorization"].First().Should().Be("Bearer key");
+            result.GetResult()["foo"].First().Should().Be("foo");
+            result.GetResult()["header1"].First().Should().Be("header");
+            result.GetResult()["header2"].First().Should().Be("header2");
+            result.GetResult()["Authorization"].First().Should().Be("Bearer key");
         }
 
         [Test]
@@ -374,7 +373,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.HttpPostWithoutBody();
-            result.IsSuccessStatusCode.Should().BeTrue();
+            result.IsSuccessStatusCode().Should().BeTrue();
         }
         
         [Test]
@@ -383,7 +382,7 @@ namespace RidgeTests
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.HttpGetWithBody(5);
-            result.Result.Should().Be(5);
+            result.GetResult().Should().Be(5);
         }
 
         [Test]
@@ -409,11 +408,11 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            ControllerResult<int> response = await testController.MethodReturningBadRequestWithTypedResult();
-            response.IsClientErrorStatusCode.Should().BeTrue();
+            ActionResult<int> response = await testController.MethodReturningBadRequestWithTypedResult();
+            response.IsClientErrorStatusCode().Should().BeTrue();
             Action sutCall = () =>
             {
-                var foo = response.Result;
+                _ = response.GetResult();
             };
             sutCall.Should().Throw<InvalidOperationException>();
         }
@@ -423,18 +422,9 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            ControllerResult<string> response = await testController.MehodReturningControllerCallWithoutType();
-            response.IsSuccessStatusCode.Should().BeTrue();
-            response.Result.Should().Be(null);
-        }
-
-        [Test]
-        public void MethodMustReturnControllerResult()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> sutCall = () =>  testController.MethodNotReturningControllerResult();
-            sutCall.Should().Throw<InvalidOperationException>().WithMessage("*ControllerResult*");
+            ActionResult<string> response = await testController.MehodReturningControllerCallWithoutType();
+            response.IsSuccessStatusCode().Should().BeTrue();
+            response.GetResult().Should().Be(null);
         }
 
 
@@ -445,7 +435,7 @@ namespace RidgeTests
             application.ControllerFactory.AddHttpRequestPipelinePart(new ListSeparatedByCommasPipelinePart(new List<int>(){1,1,1}));
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.CustomBinder(null!);
-            result.Result.Should().AllBeEquivalentTo(1);
+            result.GetResult().Should().AllBeEquivalentTo(1);
         }
         
         [Test]
@@ -455,7 +445,7 @@ namespace RidgeTests
             application.ControllerFactory.AddActionInfoTransformer(new TestObjectActionInfoTransformer());
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.CustomBinderFullObject(new TestController.CountryCodeBinded(){CountryCode = "cz"});
-            result.Result.Should().BeEquivalentTo("cz");
+            result.GetResult().Should().BeEquivalentTo("cz");
         }
 
         [Test]

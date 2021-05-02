@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ridge.Results;
 
 namespace TestWebApplication.Controllers
 {
@@ -7,19 +6,19 @@ namespace TestWebApplication.Controllers
     public class ControllerWithNonVirtualMethods : ControllerBase
     {
         [HttpGet("a")]
-        public virtual ControllerResult Index()
+        public virtual ActionResult Index()
         {
             return Ok();
         }
 
         [HttpGet("b")]
-        public ControllerResult NonVirtual()
+        public ActionResult NonVirtual()
         {
             return Ok();
         }
         
         [HttpGet("c")]
-        public ControllerResult NonVirtual2()
+        public ActionResult NonVirtual2()
         {
             return Ok();
         }

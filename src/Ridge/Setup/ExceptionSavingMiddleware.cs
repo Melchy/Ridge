@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Ridge.CallData;
 using System;
 using System.Threading.Tasks;

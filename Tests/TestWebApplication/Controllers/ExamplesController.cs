@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Ridge.Results;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,9 +9,9 @@ namespace TestWebApplication.Controllers.Examples
     public class ExamplesController
     {
         // Example controller
-        // Notice the ControllerResult instead of standard ActionResult
+        // Notice the ActionResult instead of standard ActionResult
         [HttpGet("ReturnGivenNumber")]
-        public virtual async Task<ControllerResult<int>> ReturnGivenNumber(
+        public virtual async Task<ActionResult<int>> ReturnGivenNumber(
             [FromQuery] int input)
         {
             return input;
@@ -22,7 +20,7 @@ namespace TestWebApplication.Controllers.Examples
         // notice that you do not have to use endpoint routing
         // route for this action is defined in startup in following way
         // endpoints.MapControllerRoute(name: "complexExample", "{controller}/{action}/{fromRoute}/{boundFromCustomModelBinder}");
-        public virtual async Task<ControllerResult<ResponseObject>> ComplexExample(
+        public virtual async Task<ActionResult<ResponseObject>> ComplexExample(
             [FromQuery] ComplexObject complexObjectFromQuery,
             [FromQuery] List<string> listOfSimpleTypesFromQuery,
             [FromBody] List<ComplexObject> complexObjectsFromBody,

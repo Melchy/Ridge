@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Ridge.Interceptor.ActionInfo.Dtos;
-using Ridge.Interceptor.InterceptorFactory;
 using Ridge.Transformers;
 using System;
 using System.Collections.Generic;

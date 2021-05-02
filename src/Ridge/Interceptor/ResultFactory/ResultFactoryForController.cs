@@ -1,6 +1,8 @@
-﻿using Ridge.CallData;
-using Ridge.Results;
+﻿using Microsoft.AspNetCore.Mvc;
+using Ridge.CallData;
+using Ridge.CallResult.Controller;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -23,17 +25,28 @@ namespace Ridge.Interceptor.ResultFactory
                 throw new InvalidOperationException("This is never thrown"); // this line is never reached
             }
 
-            if (actionReturnType == typeof(ControllerResult))
+            if (actionReturnType == typeof(ActionResult))
             {
-                return GeneralHelpers.CreateInstance(actionReturnType, httpResponseMessage, resultString, httpResponseMessage.StatusCode);
+                return new ControllerCallResult(httpResponseMessage, resultString, httpResponseMessage.StatusCode);
             }
-            else if (GeneralHelpers.IsOrImplements(actionReturnType,typeof(ControllerResult<>)))
+            else if (GeneralHelpers.IsOrImplements(actionReturnType, typeof(ActionResult<>)))
             {
-                return GeneralHelpers.CreateInstance(actionReturnType, httpResponseMessage, resultString, httpResponseMessage.StatusCode);
+                var genericTypeOfActionResult = actionReturnType.GenericTypeArguments.First();
+                var ridgeResult = GeneralHelpers.CreateInstance(
+                    typeof(ControllerCallResult<>).MakeGenericType(genericTypeOfActionResult),
+                    httpResponseMessage,
+                    resultString,
+                    httpResponseMessage.StatusCode);
+                var actionResult = GeneralHelpers.CreateInstance(actionReturnType, ridgeResult);
+                return actionResult;
+            }
+            else if (GeneralHelpers.IsOrImplements(actionReturnType, typeof(IActionResult)))
+            {
+                return new ControllerCallResult(httpResponseMessage, resultString, httpResponseMessage.StatusCode);
             }
             else
             {
-                throw new InvalidOperationException($"Controller method must return {nameof(ControllerResult)} or {nameof(ControllerResult)}<T>");
+                throw new InvalidOperationException($"Controller method must return {nameof(ActionResult)} or {nameof(ActionResult)}<T> or {nameof(IActionResult)}");
             }
         }
     }

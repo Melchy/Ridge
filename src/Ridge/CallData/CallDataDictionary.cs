@@ -21,6 +21,7 @@ namespace Ridge.CallData
             {
                 return false;
             }
+
             var callIdPresent = Data.TryGetValue(value, out _);
             return callIdPresent;
         }

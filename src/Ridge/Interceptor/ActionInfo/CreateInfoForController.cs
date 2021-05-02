@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Ridge.Interceptor.ActionInfo.Dtos;
-using Ridge.Interceptor.InterceptorFactory;
 using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
