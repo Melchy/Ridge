@@ -18,6 +18,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TestWebApplication;
 using TestWebApplication.Controllers;
+using TestWebApplication.Controllers.Examples;
 
 namespace RidgeTests
 {
@@ -58,6 +59,28 @@ namespace RidgeTests
             var testController = application.ControllerFactory.CreateController<TestController>();
             Action sutCall = () => testController.SyncNotReturningActionResult();
             sutCall.Should().Throw<InvalidOperationException>().WithMessage("*ActionResult*");
+        }
+
+        [Test]
+        public async Task ArgumentsWithoutAttributesAreSupported()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            var complexObject = new ComplexObject()
+            {
+                Str = "foo",
+                NestedComplexObject = new NestedComplexObject()
+                {
+                    Integer = 1,
+                    Str = "br",
+                },
+            };
+            var response = await testController.ArgumentsWithoutAttributes(complexObject,
+                1,
+                2);
+            response.GetResult().ComplexObject.Should().BeEquivalentTo(complexObject);
+            response.GetResult().FromQuery.Should().Be(2);
+            response.GetResult().FromRoute.Should().Be(1);
         }
 
         [Test]

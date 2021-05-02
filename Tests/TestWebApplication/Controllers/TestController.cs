@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
+using TestWebApplication.Controllers.Examples;
 
 namespace TestWebApplication.Controllers
 {
@@ -252,6 +253,17 @@ namespace TestWebApplication.Controllers
             return complexArguments.ToList();
         }
 
+        [HttpGet("ArgumentsWithoutAttributes/{fromRoute}")]
+        public virtual async Task<ActionResult<SpecialComplexObject>> ArgumentsWithoutAttributes(ComplexObject complexObjectFromQuery, int fromRoute, int fromQuery)
+        {
+            return new SpecialComplexObject()
+            {
+                ComplexObject = complexObjectFromQuery,
+                FromQuery = fromQuery,
+                FromRoute = fromRoute,
+            };
+        }
+
         [HttpGet("DefaultPropertiesInCtorTest")]
         public virtual async Task<ActionResult<ObjectWithDefaultProperties>> DefaultPropertiesInCtorTest([FromBody] ObjectWithDefaultProperties objectWithDefaultProperties)
         {
@@ -390,6 +402,7 @@ namespace TestWebApplication.Controllers
             throw new InvalidOperationException("Error");
         }
 
+        [HttpGet("SyncNotReturningActionResult")]
         public virtual int SyncNotReturningActionResult()
         {
             return 1;
@@ -400,6 +413,13 @@ namespace TestWebApplication.Controllers
         {
             return "ok";
         }
+    }
+
+    public class SpecialComplexObject
+    {
+        public ComplexObject ComplexObject { get; set; } = null!;
+        public int FromRoute { get; set; }
+        public int FromQuery { get; set; }
     }
 
     public class ObjectWithDefaultProperties

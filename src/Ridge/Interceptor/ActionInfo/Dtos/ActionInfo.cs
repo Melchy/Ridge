@@ -96,11 +96,12 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             IEnumerable<(ParameterInfo parameterReflection, object? value)> methodParams)
         {
             var formRouteDictionary = GetFromRouteParams(methodParams);
-            var fromQueryDictionary = GetFromQueryParams(methodParams);
+            var fromQueryDictionary = GetFromQueryParamsAndParamsWithoutAttribute(methodParams);
             if (formRouteDictionary.Keys.Intersect(fromQueryDictionary.Keys).Any())
             {
                 throw new InvalidOperationException("Argument with FromRoute has same Name as argument with attribute FromQuery.");
             }
+
             return GeneralHelpers.MergeDictionaries(formRouteDictionary, fromQueryDictionary);
         }
 
@@ -133,13 +134,26 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
         }
 
 
-        private static IDictionary<string, object?> GetFromQueryParams(IEnumerable<(ParameterInfo parameterReflection, object? Value)> methodParams)
+        private static IDictionary<string, object?> GetFromQueryParamsAndParamsWithoutAttribute(IEnumerable<(ParameterInfo parameterReflection, object? Value)> methodParams)
         {
             var fromQueryParams = methodParams.Where(x =>
                 GeneralHelpers.HasAttribute<FromQueryAttribute>(x.parameterReflection));
 
+            // With these arguments we can not decide if they should be bound fromQuery or fromRoute
+            // we use algorithm for forQuery params because it can bind even lists and complex objects.
+            // If user adds complex object which should be bounded FromRoute the parameter is created but asp.net core will not bind it.
+            var argumentsWhichMayBeFromQueryOrFromRouteAttribute = methodParams.Where(x =>
+                !GeneralHelpers.HasAttribute<FromRouteAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<FromQueryAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<FromBodyAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<FromHeaderAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<FromServicesAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<ModelBinderAttribute>(x.parameterReflection));
+
+            var allParams = fromQueryParams.Concat(argumentsWhichMayBeFromQueryOrFromRouteAttribute);
+
             IDictionary<string, object?> routeDataDictionary = new Dictionary<string, object?>();
-            foreach (var attribute in fromQueryParams)
+            foreach (var attribute in allParams)
             {
                 var parameterNameInRequest = GetAttributeNamePropertyOrParameterName(attribute.parameterReflection);
                 if (attribute.Value == null)
@@ -240,13 +254,13 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             var modelNameProvider = (IModelNameProvider?)parameter.GetCustomAttributes(typeof(IModelNameProvider), true).FirstOrDefault();
             if (modelNameProvider == null)
             {
-                throw new InvalidOperationException($"Parameter must have attribute implementing {nameof(IModelNameProvider)}");
+                return parameter.Name;
             }
 
             if (string.IsNullOrEmpty(modelNameProvider.Name))
             {
                 // This value can not be null. Null is only for return parameter
-                return parameter.Name!;
+                return parameter.Name;
             }
             else
             {
