@@ -473,4 +473,4 @@ public class Mixed
 
 * Only methods returning ActionResult, ActionResult<T>, IActionResult or class implementing IActionResult are supported.
 * Methods called with Ridge must be virtual.
-
+* This package supports .net core 3.0 and newer. 
