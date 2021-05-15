@@ -10,4 +10,12 @@ namespace Ridge.LogWriter
             TestContext.Progress.WriteLine(text);
         }
     }
+
+    public class CustomLogWriter : ILogWriter
+    {
+        public void WriteLine(string text)
+        {
+            // write line somewhere
+        }
+    }
 }

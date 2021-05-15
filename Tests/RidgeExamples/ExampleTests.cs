@@ -23,12 +23,12 @@ namespace RidgeExamples
         [Test]
         public async Task ExampleTest()
         {
-            // Create webAppFactory
+            // Create webApplicationFactory
             // https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0
-            var webAppFactory = new WebApplicationFactory<Startup>();
-            var client = webAppFactory.CreateClient();
+            var webApplicationFactory = new WebApplicationFactory<Startup>();
+            var client = webApplicationFactory.CreateClient();
             // Create controller factory using ridge package
-            var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
+            var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services);
 
 
             // Create instance of controller using controllerFactory.
@@ -36,7 +36,7 @@ namespace RidgeExamples
             // with custom code which transforms method calls to http calls.
             var testController = controllerFactory.CreateController<ExamplesController>();
             // Make standard method call which will be transformed into Http call.
-            var response = await testController.ReturnGivenNumber(10);
+            var response = testController.ReturnGivenNumber(10);
             // Equivalent call using WebAppFactory would look like this:
             // var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
 
@@ -47,8 +47,10 @@ namespace RidgeExamples
             Assert.AreEqual(10, int.Parse(content));
             Assert.True(httpResponseMessage.IsSuccessStatusCode);
 
-            //You can use special ridge properties to simplify assertion.
-            //Instead of Assert.True(response.HttpResponseMessage.IsSuccessStatusCode)
+            //You can use our extension methods to simplify assertion.
+
+
+            //Instead of Assert.True(response.HttpResponseMessage.IsSuccessStatusCode) Use:
             Assert.True(response.IsSuccessStatusCode());
             // Instead of
             // var content = await httpResponseMessage.Content.ReadAsStringAsync();
@@ -57,8 +59,27 @@ namespace RidgeExamples
             Assert.AreEqual(10, response.GetResult());
         }
 
+
         [Test]
-        public async Task ComplexTest()
+        public async Task ThrowExceptionTest()
+        {
+            var webApplicationFactory = new WebApplicationFactory<Startup>();
+            var client = webApplicationFactory.CreateClient();
+            var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services);
+
+            var testController = controllerFactory.CreateController<ExamplesController>();
+            try
+            {
+                _ = testController.ThrowException();
+            }
+            catch (InvalidOperationException e)
+            {
+                Assert.AreEqual("Exception throw", e.Message);
+            }
+        }
+
+        [Test]
+        public void ComplexTest()
         {
             var webAppFactory = new WebApplicationFactory<Startup>();
             var client = webAppFactory.CreateClient();
@@ -70,21 +91,21 @@ namespace RidgeExamples
             // add httpRequestTransformation which allows us to transform final http request
             controllerFactory.AddHttpRequestPipelinePart(new HttpRequestTransformationPipelinePart());
             var testController = controllerFactory.CreateController<ExamplesController>();
-            var response = await testController.ComplexExample(
+            var response = testController.ComplexExample(
                 complexObjectFromQuery: new ComplexObject()
                 {
                     Str = "str",
                     NestedComplexObject = new NestedComplexObject()
                     {
                         Integer = 1,
-                        Str = "string"
+                        Str = "string",
                     },
                 },
-                listOfSimpleTypesFromQuery:new List<string>()
+                listOfSimpleTypesFromQuery: new List<string>()
                 {
-                    "foo", "bar"
+                    "foo", "bar",
                 },
-                complexObjectsFromBody:new List<ComplexObject>()
+                complexObjectsFromBody: new List<ComplexObject>()
                 {
                     new ComplexObject()
                     {
@@ -92,33 +113,59 @@ namespace RidgeExamples
                         NestedComplexObject = new NestedComplexObject()
                         {
                             Integer = 5,
-                            Str = "bar"
-                        }
-                    }
+                            Str = "bar",
+                        },
+                    },
                 },
                 fromRoute: 1,
-                // this value is used only because we added CustomModelBinderTransformer
-                customModelBinder: "customModelBinder",
-                examplesController:null); // this value wont be used
+                examplesController: null); // this value won`t be used
 
             Assert.AreEqual("str", response.GetResult().ComplexObjectFromQuery.Str);
             Assert.AreEqual("string", response.GetResult().ComplexObjectFromQuery.NestedComplexObject.Str);
             Assert.AreEqual("foo", response.GetResult().ListOfSimpleTypesFromQuery.First());
             Assert.AreEqual(5, response.GetResult().ComplexObjectsFromBody.First().NestedComplexObject.Integer);
             Assert.AreEqual(1, response.GetResult().FromRoute);
-            Assert.AreEqual("customModelBinder", response.GetResult().CustomModelBinder);
+        }
+
+
+        [Test]
+        public void CustomModelBinderTest()
+        {
+            var webAppFactory = new WebApplicationFactory<Startup>();
+            var client = webAppFactory.CreateClient();
+            var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
+            // Register action transformer which allows us to work with custom model binder
+            controllerFactory.AddActionInfoTransformer(new CustomModelBinderTransformer());
+            var testController = controllerFactory.CreateController<ExamplesController>();
+            var response = testController.CustomModelBinderExample("exampleValue");
+
+            Assert.AreEqual("exampleValue", response.GetResult());
+        }
+
+        [Test]
+        public void HttpRequestPipelineTest()
+        {
+            var webAppFactory = new WebApplicationFactory<Startup>();
+            var client = webAppFactory.CreateClient();
+            var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
+
+            controllerFactory.AddHttpRequestPipelinePart(new HttpRequestTransformationPipelinePart());
+
+            var testController = controllerFactory.CreateController<ExamplesController>();
+            var response = testController.CallThatNeedsHeaders();
+
+            Assert.True(response.IsSuccessStatusCode());
         }
     }
 
     public class CustomModelBinderTransformer : IActionInfoTransformer
     {
         public Task TransformAsync(
-            IActionInfo actionInfo, //action info contains information about request
-            InvocationInfo invocationInfo)
+            IActionInfo actionInfo, // IActionInfo contains information about request
+            InvocationInfo invocationInfo) // invocation info contains information about method that was called
         {
-            // using ElementAt is not recommended.
-            // Better way would be to wrap customModelBinder argument in custom class and search for that class
-            actionInfo.RouteParams.Add("boundFromCustomModelBinder", invocationInfo.Arguments.ElementAt(4));
+            // set route parameter "thisIsBoundedUsingCustomBinder" to value of first argument passed to method
+            actionInfo.RouteParams.Add("thisIsBoundedUsingCustomBinder", invocationInfo.Arguments.First());
             return Task.CompletedTask;
         }
     }
@@ -133,7 +180,6 @@ namespace RidgeExamples
         {
             // transform http request
             httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
             var response = await next();
             // we could even transform response
             //response.Content = new StringContent("foo");

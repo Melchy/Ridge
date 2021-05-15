@@ -1,7 +1,6 @@
 # Ridge
 
-Testing tool which allows strongly typed http requests and 
-[subcutaneous](https://martinfowler.com/bliki/SubcutaneousTest.html) razor pages testing.
+Testing tool which allows strongly typed http requests.
 
 
 ## Installing Ridge
@@ -14,42 +13,28 @@ Install using .Net Core command line:
 ```
 dotnet add package RidgeDotNet
 ```
-## Goal
-
-Currently there is no simple way to test ASP.Net core controllers. One of the viable ways is to use
-[WebApplicationFactory](https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0).
-But this package has few downsides:
-
-* Controllers must be called using url. Because of this we lose strong typing and all of it's benefits. 
-* Exceptions are returned as http response with code 500.
-* Response must be deserialized in test. Before result is deserialized it is necessary to check if 
-  application returned http response with code 2xx.
-  
-Ridge solves all these problems and allows `WebApplicationFactory` to be used in unit tests.
 
 ## Simple example
 
 ```csharp
 // Example controller
-// Notice the ControllerResult instead of standard ActionResult
+// Method must be virtual
 [HttpGet("ReturnGivenNumber")]
-public virtual ControllerResult<int> ReturnGivenNumber(
-    [FromQuery] int input)
+public virtual ActionResult<int> ReturnGivenNumber([FromQuery] int input)
 {
     return input;
 }
 
 //...
-
 [Test]
 public async Task ExampleTest()
 {
-    // Create webAppFactory
+    // Create webApplicationFactory
     // https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0
-    var webAppFactory = new WebApplicationFactory<Startup>();
-    var client = webAppFactory.CreateClient();
+    var webApplicationFactory = new WebApplicationFactory<Startup>();
+    var client = webApplicationFactory.CreateClient();
     // Create controller factory using ridge package
-    var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
+    var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services);
 
 
     // Create instance of controller using controllerFactory.
@@ -57,35 +42,36 @@ public async Task ExampleTest()
     // with custom code which transforms method calls to http calls.
     var testController = controllerFactory.CreateController<ExamplesController>();
     // Make standard method call which will be transformed into Http call.
-    var response = await testController.ReturnGivenNumber(10);
+    var response = testController.ReturnGivenNumber(10);
     // Equivalent call using WebAppFactory would look like this:
     // var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
 
 
     //Assert httpResponseMessage
-    var httpResponseMessage = response.HttpResponseMessage;
+    var httpResponseMessage = response.HttpResponseMessage();
     var content = await httpResponseMessage.Content.ReadAsStringAsync();
     Assert.AreEqual(10, int.Parse(content));
     Assert.True(httpResponseMessage.IsSuccessStatusCode);
 
-    //You can use special ridge properties to simplify assertion.
-    //Instead of Assert.True(response.HttpResponseMessage.IsSuccessStatusCode)
-    Assert.True(response.IsSuccessStatusCode);
+    //You can use our extension methods to simplify assertion.
+
+
+    //Instead of Assert.True(response.HttpResponseMessage.IsSuccessStatusCode) Use:
+    Assert.True(response.IsSuccessStatusCode());
     // Instead of
     // var content = await httpResponseMessage.Content.ReadAsStringAsync();
     // Assert.AreEqual(10, int.Parse(content));
     // Use:
-    Assert.AreEqual(10, response.Result);
+    Assert.AreEqual(10, response.GetResult());
 }
 ```
 
-## SetUp
 
-* Change all usages of `ActionResult`, `IActionResult` and `ActionResult<T>` to `ControllerResult` or `ControllerResult<T>`
-* Mark all public methods in controller as virtual.
-* Mark all controller arguments which should be bound from request with attributes `[FromBody]`,`[FromRoute]`,`[FromQuery]` or`[FromHeaders]`.
-* Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`
-* Add `services.AddRidge();` to your `ConfigureServices` method in `Startup`
+## Setup
+
+* Mark methods in controller as virtual
+* Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`. This middleware is used only 
+if application is called from test using ridge.
 
 ### Startup example
 
@@ -93,7 +79,6 @@ public async Task ExampleTest()
 public class Startup
 {
     public void ConfigureServices(IServiceCollection services) {
-        services.AddRidge(); // register ridge
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -102,7 +87,9 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
         }
-        app.UseRidgeImprovedExceptions(); // use exception middleware
+        
+        // use exception middleware
+        app.UseRidgeImprovedExceptions(); 
 
         app.UseRouting();
 
@@ -114,38 +101,123 @@ public class Startup
 }
 ```
 
-## Complex example
+
+
+## Motivation
+
+In our application we often used thin controllers containing methods like this:
 
 ```csharp
-// notice that you do not have to use endpoint routing
+[HttpPost]
+public async Task<IActionResult> Create([FromBody] NewPostCommand command)
+{
+    var result = await Mediator.Send(command);
+    return Ok(result);
+}
+```
+
+Initially we taught it is not necessary to test those thin controllers but after a while we realized that even those 
+thin controllers can contain many bugs. Examples of these bugs are:
+
+* Using [FromRoute] with [HttpPost("someUrl")] instead of [HttpPost("someUrl/{variable}")].
+* Forgetting to add `[FromRoute]`, `[FromQuery]`, `[FromHeader]` and other similar attribute
+* Incorrect return types. Sometimes application returned 200 instead of 400.
+* Bugs in middleware and filters.
+* Bugs in validation. For example missing [Required] attribute on property.
+* And many others
+
+Furthermore we couldn't test many of the controller responsibilities like obtaining values from httpContext, parsing headers
+and so on.
+
+### Microsoft for the win
+
+After some time of struggling with these problems we found [WebApplicationFactory](https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0).
+This factory allows you to make fake http request to your application. For more information about 
+WebApplicationFactory see [documentation](https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0).
+
+### Struggle continues
+
+For a while we used combination of `WebApplicationFactory` and unit tests but after 
+some time we found this approach to be cumbersome. This was mainly because of the following problems with `WebApplicationFactory`:
+
+* `WebApplicationFactory` makes calls using Urls which are not strongly typed (obviously) because of this it was sometimes hard to 
+find which action is called from the test.
+* Exceptions are not propagated out of your application. They are transformed into http result with error code 500. This is useful in production
+but not so much in tests.
+  
+* Building the request manually was time consuming. Programmers spent lot of time figuring out how to build body, query parameters
+and route parameters.
+  
+* Response validation was not trivial. It was necessary to check returned status code and if it 
+  was successful deserialize result. If status code indicated failure it was necessary to propagate this error to test result
+  or validate correct error message.
+
+All these problems lead us to create Ridge - the strongly typed controller caller. We used this tool since and didn't look back.
+
+## Exceptions
+
+Exceptions are rethrown with correct call stack.
+
+```csharp
+[HttpGet("ThrowException")]
+public virtual ActionResult ThrowException()
+{
+    throw new InvalidOperationException("Exception throw");
+}
+
+//...
+[Test]
+public async Task ThrowExceptionTest()
+{
+    var webApplicationFactory = new WebApplicationFactory<Startup>();
+    var client = webApplicationFactory.CreateClient();
+    var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services);
+
+    var testController = controllerFactory.CreateController<ExamplesController>();
+    try
+    {
+        _ = testController.ThrowException();
+    }
+    catch (InvalidOperationException e)
+    {
+        Assert.AreEqual("Exception throw", e.Message);
+    }
+}
+
+```
+
+If your application returns 500 instead of throwing exception it is possible that you forgot to register
+ridge middleware (see setup).
+
+## Complex example
+
+Ridge can handle nearly all of the use cases you can imagine. Following example show call of complex action:
+
+```csharp
+// notice that you don't have to use endpoint routing
 // route for this action is defined in startup in following way
 // endpoints.MapControllerRoute(name: "complexExample", "{controller}/{action}/{fromRoute}/{boundFromCustomModelBinder}");
-public virtual async Task<ControllerResult<ResponseObject>> ComplexExample(
+public virtual async Task<ActionResult<ResponseObject>> ComplexExample(
     [FromQuery] ComplexObject complexObjectFromQuery,
     [FromQuery] List<string> listOfSimpleTypesFromQuery,
     [FromBody] List<ComplexObject> complexObjectsFromBody,
     [FromRoute] int fromRoute,
-    [ModelBinder(BinderType = typeof(CountryCodeBinder))] string customModelBinder,
     // From services arguments are ignored and injected correctly by ASP.Net
-    [FromServices] ExamplesController examplesController
-    )
+    [FromServices] ExamplesController examplesController)
 {
     return new ResponseObject
     {
         FromRoute = fromRoute,
-        CustomModelBinder = customModelBinder,
         ComplexObjectFromQuery = complexObjectFromQuery,
         ComplexObjectsFromBody = complexObjectsFromBody,
         ListOfSimpleTypesFromQuery = listOfSimpleTypesFromQuery
     };
 }
-
-
+            
 public class ComplexObject
 {
     public string Str { get; set; }
     public NestedComplexObject NestedComplexObject { get; set; }
-
 }
 
 public class NestedComplexObject
@@ -154,91 +226,131 @@ public class NestedComplexObject
     public int Integer { get; set; }
 }
 
+//test code 
+
+public void Test()
+{
+
+//Arange
+//omitted for brevity
+
+//Act
+var testController = controllerFactory.CreateController<ExamplesController>();
+var response = testController.ComplexExample(
+    complexObjectFromQuery: new ComplexObject()
+    {
+        Str = "str",
+        NestedComplexObject = new NestedComplexObject()
+        {
+            Integer = 1,
+            Str = "string",
+        },
+    },
+    listOfSimpleTypesFromQuery: new List<string>()
+    {
+        "foo", "bar",
+    },
+    complexObjectsFromBody: new List<ComplexObject>()
+    {
+        new ComplexObject()
+        {
+            Str = "str",
+            NestedComplexObject = new NestedComplexObject()
+            {
+                Integer = 5,
+                Str = "bar",
+            },
+        },
+    },
+    fromRoute: 1,
+    examplesController: null); // this value won`t be used
+    
+//Assert
+//omitted for brevity
+```
+
+
+## Custom model binders
+
+Custom model binders are supported. Example:
+
+```csharp
+[HttpGet("customModelBinder/{thisIsBoundedUsingCustomBinder}")]
+public virtual ActionResult<string> CustomModelBinderExample(
+    [ModelBinder(typeof(CountryCodeBinder))] string boundFromCustomModelBinder)
+{
+    return boundFromCustomModelBinder;
+}
+
+// simple model binder which does the same as FromRoute attribute
 public class CountryCodeBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
         var str = bindingContext.ActionContext.HttpContext
-            .Request.RouteValues["boundFromCustomModelBinder"]!.ToString();
+            .Request.RouteValues["thisIsBoundedUsingCustomBinder"]!.ToString();
         bindingContext.Result = ModelBindingResult.Success(str);
         return Task.CompletedTask;
     }
 }
 
-public class ResponseObject
-{
-    public ComplexObject ComplexObjectFromQuery { get; set; }
-    public List<string> ListOfSimpleTypesFromQuery { get; set; }
-    public List<ComplexObject> ComplexObjectsFromBody { get; set; }
-    public int FromRoute { get; set; }
-    public string CustomModelBinder { get; set; }
-}
+// Test 
 
-////////////////////////////////// Test file //////////////////////////////
 [Test]
-public async Task ComplexTest()
+public void CustomModelBinderTest()
 {
     var webAppFactory = new WebApplicationFactory<Startup>();
     var client = webAppFactory.CreateClient();
-    var controllerFactory = new ControllerFactory(client,
-        webAppFactory.Services,
-        new NunitLogWriter()); // add writer which writes generated requests to test output.
-    // Register transformer which allows us to work with custom model binder
+    var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
+    
+    // Register action transformer which allows us to work with custom model binder
     controllerFactory.AddActionInfoTransformer(new CustomModelBinderTransformer());
-    // add httpRequestTransformation which allows us to transform final http request
-    controllerFactory.AddHttpRequestPipelinePart(new HttpRequestTransformationPipelinePart());
+    
     var testController = controllerFactory.CreateController<ExamplesController>();
-    var response = await testController.ComplexExample(
-        complexObjectFromQuery: new ComplexObject()
-        {
-            Str = "str",
-            NestedComplexObject = new NestedComplexObject()
-            {
-                Integer = 1,
-                Str = "string"
-            },
-        },
-        listOfSimpleTypesFromQuery:new List<string>()
-        {
-            "foo", "bar"
-        },
-        complexObjectsFromBody:new List<ComplexObject>()
-        {
-            new ComplexObject()
-            {
-                Str = "str",
-                NestedComplexObject = new NestedComplexObject()
-                {
-                    Integer = 5,
-                    Str = "bar"
-                }
-            }
-        },
-        fromRoute: 1,
-        // this value is used only because we added CustomModelBinderTransformer
-        customModelBinder: "customModelBinder",
-        examplesController:null); // this value wont be used
+    var response = testController.CustomModelBinderExample("exampleValue");
 
-    Assert.AreEqual("str", response.Result.ComplexObjectFromQuery.Str);
-    Assert.AreEqual("string", response.Result.ComplexObjectFromQuery.NestedComplexObject.Str);
-    Assert.AreEqual("foo", response.Result.ListOfSimpleTypesFromQuery.First());
-    Assert.AreEqual(5, response.Result.ComplexObjectsFromBody.First().NestedComplexObject.Integer);
-    Assert.AreEqual(1, response.Result.FromRoute);
-    Assert.AreEqual("customModelBinder", response.Result.CustomModelBinder);
+    Assert.AreEqual("exampleValue", response.GetResult());
 }
-
 
 public class CustomModelBinderTransformer : IActionInfoTransformer
 {
     public Task TransformAsync(
-        IActionInfo actionInfo, //action info contains information about request
-        InvocationInfo invocationInfo)
+        IActionInfo actionInfo, // IActionInfo contains information about request
+        InvocationInfo invocationInfo) // invocation info contains information about method that was called
     {
-        // using ElementAt is not recommended.
-        // Better way would be to wrap customModelBinder argument in custom class and search for that class
-        actionInfo.RouteParams.Add("boundFromCustomModelBinder", invocationInfo.Arguments.ElementAt(4));
+        // set route parameter "thisIsBoundedUsingCustomBinder" to value of first argument passed to method
+        actionInfo.RouteParams.Add("thisIsBoundedUsingCustomBinder", invocationInfo.Arguments.First());
         return Task.CompletedTask;
     }
+}
+```
+
+## Ridge extendability
+
+Ridge contains two extendability points - `IActionInfoTransformer` and `IHttpRequestPipelinePart`.
+`IActionTransformer` can manipulate data right before the url is created using 
+[linkGenerator.GetPathByRouteValues](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.routing.linkgeneratorroutevaluesaddressextensions.getpathbyroutevalues?view=aspnetcore-5.0). 
+This allows you to transform or add all the necessary things to generate request. Example usage of `IActionTransformer`
+can be seen in custom model binders section.
+
+If `IActionTransformer` is not enough for your use case you can use `IHttpRequestPipelinePart` which allows you to
+transform the `HttpRequest` right before it is sent. Example usage:
+
+```csharp
+
+[Test]
+public void HttpRequestPipelineTest()
+{
+    var webAppFactory = new WebApplicationFactory<Startup>();
+    var client = webAppFactory.CreateClient();
+    var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
+
+    controllerFactory.AddHttpRequestPipelinePart(new HttpRequestTransformationPipelinePart());
+
+    var testController = controllerFactory.CreateController<ExamplesController>();
+    var response = testController.CallThatNeedsHeaders();
+
+    Assert.True(response.IsSuccessStatusCode());
 }
 
 public class HttpRequestTransformationPipelinePart : IHttpRequestPipelinePart
@@ -251,13 +363,114 @@ public class HttpRequestTransformationPipelinePart : IHttpRequestPipelinePart
     {
         // transform http request
         httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
         var response = await next();
         // we could even transform response
-        //response.Content = new StringContent("foo");
         return response;
     }
 }
 ```
 
+## Logging
+
+Sometimes it is nice to see what request Ridge generated. 
+To log request add `XunitLogWriter` or `NunitLogWriter` or implement custom 
+log writer and pass it to `ControllerFactory`. Example:
+
+```csharp
+
+// xunit 
+public class XunitLoggerTests
+{
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public XunitLoggerTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+    
+    public void Test(){
+        //...
+        var controllerFactory = new ControllerFactory(client,
+                    webAppFactory.Services,
+                    new XunitLogWriter(_testOutputHelper));
+        //...
+    }
+
+
+// Nunit
+public void Test(){
+//...
+var controllerFactory = new ControllerFactory(client,
+                webAppFactory.Services,
+                new NunitLogWriter());
+//...
+}
+         
+                
+// Custom implementation
+public class CustomLogWriter : ILogWriter
+{
+    public void WriteLine(string text)
+    {
+        // write line somewhere
+    }
+}
+
+public void Test(){
+//...
+var controllerFactory = new ControllerFactory(client,
+                webAppFactory.Services,
+                new CustomLogWriter());
+//...
+}
+```
+
+Example log:
+```
+Ridge generated request:
+Method: POST, RequestUri: '/Test/complexBody', Version: 1.1, Content: System.Net.Http.StringContent, Headers:
+{
+ridgeCallId: c61d152a-f6eb-4c03-8023-ce34fdbdc000
+Content-Type: application/json; charset=utf-8
+Content-Length: 109
+}
+Body:
+{"Str":"test","Integer":10,"DateTime":"2021-05-15T00:00:00+02:00","InnerObject":{"Str":"InnerStr","List":[]}}
+```
+
+Note that ridgeCallId header is ridge specific header necessary for internal request processing.
+
 ## Features which are not supported
+
+### Features which may be implemented in future
+
+* `[FromQuery]` with array of complex arguments is not supported:
+
+```csharp
+public virtual ActionResult NotSupported([FromQuery] IEnumerable<ComplexArgument> complexArguments){
+   //..
+}
+```
+
+* Complex types with `[FromXXX]` attributes on properties are not supported:
+
+```csharp
+public virtual ActionResult NotSupported(Mixed mixed){
+   //..
+}
+
+
+public class Mixed
+{
+    [FromBody]
+    public string BodyName { get; set; }
+    [FromHeader]
+    public string HeaderName { get; set; }
+}
+```
+
+### Features which can not be implemented
+
+* Only methods returning ActionResult, ActionResult<T>, IActionResult or class implementing IActionResult are supported.
+* Methods called with Ridge must be virtual.
+

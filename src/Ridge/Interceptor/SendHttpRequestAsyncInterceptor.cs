@@ -41,18 +41,16 @@ namespace Ridge.Interceptor
         /// CallControllerAsync(invocation.Arguments, invocation.Method).Wait() these calls can cause deadlock.
         /// Issue: Issue: https://github.com/xunit/xunit/issues/864?fbclid=IwAR1d4nLltbDGyO6SlhCYmBBskw_OJfycxBxRf_82gR_M-g-68lLmcFNGjFU
         ///
-        /// Task.Run(() => CallControllerAsync(invocation.Arguments, invocation.Method)).GetAwaiter().GetResult()
+        /// Task.Run(() => CallControllerAsync(invocation.Arguments, invocation.Method)).Wait()
         /// causes thread starvation when used in xunit test on single processor machine.
         /// Issue: https://github.com/JSkimming/Castle.Core.AsyncInterceptor/pull/54#issuecomment-480953342
-        /// This solution replaces the synchronization context which should cause that new task are not limited by number of threads
+        /// This solution replaces the synchronization context which should cause that new task is not limited by number of threads
         /// dictated in xunit synchronization context.
         /// </summary>
         /// <param name="invocation"></param>
         public void InterceptSynchronous(IInvocation invocation)
         {
-            //var foo = SynchronizationContext.Current;
-            //using (NoSynchronizationContextScope.Enter())
-
+            using (NoSynchronizationContextScope.Enter())
             {
                 invocation.ReturnValue = Task.Run(() => CallControllerAsync(invocation.Arguments, invocation.Method)).GetAwaiter().GetResult();
             }

@@ -52,7 +52,7 @@ namespace TestWebApplication
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
-                    name: "complexExample", "{controller}/{action}/{fromRoute}/{boundFromCustomModelBinder}");
+                    name: "complexExample", "{controller}/{action}/{fromRoute}/");
                 endpoints.MapControllerRoute(
                     name: "foo", "{controller}/{action}/");
 

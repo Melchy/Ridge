@@ -35,7 +35,7 @@ namespace Ridge.Interceptor
                 request.Headers.Add(headerParam.Key, headerParam.Value?.ToString());
             }
 
-            request.Headers.Add("callId", callId.ToString());
+            request.Headers.Add("ridgeCallId", callId.ToString());
             return request;
         }
 

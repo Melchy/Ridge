@@ -16,7 +16,7 @@ namespace Ridge.CallData
         
         public static bool IsTestCall(HttpContext httpContext)
         {
-            var headerPresent = httpContext.Request.Headers.TryGetValue("callId", out var value);
+            var headerPresent = httpContext.Request.Headers.TryGetValue("ridgeCallId", out var value);
             if (!headerPresent)
             {
                 return false;
@@ -28,22 +28,22 @@ namespace Ridge.CallData
         
         public static void InsertModel(HttpContext httpContext, object? model)
         {
-            var callIdHeadersExist = httpContext.Request.Headers.TryGetValue("callId", out var callIdHeaders);
+            var callIdHeadersExist = httpContext.Request.Headers.TryGetValue("ridgeCallId", out var callIdHeaders);
             var callIdHeader = callIdHeaders.FirstOrDefault();
             if (callIdHeader == null || !callIdHeadersExist)
             {
-                throw new InvalidOperationException("CallId not found in header. Did you setup caller correctly?");
+                throw new InvalidOperationException("RidgeCallId not found in header. Did you setup caller correctly?");
             }
             Data[callIdHeader] = new CallDataDto(){PageModel = model, Exception = null};
         }
         
         public static void InsertException(HttpContext httpContext, Exception exception)
         {
-            var callIdHeadersExist = httpContext.Request.Headers.TryGetValue("callId", out var callIdHeaders);
+            var callIdHeadersExist = httpContext.Request.Headers.TryGetValue("ridgeCallId", out var callIdHeaders);
             var callIdHeader = callIdHeaders.FirstOrDefault();
             if (callIdHeader == null || !callIdHeadersExist)
             {
-                throw new InvalidOperationException("CallId not found in header. Did you setup caller correctly?");
+                throw new InvalidOperationException("RidgeCallId not found in header. Did you setup caller correctly?");
             }
             Data[callIdHeader] = new CallDataDto(){PageModel = null, Exception = exception};
         }
@@ -53,12 +53,12 @@ namespace Ridge.CallData
             var callDataFound = Data.TryGetValue(callId, out var data);
             if (!callDataFound)
             {
-                throw new InvalidOperationException("CallId not found in dictionary. Did you setup caller correctly?");
+                throw new InvalidOperationException("RidgeCallId not found in dictionary. Did you setup caller correctly?");
             }
 
             if (data == null)
             {
-                throw new InvalidOperationException("CallId found in dictionary but data are se to null. Did you clear CallId Header?");
+                throw new InvalidOperationException("RidgeCallId found in dictionary but data are se to null. Did you clear CallId Header?");
             }
 
             return data;
