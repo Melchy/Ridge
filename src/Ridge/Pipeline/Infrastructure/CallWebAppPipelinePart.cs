@@ -31,14 +31,27 @@ namespace Ridge.Pipeline.Infrastructure
             {
                 var body = httpRequestMessage.Content;
                 var bodyAsString = body == null ? null : await httpRequestMessage.Content.ReadAsStringAsync();
-                _logger.WriteLine("Ridge generated request:");
+                _logger.WriteLine("Request:");
                 _logger.WriteLine($"{httpRequestMessage}");
                 _logger.WriteLine("Body:");
                 _logger.WriteLine($"{bodyAsString}");
                 _logger.WriteLine("");
             }
 
-            return await _httpClient.SendAsync(httpRequestMessage);
+            var response = await _httpClient.SendAsync(httpRequestMessage);
+
+            if (_logger != null)
+            {
+                var body = response.Content;
+                var bodyAsString = body == null ? null : await response.Content.ReadAsStringAsync();
+                _logger.WriteLine("Response:");
+                _logger.WriteLine($"{response}");
+                _logger.WriteLine("Body:");
+                _logger.WriteLine($"{bodyAsString}");
+                _logger.WriteLine("");
+            }
+
+            return response;
         }
     }
 }
