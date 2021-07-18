@@ -28,7 +28,7 @@ namespace RidgeExamples
             var webApplicationFactory = new WebApplicationFactory<Startup>();
             var client = webApplicationFactory.CreateClient();
             // Create controller factory using ridge package
-            var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services);
+            var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services, new NunitLogWriter());
 
 
             // Create instance of controller using controllerFactory.

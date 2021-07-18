@@ -34,7 +34,9 @@ public async Task ExampleTest()
     var webApplicationFactory = new WebApplicationFactory<Startup>();
     var client = webApplicationFactory.CreateClient();
     // Create controller factory using ridge package
-    var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services);
+    var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services
+    // set logger (see logging section) 
+    new NunitLogWriter());
 
 
     // Create instance of controller using controllerFactory.
@@ -71,7 +73,7 @@ public async Task ExampleTest()
 
 * Mark methods in controller as virtual
 * Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`. This middleware is used only 
-if application is called from test using ridge.
+if application is called from test using Ridge.
 
 ### Startup example
 
@@ -101,58 +103,64 @@ public class Startup
 }
 ```
 
-
-
 ## Motivation
 
-In our application we often used thin controllers containing methods like this:
+Andrew Lock wrote phenomenal [article about unit testing controllers](https://andrewlock.net/should-you-unit-test-controllers-in-aspnetcore/).
+In this article Andrew shows that you should test your controllers even if they don't contain any logic. Main reason is that your application
+can contain errors in Model Bindings, Pipeline, Routing and so on. Conclusion of the article is that you should test controllers 
+using [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0).
+
+Unfortunately `WebApplicationFactory<T>` has some downsides:
+
+* Controller calls aren't strongly typed. You have to use URL.
+* Building url can be complicated. It is necessary to fill route parameters, query parameters and body. Overall it is much more work than
+  just calling method.
+* Exceptions are transformed to http response with status code 500. This is useful in production but not so much in tests.
+* Response must be deserialized after checking that server responded with correct status code.
+
+Ridge is library that uses `WebApplicationFactory<T>` and allows you to call your controller without any of the drawbacks mentioned above.
+
+## Assertions
+
+Ridge offers multiple extension methods which you can use to assert result:
 
 ```csharp
-[HttpPost]
-public async Task<IActionResult> Create([FromBody] NewPostCommand command)
-{
-    var result = await Mediator.Send(command);
-    return Ok(result);
-}
+// Exctension methods on IActionResult and ActionResult
+actionResult.HttpResponseMessage()
+actionResult.ResultAsString()
+actionResult.StatusCode()
+actionResult.IsSuccessStatusCode() // status code >=200 and <300
+actionResult.IsRedirectStatusCode() // status code >=300 and <400
+actionResult.IsClientErrorStatusCode() // status code >=400 and <500
+actionResult.IsServerErrorStatusCode() // status code >=500 and <600
+actionResult.Unwrap() // get ControllerResult which contains all of the above information
+
+// Exctension methods on ActionResult<T>
+actionResult.GetResult<T>() // tries to desirialize response to T
+actionResult.HttpResponseMessage()
+actionResult.ResultAsString()
+actionResult.StatusCode()
+actionResult.IsSuccessStatusCode() // status code >=200 and <300
+actionResult.IsRedirectStatusCode() // status code >=300 and <400
+actionResult.IsClientErrorStatusCode() // status code >=400 and <500
+actionResult.IsServerErrorStatusCode() // status code >=500 and <600
+actionResult.Unwrap() // get ControllerResult<T> which contains all of the above information
 ```
 
-Initially we taught it is not necessary to test those thin controllers but after a while we realized that even those 
-thin controllers can contain many bugs. Examples of these bugs are:
+## Do not use ActionResult<T> properties
 
-* Using [FromRoute] with [HttpPost("someUrl")] instead of [HttpPost("someUrl/{variable}")].
-* Forgetting to add `[FromRoute]`, `[FromQuery]`, `[FromHeader]` and other similar attribute
-* Incorrect return types. Sometimes application returned 200 instead of 400.
-* Bugs in middleware and filters.
-* Bugs in validation. For example missing [Required] attribute on property.
-* And many others
+ActionResult<T> contains `Result`, `Value` properties. 
+**Do not use those properties in tests. Use extension methods mentioned above instead.**
 
-Furthermore we couldn't test many of the controller responsibilities like obtaining values from httpContext, parsing headers
-and so on.
+## Setting properties on controller has no effect
 
-### Microsoft for the win
+When you create controller using ``ControllerBuilder``:
 
-After some time of struggling with these problems we found [WebApplicationFactory](https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0).
-This factory allows you to make fake http request to your application. For more information about 
-WebApplicationFactory see [documentation](https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0).
+``var testController = controllerFactory.CreateController<ExamplesController>();``
 
-### Struggle continues
-
-For a while we used combination of `WebApplicationFactory` and unit tests but after 
-some time we found this approach to be cumbersome. This was mainly because of the following problems with `WebApplicationFactory`:
-
-* `WebApplicationFactory` makes calls using Urls which are not strongly typed (obviously) because of this it was sometimes hard to 
-find which action is called from the test.
-* Exceptions are not propagated out of your application. They are transformed into http result with error code 500. This is useful in production
-but not so much in tests.
-  
-* Building the request manually was time consuming. Programmers spent lot of time figuring out how to build body, query parameters
-and route parameters.
-  
-* Response validation was not trivial. It was necessary to check returned status code and if it 
-  was successful deserialize result. If status code indicated failure it was necessary to propagate this error to test result
-  or validate correct error message.
-
-All these problems lead us to create Ridge - the strongly typed controller caller. We used this tool since and didn't look back.
+This instance of controller is proxied which means that the implementation is replaced 
+at runtime by diffrent implementation. For this reason it makes no sense to call 
+methods or properties which do not correspond to http calls. 
 
 ## Exceptions
 
@@ -187,7 +195,7 @@ public async Task ThrowExceptionTest()
 ```
 
 If your application returns 500 instead of throwing exception it is possible that you forgot to register
-ridge middleware (see setup).
+Ridge middleware (see setup).
 
 ## Complex example
 
@@ -425,20 +433,34 @@ var controllerFactory = new ControllerFactory(client,
 }
 ```
 
-Example log:
+Example log for `simpleExample` mentioned in this readme:
 ```
-Ridge generated request:
-Method: POST, RequestUri: '/Test/complexBody', Version: 1.1, Content: System.Net.Http.StringContent, Headers:
+Request:
+Method: GET, RequestUri: '/ReturnGivenNumber?input=10', 
+Version: 1.1, Content: System.Net.Http.StringContent, Headers:
 {
-ridgeCallId: c61d152a-f6eb-4c03-8023-ce34fdbdc000
-Content-Type: application/json; charset=utf-8
-Content-Length: 109
+  ridgeCallId: 565458ac-2217-4304-adf1-a2baa86bc33b
+  Content-Type: application/json; charset=utf-8
+  Content-Length: 2
 }
 Body:
-{"Str":"test","Integer":10,"DateTime":"2021-05-15T00:00:00+02:00","InnerObject":{"Str":"InnerStr","List":[]}}
+{}
+
+Response:
+StatusCode: 200, ReasonPhrase: 'OK', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  Content-Type: application/json; charset=utf-8
+  Content-Length: 2
+}
+Body:
+10
 ```
 
-Note that ridgeCallId header is ridge specific header necessary for internal request processing.
+Note that `ridgeCallId` header is ridge specific header necessary for internal request processing.
+
+## Best practices
+
+TODO
 
 ## Features which are not supported
 
