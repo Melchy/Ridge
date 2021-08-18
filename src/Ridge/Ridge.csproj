@@ -15,6 +15,9 @@
         <PackageTags>Testing, integration, strongly typed, razor</PackageTags>
     </PropertyGroup>
     <ItemGroup>
+        <AdditionalFiles Include="BannedSymbols.txt" />
+    </ItemGroup>
+    <ItemGroup>
         <PackageReference Include="Castle.Core" Version="4.4.1" />
         <PackageReference Include="Castle.Core.AsyncInterceptor" Version="2.0.0" />
         <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" PrivateAssets="All" />
@@ -23,6 +26,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.RazorPages" Version="2.2.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2" />
         <PackageReference Include="NUnit" Version="3.6.0" />
         <PackageReference Include="xunit.abstractions" Version="2.0.1" />
     </ItemGroup>
