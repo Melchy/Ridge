@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ridge.CallData;
 using Ridge.CallResult.Controller;
+using Ridge.Serialization;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -12,6 +13,13 @@ namespace Ridge.Interceptor.ResultFactory
 {
     internal class ResultFactoryForController : IResultFactory
     {
+        private readonly IRidgeSerializer _serializer;
+
+        public ResultFactoryForController(IRidgeSerializer serializer)
+        {
+            _serializer = serializer;
+        }
+
         public async Task<object> Create<T>(HttpResponseMessage httpResponseMessage,
             string callId,
             MethodInfo methodInfo)
@@ -36,7 +44,8 @@ namespace Ridge.Interceptor.ResultFactory
                     typeof(ControllerCallResult<>).MakeGenericType(genericTypeOfActionResult),
                     httpResponseMessage,
                     resultString,
-                    httpResponseMessage.StatusCode);
+                    httpResponseMessage.StatusCode,
+                    _serializer);
                 var actionResult = GeneralHelpers.CreateInstance(actionReturnType, ridgeResult);
                 return actionResult;
             }

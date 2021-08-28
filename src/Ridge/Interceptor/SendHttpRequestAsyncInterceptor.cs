@@ -3,6 +3,7 @@ using Ridge.CallData;
 using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.ResultFactory;
 using Ridge.Pipeline;
+using Ridge.Serialization;
 using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
@@ -20,18 +21,21 @@ namespace Ridge.Interceptor
         private readonly IResultFactory _resultFactory;
         private readonly ActionInfoTransformersCaller _actionInfoTransformersCaller;
         private readonly Action<MethodInfo>? _methodValidation;
+        private IRidgeSerializer _serializer;
 
         internal SendHttpRequestAsyncInterceptor(
             WebCaller webCaller,
             IGetInfo getInfo,
             IResultFactory resultFactory,
             ActionInfoTransformersCaller actionInfoTransformersCaller,
+            IRidgeSerializer serializer,
             Action<MethodInfo>? methodValidation = null)
         {
             _webCaller = webCaller;
             _getInfo = getInfo;
             _resultFactory = resultFactory;
             _actionInfoTransformersCaller = actionInfoTransformersCaller;
+            _serializer = serializer;
             _methodValidation = methodValidation;
         }
 
@@ -90,7 +94,8 @@ namespace Ridge.Interceptor
                 actionInfo.Body,
                 callId,
                 actionInfo.BodyFormat,
-                actionInfo.Headers);
+                actionInfo.Headers,
+                _serializer);
             CallDataDictionary.InsertEmptyDataToIndicateTestCall(callId);
 
             var result = await _webCaller.Call(request, actionInfo, new InvocationInfo(arguments, method));

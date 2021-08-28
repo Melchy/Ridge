@@ -3,6 +3,7 @@ using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.ResultFactory;
 using Ridge.LogWriter;
 using Ridge.Results;
+using Ridge.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +18,18 @@ namespace Ridge.Interceptor.InterceptorFactory
         private readonly HttpClient _httpClient;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogWriter? _logWriter;
+        private readonly IRidgeSerializer _serializer;
 
-        public RazorPageFactory(HttpClient httpClient, IServiceProvider serviceProvider, ILogWriter? logWriter = null)
+        public RazorPageFactory(
+            HttpClient httpClient,
+            IServiceProvider serviceProvider,
+            ILogWriter? logWriter = null,
+            IRidgeSerializer? ridgeSerializer = null)
         {
             _httpClient = httpClient;
             _serviceProvider = serviceProvider;
             _logWriter = logWriter;
+            _serializer = SerializerProvider.GetSerializer(serviceProvider, ridgeSerializer);
         }
 
         /// <summary>
@@ -37,7 +44,11 @@ namespace Ridge.Interceptor.InterceptorFactory
             var actionInfoTransformerCaller = GetActionInfoTransformerCaller();
             var razorPageInfoFactory = new RazorPageInfoFactory(_serviceProvider);
             var resultFactoryForPages = new ResultFactoryForPages();
-            var interceptor = new SendHttpRequestAsyncInterceptor<TPage>(caller, razorPageInfoFactory, resultFactoryForPages, actionInfoTransformerCaller);
+            var interceptor = new SendHttpRequestAsyncInterceptor<TPage>(caller,
+                razorPageInfoFactory,
+                resultFactoryForPages,
+                actionInfoTransformerCaller,
+                _serializer);
             return CreateClassFromInterceptor<TPage>(interceptor);
         }
 

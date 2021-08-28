@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Ridge.Interceptor;
+using Ridge.Serialization;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -7,13 +9,16 @@ namespace Ridge.CallResult.Controller
 {
     public class ControllerCallResult<TResult> : ControllerCallResult
     {
+        private readonly IRidgeSerializer _serializer;
         public TResult Result => GetResultOrThrow();
 
         internal ControllerCallResult(
             HttpResponseMessage httpResponseMessage,
             string resultAsString,
-            HttpStatusCode statusCode) : base(httpResponseMessage, resultAsString, statusCode)
+            HttpStatusCode statusCode,
+            IRidgeSerializer serializer) : base(httpResponseMessage, resultAsString, statusCode)
         {
+            _serializer = serializer;
         }
 
         /// <summary>
@@ -40,11 +45,13 @@ namespace Ridge.CallResult.Controller
                     return (TResult)(object)ResultAsString;
                 }
 
-                return JsonConvert.DeserializeObject<TResult>(ResultAsString);
+                return _serializer.Deserialize<TResult>(ResultAsString);
             }
-            catch (JsonException e)
+            catch (Exception e)
             {
-                throw new InvalidOperationException($"Deserialization to type: {typeof(TResult)} failed. Json that was sent from server: '{ResultAsString}'", e);
+                throw new InvalidOperationException($"Deserialization to type: " +
+                                                    $"{typeof(TResult)} failed using serializer: {_serializer.GetSerializerName()}." +
+                                                    $" Json that was sent from server: '{ResultAsString}'", e);
             }
         }
     }

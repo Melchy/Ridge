@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Ridge.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -14,7 +15,8 @@ namespace Ridge.Interceptor
             object? contentData,
             Guid callId,
             string contentType,
-            IDictionary<string, object?> headerParams)
+            IDictionary<string, object?> headerParams,
+            IRidgeSerializer serializer)
         {
             var httpMethodObject = new HttpMethod(httpMethod);
             var request = new HttpRequestMessage
@@ -27,7 +29,7 @@ namespace Ridge.Interceptor
                 httpMethodObject == HttpMethod.Delete ||
                 httpMethodObject == HttpMethod.Put)
             {
-                request.Content = CreateContent(contentType, contentData);
+                request.Content = CreateContent(contentType, contentData, serializer);
             }
 
             foreach (var headerParam in headerParams)
@@ -39,11 +41,11 @@ namespace Ridge.Interceptor
             return request;
         }
 
-        private static ByteArrayContent CreateContent(string content, object? obj)
+        private static ByteArrayContent CreateContent(string content, object? obj, IRidgeSerializer serializer)
         {
             if (content == "application/json")
             {
-                return new StringContent(JsonConvert.SerializeObject(obj), Encoding.UTF8, content);
+                return new StringContent(serializer.Serialize(obj), Encoding.UTF8, content);
             }
             else if(content == "application/x-www-form-urlencoded")
             {

@@ -458,9 +458,16 @@ Body:
 
 Note that `ridgeCallId` header is ridge specific header necessary for internal request processing.
 
+## Serialization
+
+Serialization library is automatically determined based on asp.net core settings. For custom serialization 
+implement `IRidgeSerializer` and pass it to `ControllerFactory`.
+
 ## Best practices
 
-TODO
+* Use strongly typed ActionsResult if possible.
+
+* //TODO
 
 ## Features which are not supported
 

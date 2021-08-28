@@ -2,6 +2,7 @@
 using Ridge.Interceptor.ActionInfo;
 using Ridge.Interceptor.ResultFactory;
 using Ridge.LogWriter;
+using Ridge.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,18 @@ namespace Ridge.Interceptor.InterceptorFactory
         private readonly HttpClient _httpClient;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogWriter? _logWriter;
+        private readonly IRidgeSerializer _serializer;
 
-        public ControllerFactory(HttpClient httpClient, IServiceProvider serviceProvider, ILogWriter? logWriter = null)
+        public ControllerFactory(
+            HttpClient httpClient,
+            IServiceProvider serviceProvider,
+            ILogWriter? logWriter = null,
+            IRidgeSerializer? ridgeSerializer = null)
         {
             _httpClient = httpClient;
             _serviceProvider = serviceProvider;
             _logWriter = logWriter;
+            _serializer = SerializerProvider.GetSerializer(serviceProvider, ridgeSerializer);
         }
 
         /// <summary>
@@ -35,12 +42,13 @@ namespace Ridge.Interceptor.InterceptorFactory
             var webCaller = GetWebCaller(_httpClient, _logWriter);
             var actionInfoTransformerCaller = GetActionInfoTransformerCaller();
             var createInfoForController = new CreateInfoForController(_serviceProvider);
-            var resultFactoryForController = new ResultFactoryForController();
+            var resultFactoryForController = new ResultFactoryForController(_serializer);
             var interceptor = new SendHttpRequestAsyncInterceptor<TController>(
                 webCaller,
                 createInfoForController,
                 resultFactoryForController,
                 actionInfoTransformerCaller,
+                _serializer,
                 EnsureCorrectReturnType);
             return CreateClassFromInterceptor<TController>(interceptor);
         }
