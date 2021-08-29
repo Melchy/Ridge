@@ -50,20 +50,7 @@ public async Task ExampleTest()
 
 
     //Assert httpResponseMessage
-    var httpResponseMessage = response.HttpResponseMessage();
-    var content = await httpResponseMessage.Content.ReadAsStringAsync();
-    Assert.AreEqual(10, int.Parse(content));
-    Assert.True(httpResponseMessage.IsSuccessStatusCode);
-
-    //You can use our extension methods to simplify assertion.
-
-
-    //Instead of Assert.True(response.HttpResponseMessage.IsSuccessStatusCode) Use:
     Assert.True(response.IsSuccessStatusCode());
-    // Instead of
-    // var content = await httpResponseMessage.Content.ReadAsStringAsync();
-    // Assert.AreEqual(10, int.Parse(content));
-    // Use:
     Assert.AreEqual(10, response.GetResult());
 }
 ```
@@ -71,7 +58,7 @@ public async Task ExampleTest()
 
 ## Setup
 
-* Mark methods in controller as virtual
+* Mark methods in controller as virtual.
 * Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`. This middleware is used only 
 if application is called from test using Ridge.
 
@@ -103,23 +90,6 @@ public class Startup
 }
 ```
 
-## Motivation
-
-Andrew Lock wrote phenomenal [article about unit testing controllers](https://andrewlock.net/should-you-unit-test-controllers-in-aspnetcore/).
-In this article Andrew shows that you should test your controllers even if they don't contain any logic. Main reason is that your application
-can contain errors in Model Bindings, Pipeline, Routing and so on. Conclusion of the article is that you should test controllers 
-using [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0).
-
-Unfortunately `WebApplicationFactory<T>` has some downsides:
-
-* Controller calls aren't strongly typed. You have to use URL.
-* Building url can be complicated. It is necessary to fill route parameters, query parameters and body. Overall it is much more work than
-  just calling method.
-* Exceptions are transformed to http response with status code 500. This is useful in production but not so much in tests.
-* Response must be deserialized after checking that server responded with correct status code.
-
-Ridge is library that uses `WebApplicationFactory<T>` and allows you to call your controller without any of the drawbacks mentioned above.
-
 ## Assertions
 
 Ridge offers multiple extension methods which you can use to assert result:
@@ -146,21 +116,6 @@ actionResult.IsClientErrorStatusCode() // status code >=400 and <500
 actionResult.IsServerErrorStatusCode() // status code >=500 and <600
 actionResult.Unwrap() // get ControllerResult<T> which contains all of the above information
 ```
-
-## Do not use ActionResult<T> properties
-
-ActionResult<T> contains `Result`, `Value` properties. 
-**Do not use those properties in tests. Use extension methods mentioned above instead.**
-
-## Setting properties on controller has no effect
-
-When you create controller using ``ControllerBuilder``:
-
-``var testController = controllerFactory.CreateController<ExamplesController>();``
-
-This instance of controller is proxied which means that the implementation is replaced 
-at runtime by diffrent implementation. For this reason it makes no sense to call 
-methods or properties which do not correspond to http calls. 
 
 ## Exceptions
 
@@ -199,7 +154,7 @@ Ridge middleware (see setup).
 
 ## Complex example
 
-Ridge can handle nearly all of the use cases you can imagine. Following example show call of complex action:
+Ridge can handle nearly all the use cases you can imagine. Following example show call of complex action:
 
 ```csharp
 // notice that you don't have to use endpoint routing
@@ -466,10 +421,12 @@ implement `IRidgeSerializer` and pass it to `ControllerFactory`.
 ## Best practices
 
 * Use strongly typed ActionsResult if possible.
+* Use [FromRoute], [FromQuery], [FromBody] and similar attributes.
 
-* //TODO
+## Not supported 
 
-## Features which are not supported
+* Methods not returning ActionResult, ActionResult<T>, IActionResult.
+* Projects running on .net core 2.1 and lower.
 
 ### Features which may be implemented in future
 
@@ -497,9 +454,3 @@ public class Mixed
     public string HeaderName { get; set; }
 }
 ```
-
-### Features which can not be implemented
-
-* Only methods returning ActionResult, ActionResult<T>, IActionResult or class implementing IActionResult are supported.
-* Methods called with Ridge must be virtual.
-* This package supports .net core 3.0 and newer. 

@@ -140,15 +140,9 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 GeneralHelpers.HasAttribute<FromQueryAttribute>(x.parameterReflection));
 
             // With these arguments we can not decide if they should be bound fromQuery or fromRoute
-            // we use algorithm for forQuery params because it can bind even lists and complex objects.
+            // we use algorithm for fromQuery params because it can bind even lists and complex objects.
             // If user adds complex object which should be bounded FromRoute the parameter is created but asp.net core will not bind it.
-            var argumentsWhichMayBeFromQueryOrFromRouteAttribute = methodParams.Where(x =>
-                !GeneralHelpers.HasAttribute<FromRouteAttribute>(x.parameterReflection) &&
-                !GeneralHelpers.HasAttribute<FromQueryAttribute>(x.parameterReflection) &&
-                !GeneralHelpers.HasAttribute<FromBodyAttribute>(x.parameterReflection) &&
-                !GeneralHelpers.HasAttribute<FromHeaderAttribute>(x.parameterReflection) &&
-                !GeneralHelpers.HasAttribute<FromServicesAttribute>(x.parameterReflection) &&
-                !GeneralHelpers.HasAttribute<ModelBinderAttribute>(x.parameterReflection));
+            var argumentsWhichMayBeFromQueryOrFromRouteAttribute = GetParametersWithoutMvcAttributes(methodParams);
 
             var allParams = fromQueryParams.Concat(argumentsWhichMayBeFromQueryOrFromRouteAttribute);
 
@@ -183,6 +177,17 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             }
 
             return routeDataDictionary;
+        }
+
+        private static IEnumerable<(ParameterInfo parameterReflection, object? Value)> GetParametersWithoutMvcAttributes(IEnumerable<(ParameterInfo parameterReflection, object? Value)> methodParams)
+        {
+            return methodParams.Where(x =>
+                !GeneralHelpers.HasAttribute<FromRouteAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<FromQueryAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<FromBodyAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<FromHeaderAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<FromServicesAttribute>(x.parameterReflection) &&
+                !GeneralHelpers.HasAttribute<ModelBinderAttribute>(x.parameterReflection));
         }
 
         private static bool HandleIEnumerable(
@@ -299,20 +304,19 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             {
                 return parametersWithFromBody.First().value;
             }
+
             if (parametersWithFromForm.Any())
             {
                 return parametersWithFromForm.First().value;
             }
 
-            // When no attributes are found try to use first complex argument
-            var complexArguments = methodParams
+            var potentialBodyArgumentWithoutFromAttribute = GetParametersWithoutMvcAttributes(methodParams)
                 .Where(x =>
-                !GeneralHelpers.IsSimpleType(x.parameterInfo.ParameterType))
-                .Select(x => x.value)
+                    !GeneralHelpers.IsSimpleType(x.parameterReflection.ParameterType))
+                .Select(x => x.Value)
                 .FirstOrDefault();
 
-
-            return complexArguments ?? new object();
+            return potentialBodyArgumentWithoutFromAttribute ?? new object();
         }
     }
 }
