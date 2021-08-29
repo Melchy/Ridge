@@ -304,7 +304,15 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 return parametersWithFromForm.First().value;
             }
 
-            return new object();
+            // When no attributes are found try to use first complex argument
+            var complexArguments = methodParams
+                .Where(x =>
+                !GeneralHelpers.IsSimpleType(x.parameterInfo.ParameterType))
+                .Select(x => x.value)
+                .FirstOrDefault();
+
+
+            return complexArguments ?? new object();
         }
     }
 }
