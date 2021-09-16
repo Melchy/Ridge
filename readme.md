@@ -1,6 +1,7 @@
 # Ridge
 
-Testing tool which allows strongly typed http requests.
+Testing tool which allows strongly typed http requests using 
+[WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory).
 
 
 ## Installing Ridge
@@ -16,11 +17,13 @@ dotnet add package RidgeDotNet
 
 ## Simple example
 
+In ASP.NET Core 2.1 microsoft added [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
+which can create mock web server. This web server allows you to make http calls in-process without network overhead. 
+
 ```csharp
 // Example controller
-// Method must be virtual
 [HttpGet("ReturnGivenNumber")]
-public virtual ActionResult<int> ReturnGivenNumber([FromQuery] int input)
+public ActionResult<int> ReturnGivenNumber([FromQuery] int input)
 {
     return input;
 }
@@ -29,27 +32,32 @@ public virtual ActionResult<int> ReturnGivenNumber([FromQuery] int input)
 [Test]
 public async Task ExampleTest()
 {
-    // Create webApplicationFactory
-    // https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0
     var webApplicationFactory = new WebApplicationFactory<Startup>();
     var client = webApplicationFactory.CreateClient();
-    // Create controller factory using ridge package
-    var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services
-    // set logger (see logging section) 
-    new NunitLogWriter());
 
+    var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
 
-    // Create instance of controller using controllerFactory.
-    // This is where the magic happens. Ridge replaces controller implementation
-    // with custom code which transforms method calls to http calls.
+    Assert.AreEqual(10, result);
+}
+```
+
+With Ridge you can change the http call to strongly typed method call:
+
+```csharp
+[Test]
+public void TestUsingRidge()
+{
+    var webApplicationFactory = new WebApplicationFactory<Startup>();
+    var client = webApplicationFactory.CreateClient();
+    var controllerFactory = new ControllerFactory(
+        client,
+        webApplicationFactory.Services,
+        new NunitLogWriter());
+
     var testController = controllerFactory.CreateController<ExamplesController>();
-    // Make standard method call which will be transformed into Http call.
+    // Ridge transforms method call to httpRequest
     var response = testController.ReturnGivenNumber(10);
-    // Equivalent call using WebAppFactory would look like this:
-    // var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
 
-
-    //Assert httpResponseMessage
     Assert.True(response.IsSuccessStatusCode());
     Assert.AreEqual(10, response.GetResult());
 }
@@ -59,8 +67,8 @@ public async Task ExampleTest()
 ## Setup
 
 * Mark methods in controller as virtual.
-* Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`. This middleware is used only 
-if application is called from test using Ridge.
+* Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`. (This middleware is used only 
+if application is called from test using Ridge.)
 
 ### Startup example
 
@@ -119,7 +127,8 @@ actionResult.Unwrap() // get ControllerResult<T> which contains all of the above
 
 ## Exceptions
 
-Exceptions are rethrown with correct call stack.
+When using WebApplicationFactory all exceptions are transformed to 500 status code. 
+Ridge behaves differently and rethrows the exceptions.
 
 ```csharp
 [HttpGet("ThrowException")]
@@ -149,12 +158,10 @@ public async Task ThrowExceptionTest()
 
 ```
 
-If your application returns 500 instead of throwing exception it is possible that you forgot to register
+Note that if your application returns 500 instead of throwing exception it is possible that you forgot to register
 Ridge middleware (see setup).
 
 ## Complex example
-
-Ridge can handle nearly all the use cases you can imagine. Following example show call of complex action:
 
 ```csharp
 // notice that you don't have to use endpoint routing
@@ -235,8 +242,6 @@ var response = testController.ComplexExample(
 
 ## Custom model binders
 
-Custom model binders are supported. Example:
-
 ```csharp
 [HttpGet("customModelBinder/{thisIsBoundedUsingCustomBinder}")]
 public virtual ActionResult<string> CustomModelBinderExample(
@@ -296,8 +301,8 @@ Ridge contains two extendability points - `IActionInfoTransformer` and `IHttpReq
 This allows you to transform or add all the necessary things to generate request. Example usage of `IActionTransformer`
 can be seen in custom model binders section.
 
-If `IActionTransformer` is not enough for your use case you can use `IHttpRequestPipelinePart` which allows you to
-transform the `HttpRequest` right before it is sent. Example usage:
+If `IActionTransformer` is not enough for you then you can use `IHttpRequestPipelinePart` which allows transformation 
+of the `HttpRequest` right before it is sent.
 
 ```csharp
 
@@ -335,8 +340,7 @@ public class HttpRequestTransformationPipelinePart : IHttpRequestPipelinePart
 
 ## Logging
 
-Sometimes it is nice to see what request Ridge generated. 
-To log request add `XunitLogWriter` or `NunitLogWriter` or implement custom 
+To log request and responses add `XunitLogWriter` or `NunitLogWriter` or implement custom 
 log writer and pass it to `ControllerFactory`. Example:
 
 ```csharp
@@ -420,10 +424,10 @@ implement `IRidgeSerializer` and pass it to `ControllerFactory`.
 
 ## Best practices
 
-* Use strongly typed ActionsResult if possible.
+* Use strongly typed `ActionsResult<T>` when possible.
 * Use [FromRoute], [FromQuery], [FromBody] and similar attributes.
 
-## Not supported 
+## Not supported features
 
 * Methods not returning ActionResult, ActionResult<T>, IActionResult.
 * Projects running on .net core 2.1 and lower.

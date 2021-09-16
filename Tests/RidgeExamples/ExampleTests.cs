@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using TestWebApplication;
 using TestWebApplication.Controllers.Examples;
@@ -19,43 +20,33 @@ namespace RidgeExamples
 {
     public class ExampleTests
     {
-        //...
         [Test]
-        public async Task ExampleTest()
+        public async Task TestUsingWebApplicationFactory()
         {
-            // Create webApplicationFactory
-            // https://docs.microsoft.com/cs-cz/aspnet/core/test/integration-tests?view=aspnetcore-5.0
             var webApplicationFactory = new WebApplicationFactory<Startup>();
             var client = webApplicationFactory.CreateClient();
-            // Create controller factory using ridge package
-            var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services, new NunitLogWriter());
+
+            var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
+
+            Assert.AreEqual(10, result);
+        }
 
 
-            // Create instance of controller using controllerFactory.
-            // This is where the magic happens. Ridge replaces controller implementation
-            // with custom code which transforms method calls to http calls.
+        [Test]
+        public void TestUsingRidge()
+        {
+            var webApplicationFactory = new WebApplicationFactory<Startup>();
+            var client = webApplicationFactory.CreateClient();
+            var controllerFactory = new ControllerFactory(
+                client,
+                webApplicationFactory.Services,
+                new NunitLogWriter());
+
             var testController = controllerFactory.CreateController<ExamplesController>();
-            // Make standard method call which will be transformed into Http call.
+            // Ridge transforms method call to httpRequest
             var response = testController.ReturnGivenNumber(10);
-            // Equivalent call using WebAppFactory would look like this:
-            // var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
 
-
-            //Assert httpResponseMessage
-            var httpResponseMessage = response.HttpResponseMessage();
-            var content = await httpResponseMessage.Content.ReadAsStringAsync();
-            Assert.AreEqual(10, int.Parse(content));
-            Assert.True(httpResponseMessage.IsSuccessStatusCode);
-
-            //You can use our extension methods to simplify assertion.
-
-
-            //Instead of Assert.True(response.HttpResponseMessage.IsSuccessStatusCode) Use:
             Assert.True(response.IsSuccessStatusCode());
-            // Instead of
-            // var content = await httpResponseMessage.Content.ReadAsStringAsync();
-            // Assert.AreEqual(10, int.Parse(content));
-            // Use:
             Assert.AreEqual(10, response.GetResult());
         }
 
