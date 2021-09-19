@@ -206,7 +206,9 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 var genericArgument = genericArguments[0];
                 if (!GeneralHelpers.IsSimpleType(genericArgument))
                 {
-                    throw new InvalidOperationException($"IEnumerable with complex type is not supported");
+                    throw new InvalidOperationException(
+                        "IEnumerable with complex type is not supported in query parameter. " +
+                        "If you want to use it in body add [FromBody] attribute to your argument in controller method.");
                 }
 
                 routeDataDictionary[parameterNameInRequest] = argumentValue;
