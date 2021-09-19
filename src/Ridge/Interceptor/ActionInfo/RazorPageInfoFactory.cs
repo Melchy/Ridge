@@ -20,10 +20,12 @@ namespace Ridge.Interceptor.ActionInfo
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public RazorPageInfoFactory(IServiceProvider serviceProvider)
+        public RazorPageInfoFactory(
+            IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
+
         public async Task<(string url, Dtos.ActionInfo actionArgumentsInfo)> GetInfo<TPage>(
             IEnumerable<object?> arguments,
             MethodInfo methodInfo,
@@ -46,7 +48,9 @@ namespace Ridge.Interceptor.ActionInfo
         }
 
         private string GetLinkToPage(
-            (string pagePath, string? area) pagePathAndArea, Dtos.ActionInfo actionInfo, string handlerName)
+            (string pagePath, string? area) pagePathAndArea,
+            Dtos.ActionInfo actionInfo,
+            string handlerName)
         {
             var linkGenerator = _serviceProvider.GetService<LinkGenerator>();
             var linkToPage = linkGenerator.GetPathByPage(pagePathAndArea.pagePath,
@@ -96,12 +100,14 @@ namespace Ridge.Interceptor.ActionInfo
             {
                 routeModelProviders[i].OnProvidersExecuting(context);
             }
+
             var result =
                 context.RouteModels.ToDictionary(x => x.RelativePath, x => GetUrlFromRouteValues(x.RouteValues));
             return result;
         }
-        
-        private static (string pagePath, string? area) GetUrlFromRouteValues(IDictionary<string, string> routerValues)
+
+        private static (string pagePath, string? area) GetUrlFromRouteValues(
+            IDictionary<string, string> routerValues)
         {
             var resultUrl = routerValues["page"];
             var found = routerValues.TryGetValue("area", out var area);
@@ -109,10 +115,12 @@ namespace Ridge.Interceptor.ActionInfo
             {
                 return (resultUrl, area);
             }
+
             return (resultUrl, null);
         }
 
-        private static ViewsFeature GetViewFeature(IServiceProvider serviceProvider)
+        private static ViewsFeature GetViewFeature(
+            IServiceProvider serviceProvider)
         {
             var applicationPartManager = serviceProvider.GetService<ApplicationPartManager>();
             var viewsFeature = new ViewsFeature();

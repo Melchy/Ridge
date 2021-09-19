@@ -15,19 +15,19 @@
         <PackageTags>Testing, integration, strongly typed, razor</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <AdditionalFiles Include="BannedSymbols.txt" />
+        <AdditionalFiles Include="BannedSymbols.txt"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Castle.Core" Version="4.4.1" />
-        <PackageReference Include="Castle.Core.AsyncInterceptor" Version="2.0.0" />
-        <PackageReference Include="MediatR" Version="9.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.RazorPages" Version="2.2.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2" />
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-        <PackageReference Include="NUnit" Version="3.6.0" />
-        <PackageReference Include="System.Text.Json" Version="4.6.0" />
-        <PackageReference Include="xunit.abstractions" Version="2.0.1" />
+        <PackageReference Include="Castle.Core" Version="4.4.1"/>
+        <PackageReference Include="Castle.Core.AsyncInterceptor" Version="2.0.0"/>
+        <PackageReference Include="MediatR" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.RazorPages" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2"/>
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
+        <PackageReference Include="NUnit" Version="3.6.0"/>
+        <PackageReference Include="System.Text.Json" Version="4.6.0"/>
+        <PackageReference Include="xunit.abstractions" Version="2.0.1"/>
     </ItemGroup>
 </Project>

@@ -1,24 +1,28 @@
 # Ridge
 
-Testing tool which allows strongly typed http requests using 
-[WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory).
-
+Testing tool which allows strongly typed http requests using
+[WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
+.
 
 ## Installing Ridge
 
 Install Ridge using [nuget](https://www.nuget.org/packages/RidgeDotNet/):
+
 ```
 Install-Package RidgeDotNet
 ```
+
 Install using .Net Core command line:
+
 ```
 dotnet add package RidgeDotNet
 ```
 
 ## Simple example
 
-In ASP.NET Core 2.1 microsoft added [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
-which can create mock web server. This web server allows you to make http calls in-process without network overhead. 
+In ASP.NET Core 2.1 microsoft
+added [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
+which can create mock web server. This web server allows you to make http calls in-process without network overhead.
 
 ```csharp
 // Example controller
@@ -63,12 +67,11 @@ public void TestUsingRidge()
 }
 ```
 
-
 ## Setup
 
 * Mark methods in controller as virtual.
-* Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`. (This middleware is used only 
-if application is called from test using Ridge.)
+* Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`. (This middleware is used only if
+  application is called from test using Ridge.)
 
 ### Startup example
 
@@ -127,8 +130,8 @@ actionResult.Unwrap() // get ControllerResult<T> which contains all of the above
 
 ## Exceptions
 
-When using WebApplicationFactory all exceptions are transformed to 500 status code. 
-Ridge behaves differently and rethrows the exceptions.
+When using WebApplicationFactory all exceptions are transformed to 500 status code. Ridge behaves differently and
+rethrows the exceptions.
 
 ```csharp
 [HttpGet("ThrowException")]
@@ -158,8 +161,8 @@ public async Task ThrowExceptionTest()
 
 ```
 
-Note that if your application returns 500 instead of throwing exception it is possible that you forgot to register
-Ridge middleware (see setup).
+Note that if your application returns 500 instead of throwing exception it is possible that you forgot to register Ridge
+middleware (see setup).
 
 ## Complex example
 
@@ -239,7 +242,6 @@ var response = testController.ComplexExample(
 //omitted for brevity
 ```
 
-
 ## Custom model binders
 
 ```csharp
@@ -296,13 +298,14 @@ public class CustomModelBinderTransformer : IActionInfoTransformer
 ## Ridge extendability
 
 Ridge contains two extendability points - `IActionInfoTransformer` and `IHttpRequestPipelinePart`.
-`IActionTransformer` can manipulate data right before the url is created using 
-[linkGenerator.GetPathByRouteValues](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.routing.linkgeneratorroutevaluesaddressextensions.getpathbyroutevalues?view=aspnetcore-5.0). 
-This allows you to transform or add all the necessary things to generate request. Example usage of `IActionTransformer`
+`IActionTransformer` can manipulate data right before the url is created using
+[linkGenerator.GetPathByRouteValues](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.routing.linkgeneratorroutevaluesaddressextensions.getpathbyroutevalues?view=aspnetcore-5.0)
+. This allows you to transform or add all the necessary things to generate request. Example usage
+of `IActionTransformer`
 can be seen in custom model binders section.
 
-If `IActionTransformer` is not enough for you then you can use `IHttpRequestPipelinePart` which allows transformation 
-of the `HttpRequest` right before it is sent.
+If `IActionTransformer` is not enough for you then you can use `IHttpRequestPipelinePart` which allows transformation of
+the `HttpRequest` right before it is sent.
 
 ```csharp
 
@@ -340,8 +343,8 @@ public class HttpRequestTransformationPipelinePart : IHttpRequestPipelinePart
 
 ## Logging
 
-To log request and responses add `XunitLogWriter` or `NunitLogWriter` or implement custom 
-log writer and pass it to `ControllerFactory`. Example:
+To log request and responses add `XunitLogWriter` or `NunitLogWriter` or implement custom log writer and pass it
+to `ControllerFactory`. Example:
 
 ```csharp
 
@@ -393,6 +396,7 @@ var controllerFactory = new ControllerFactory(client,
 ```
 
 Example log for `simpleExample` mentioned in this readme:
+
 ```
 Request:
 Method: GET, RequestUri: '/ReturnGivenNumber?input=10', 
@@ -419,7 +423,7 @@ Note that `ridgeCallId` header is ridge specific header necessary for internal r
 
 ## Serialization
 
-Serialization library is automatically determined based on asp.net core settings. For custom serialization 
+Serialization library is automatically determined based on asp.net core settings. For custom serialization
 implement `IRidgeSerializer` and pass it to `ControllerFactory`.
 
 ## Best practices

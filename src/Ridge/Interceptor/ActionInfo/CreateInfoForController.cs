@@ -16,7 +16,8 @@ namespace Ridge.Interceptor.ActionInfo
         private readonly LinkGenerator _linkGenerator;
         private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
 
-        public CreateInfoForController(IServiceProvider serviceProvider)
+        public CreateInfoForController(
+            IServiceProvider serviceProvider)
         {
             _linkGenerator = serviceProvider.GetService<LinkGenerator>();
             _actionDescriptorCollectionProvider = serviceProvider.GetService<IActionDescriptorCollectionProvider>();
@@ -39,10 +40,11 @@ namespace Ridge.Interceptor.ActionInfo
             return (url, methodActionInfo);
         }
 
-        private ControllerActionDescriptor GetActionDescriptor(MethodInfo methodInfo)
+        private ControllerActionDescriptor GetActionDescriptor(
+            MethodInfo methodInfo)
         {
             var actions = _actionDescriptorCollectionProvider.ActionDescriptors.Items
-                .Where(x=> x is ControllerActionDescriptor)
+                .Where(x => x is ControllerActionDescriptor)
                 .Cast<ControllerActionDescriptor>();
 
             var actionDescriptor = actions.FirstOrDefault(x => x.MethodInfo == methodInfo.GetBaseDefinition());
@@ -54,7 +56,8 @@ namespace Ridge.Interceptor.ActionInfo
             return actionDescriptor;
         }
 
-        private string GetHttpMethod(ControllerActionDescriptor controllerActionDescriptor)
+        private string GetHttpMethod(
+            ControllerActionDescriptor controllerActionDescriptor)
         {
             var httpMethodMetadata = controllerActionDescriptor.EndpointMetadata.FirstOrDefault(x => x is HttpMethodMetadata) as HttpMethodMetadata;
             if (httpMethodMetadata == null)
@@ -71,13 +74,14 @@ namespace Ridge.Interceptor.ActionInfo
             return httpMethod;
         }
 
-        private string CreateUri(object routeParams)
+        private string CreateUri(
+            object routeParams)
         {
-            var uri = _linkGenerator.GetPathByRouteValues("",routeParams);
+            var uri = _linkGenerator.GetPathByRouteValues("", routeParams);
             if (uri == null)
             {
                 throw new InvalidOperationException(
-                    $"Could not generate uri.");
+                    "Could not generate uri.");
             }
 
             return uri;

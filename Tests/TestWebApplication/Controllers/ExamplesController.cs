@@ -12,7 +12,8 @@ namespace TestWebApplication.Controllers.Examples
         // Example controller
         // Method must be virtual
         [HttpGet("ReturnGivenNumber")]
-        public virtual ActionResult<int> ReturnGivenNumber([FromQuery] int input)
+        public virtual ActionResult<int> ReturnGivenNumber(
+            [FromQuery] int input)
         {
             return input;
         }
@@ -39,7 +40,7 @@ namespace TestWebApplication.Controllers.Examples
                 FromRoute = fromRoute,
                 ComplexObjectFromQuery = complexObjectFromQuery,
                 ComplexObjectsFromBody = complexObjectsFromBody,
-                ListOfSimpleTypesFromQuery = listOfSimpleTypesFromQuery
+                ListOfSimpleTypesFromQuery = listOfSimpleTypesFromQuery,
             };
         }
 
@@ -71,7 +72,8 @@ namespace TestWebApplication.Controllers.Examples
 
     public class CountryCodeBinder : IModelBinder
     {
-        public Task BindModelAsync(ModelBindingContext bindingContext)
+        public Task BindModelAsync(
+            ModelBindingContext bindingContext)
         {
             var str = bindingContext.ActionContext.HttpContext
                 .Request.RouteValues["thisIsBoundedUsingCustomBinder"]!.ToString();

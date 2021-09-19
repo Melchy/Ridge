@@ -2,6 +2,7 @@
 {
     public interface ILogWriter
     {
-        public void WriteLine(string text);
+        public void WriteLine(
+            string text);
     }
 }

@@ -6,22 +6,6 @@ namespace RidgeTests
 {
     public class IsSimpleTypeTests
     {
-#pragma warning disable
-        private struct TestStruct
-        {
-            public string Prop1;
-            public int Prop2;
-        }
-
-        private class TestClass1
-        {
-            public string Prop1;
-            public int Prop2;
-        }
-#pragma warning restore
-
-        private enum TestEnum { TheValue }
-        
         [Test]
         public void IsSimpleType()
         {
@@ -75,6 +59,20 @@ namespace RidgeTests
 
             Assert.IsFalse(GeneralHelpers.IsSimpleType(typeof(TestStruct?)));
         }
-        
+
+        private enum TestEnum { TheValue }
+#pragma warning disable
+        private struct TestStruct
+        {
+            public string Prop1;
+            public int Prop2;
+        }
+
+        private class TestClass1
+        {
+            public string Prop1;
+            public int Prop2;
+        }
+#pragma warning restore
     }
 }

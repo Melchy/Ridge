@@ -33,11 +33,12 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
 
         /// <summary>
-        /// Creates Razor page with intercepted methods.
+        ///     Creates Razor page with intercepted methods.
         /// </summary>
         /// <typeparam name="TPage"></typeparam>
         /// <returns></returns>
-        public TPage CreateRazorPage<TPage>() where TPage : PageModel
+        public TPage CreateRazorPage<TPage>()
+            where TPage : PageModel
         {
             CheckIfPageActionsCanBeProxied<TPage>();
             var caller = GetWebCaller(_httpClient, _logWriter);
@@ -60,7 +61,8 @@ namespace Ridge.Interceptor.InterceptorFactory
             CheckReturnTypes<T>(actions);
         }
 
-        private static void CheckReturnTypes<T>(IEnumerable<MethodInfo> actions)
+        private static void CheckReturnTypes<T>(
+            IEnumerable<MethodInfo> actions)
         {
             var methodsWithInvalidReturnType = actions.Where(x =>
             {
@@ -86,7 +88,8 @@ namespace Ridge.Interceptor.InterceptorFactory
             }
         }
 
-        private static void CheckNonVirtualMethods<T>(IEnumerable<MethodInfo> actions)
+        private static void CheckNonVirtualMethods<T>(
+            IEnumerable<MethodInfo> actions)
         {
             var nonVirtualActions = actions.Where(x => !x.IsVirtual);
             if (nonVirtualActions.Any())
@@ -96,13 +99,15 @@ namespace Ridge.Interceptor.InterceptorFactory
             }
         }
 
-        private static Type GetReturnTypeOrGenericArgumentOfTask(MethodInfo methodInfo)
+        private static Type GetReturnTypeOrGenericArgumentOfTask(
+            MethodInfo methodInfo)
         {
             var actionReturnType = methodInfo.ReturnType;
             if (!methodInfo.ReturnType.IsGenericType)
             {
                 return methodInfo.ReturnType;
             }
+
             if (typeof(Task).IsAssignableFrom(methodInfo.ReturnType))
             {
                 actionReturnType = methodInfo.ReturnType.GetGenericArguments()[0];

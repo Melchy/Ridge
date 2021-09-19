@@ -13,7 +13,8 @@ namespace Ridge.LogWriter
 
     public class CustomLogWriter : ILogWriter
     {
-        public void WriteLine(string text)
+        public void WriteLine(
+            string text)
         {
             // write line somewhere
         }

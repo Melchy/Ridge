@@ -11,12 +11,13 @@ namespace RidgeXunitTest
 {
     public class ManyTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public ManyTests(ITestOutputHelper testOutputHelper)
+        public ManyTests(
+            ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
         }
+
+        private readonly ITestOutputHelper _testOutputHelper;
 
         [Fact]
         public async Task CallAsync()
@@ -249,14 +250,16 @@ namespace RidgeXunitTest
             var result = testController.ReturnSyncWithResult();
         }
 
-        public Task DisposeAsync() => Task.FromResult(0);
+        public Task DisposeAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         public static Application CreateApplication()
         {
             var webAppFactory = new WebApplicationFactory<Startup>();
             var client = webAppFactory.CreateClient();
-            return new Application
-            (
+            return new Application(
                 webAppFactory,
                 new ControllerFactory(client, webAppFactory.Services)
             );
@@ -264,6 +267,9 @@ namespace RidgeXunitTest
 
         public sealed class Application : IDisposable
         {
+            public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
+            public ControllerFactory ControllerFactory { get; set; }
+
             public Application(
                 WebApplicationFactory<Startup> webApplicationFactory,
                 ControllerFactory controllerFactory)
@@ -271,9 +277,6 @@ namespace RidgeXunitTest
                 WebApplicationFactory = webApplicationFactory;
                 ControllerFactory = controllerFactory;
             }
-
-            public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
-            public ControllerFactory ControllerFactory { get; set; }
 
             public void Dispose()
             {

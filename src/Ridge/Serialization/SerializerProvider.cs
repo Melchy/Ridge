@@ -23,17 +23,16 @@ namespace Ridge.Serialization
             {
                 return new SystemJsonSerializer();
             }
-            else if (actionResultExecutor.GetType().Name == "NewtonsoftJsonResultExecutor")
+
+            if (actionResultExecutor.GetType().Name == "NewtonsoftJsonResultExecutor")
             {
                 return new NewtonsoftJsonSerializer();
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    "Could not detect correct serializer. " +
-                    "Please provide custom implementation of IRidgeSerializer. " +
-                    "For more information see documentation");
-            }
+
+            throw new InvalidOperationException(
+                "Could not detect correct serializer. " +
+                "Please provide custom implementation of IRidgeSerializer. " +
+                "For more information see documentation");
         }
     }
 }

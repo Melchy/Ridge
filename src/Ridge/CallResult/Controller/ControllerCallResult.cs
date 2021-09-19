@@ -13,6 +13,15 @@ namespace Ridge.CallResult.Controller
         public string ResultAsString { get; }
         public HttpStatusCode StatusCode { get; }
 
+
+        public bool IsSuccessStatusCode => (int)StatusCode >= 200 && (int)StatusCode <= 299;
+
+        public bool IsRedirectStatusCode => (int)StatusCode >= 300 && (int)StatusCode <= 399;
+
+        public bool IsClientErrorStatusCode => (int)StatusCode >= 400 && (int)StatusCode <= 499;
+
+        public bool IsServerErrorStatusCode => (int)StatusCode >= 500 && (int)StatusCode <= 599;
+
         public ControllerCallResult(
             HttpResponseMessage httpResponseMessage,
             string resultAsString,
@@ -23,37 +32,18 @@ namespace Ridge.CallResult.Controller
             StatusCode = statusCode;
         }
 
-        public override void ExecuteResult(ActionContext context)
+        public override void ExecuteResult(
+            ActionContext context)
         {
             throw new InvalidOperationException($"This method should not be used in tests. Instead use extension methods '{nameof(ActionResultTExtensions.Unwrap)}'," +
                                                 $" '{nameof(ActionResultTExtensions.HttpResponseMessage)}', '{nameof(ActionResultTExtensions.ResultAsString)}' and others. See readme.");
         }
 
-        public override Task ExecuteResultAsync(ActionContext context)
+        public override Task ExecuteResultAsync(
+            ActionContext context)
         {
             throw new InvalidOperationException($"This method should not be used in tests. Instead use extension methods: '{nameof(ActionResultTExtensions.Unwrap)}'," +
                                                 $" '{nameof(ActionResultTExtensions.HttpResponseMessage)}', '{nameof(ActionResultTExtensions.ResultAsString)}' and others. See readme.");
-        }
-
-
-        public bool IsSuccessStatusCode
-        {
-            get { return ((int)StatusCode >= 200) && ((int)StatusCode <= 299); }
-        }
-
-        public bool IsRedirectStatusCode
-        {
-            get { return ((int)StatusCode >= 300) && ((int)StatusCode <= 399); }
-        }
-
-        public bool IsClientErrorStatusCode
-        {
-            get { return ((int)StatusCode >= 400) && ((int)StatusCode <= 499); }
-        }
-
-        public bool IsServerErrorStatusCode
-        {
-            get { return ((int)StatusCode >= 500) && ((int)StatusCode <= 599); }
         }
     }
 }

@@ -10,7 +10,10 @@ namespace Ridge.Interceptor.ResultFactory
 {
     internal class ResultFactoryForPages : IResultFactory
     {
-        public async Task<object> Create<T>(HttpResponseMessage httpResponseMessage, string callId, MethodInfo methodInfo)
+        public async Task<object> Create<T>(
+            HttpResponseMessage httpResponseMessage,
+            string callId,
+            MethodInfo methodInfo)
         {
             var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
             CallDataDto callDataDto = CallDataDictionary.GetData(callId);
@@ -22,7 +25,7 @@ namespace Ridge.Interceptor.ResultFactory
 
             if (callDataDto.PageModel == null)
             {
-                throw new InvalidOperationException($"Call data are null.");
+                throw new InvalidOperationException("Call data are null.");
             }
 
             return new PageResult<T>(httpResponseMessage, (T)callDataDto.PageModel, resultString, httpResponseMessage.StatusCode);

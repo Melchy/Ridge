@@ -6,10 +6,12 @@ namespace Ridge.LogWriter
     {
         private readonly ITestOutputHelper _outputHelper;
 
-        public XunitLogWriter(ITestOutputHelper outputHelper)
+        public XunitLogWriter(
+            ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
         }
+
         public void WriteLine(
             string text)
         {

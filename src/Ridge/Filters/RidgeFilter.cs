@@ -9,9 +9,12 @@ namespace Ridge.Filters
     internal class RidgeFilter : IOrderedFilter
     {
         // This filter should be one of the last filters applied
-        public int Order { get => Int32.MaxValue - 1;  }
+        public int Order => int.MaxValue - 1;
 
-        public (ActionResult?, bool continueTestCall) UnwrapActionResultAndCheckIfTestCallShouldBeContinued(HttpContext context, Exception? exception, object result)
+        public (ActionResult?, bool continueTestCall) UnwrapActionResultAndCheckIfTestCallShouldBeContinued(
+            HttpContext context,
+            Exception? exception,
+            object result)
         {
             if (exception != null)
             {
@@ -25,6 +28,7 @@ namespace Ridge.Filters
                 {
                     return (innerResult, false);
                 }
+
                 return (innerResult, true);
             }
 

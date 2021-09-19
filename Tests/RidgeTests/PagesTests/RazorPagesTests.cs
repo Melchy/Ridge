@@ -19,11 +19,11 @@ namespace RidgeTests.PagesTests
             var page = application.RazorPageFactory.CreateRazorPage<GeneralPageModel>();
 
             var response = await page.OnGet();
-            
+
             response.Model.Test.ParamFromBody.Should().Be("asd");
             response.Response.Should().Contain("body");
         }
-        
+
         [Test]
         public async Task GetSpecificPageHandler()
         {
@@ -31,12 +31,12 @@ namespace RidgeTests.PagesTests
             var page = application.RazorPageFactory.CreateRazorPage<GeneralPageModel>();
 
             var response = await page.OnGetFooStatic();
-            
+
             response.Model.Test.ParamFromBody.Should().Be("Foo");
             response.Response.Should().Contain("body");
         }
-        
-        
+
+
         [Test]
         public void ExceptionIsPropagatedToTest()
         {
@@ -47,21 +47,21 @@ namespace RidgeTests.PagesTests
 
             call.Should().Throw<InvalidOperationException>().WithMessage("Error");
         }
-        
+
         [Test]
         public async Task FromBodyQueryRouteIsSupported()
         {
             using var application = ApplicationBuilder.CreateApplication();
 
             var page = application.RazorPageFactory.CreateRazorPage<GeneralPageModel>();
-            
+
             var response = await page.OnGetFoo2("returnValue", "testQuery");
             response.Model.Test.ParamFromBody.Should().Be("returnValue");
             response.Model.Test.ParamFromQuery.Should().Be("testQuery");
             response.Response.Should().Contain("body");
         }
-        
-        
+
+
         [Test]
         public async Task ResultsWithResponseCode4xxAreSupported()
         {
@@ -73,47 +73,47 @@ namespace RidgeTests.PagesTests
             response.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
             response.Response.Should().Be("Bad request error");
         }
-        
-        
+
+
         [Test]
         public async Task ResponsesWith3xxCodeAreSupported()
         {
             using var application = ApplicationBuilder.CreateApplication();
-            
+
             var page = application.RazorPageFactory.CreateRazorPage<GeneralPageModel>();
 
             var response = await page.OnGetRedirect();
             response.StatusCode.Should().Be(StatusCodes.Status200OK);
             response.Response.Should().Be("Redirected!!");
         }
-        
-        
+
+
         [Test]
         public async Task RouteParamsAreSupported()
         {
             using var application = ApplicationBuilder.CreateApplication();
 
             var page = application.RazorPageFactory.CreateRazorPage<PageWithRouteParameter>();
-            
+
             var response = await page.OnGet("test");
             response.StatusCode.Should().Be(StatusCodes.Status200OK);
             response.Response.Should().Be("test");
         }
-        
+
         [Test]
         public async Task RequestReturning5xxButNotThrowingIsSupported()
         {
             using var application = ApplicationBuilder.CreateApplication();
 
             var page = application.RazorPageFactory.CreateRazorPage<GeneralPageModel>();
-            
+
             var response = await page.OnGetReturn500();
             response.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
         }
-        
+
         [Test]
         [Parallelizable(ParallelScope.None)]
-        [SuppressMessage("", "CA1508", Justification="False positive")]
+        [SuppressMessage("", "CA1508", Justification = "False positive")]
         public async Task WhenControllerCallerIsTurnedOffEverythingWorksNormally()
         {
             CallDataDictionary.Clear();
@@ -125,10 +125,10 @@ namespace RidgeTests.PagesTests
             content.Should().Contain("body");
             CallDataDictionary.IsEmpty().Should().BeTrue();
         }
-        
+
         [Test]
         [Parallelizable(ParallelScope.None)]
-        [SuppressMessage("", "CA1508", Justification="False positive")]
+        [SuppressMessage("", "CA1508", Justification = "False positive")]
         public async Task WhenControllerCallerIsTurnedOffMiddlewareIsNotHit()
         {
             CallDataDictionary.Clear();
@@ -140,7 +140,5 @@ namespace RidgeTests.PagesTests
                 CallDataDictionary.IsEmpty().Should().BeTrue();
             }
         }
-        
     }
 }
-

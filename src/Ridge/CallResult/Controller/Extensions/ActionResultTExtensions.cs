@@ -9,7 +9,8 @@ namespace Ridge.CallResult.Controller.Extensions
     public static class ActionResultTExtensions
     {
         [SuppressMessage("", "RS0030")]
-        public static T GetResult<T>(this ActionResult<T> actionResult)
+        public static T GetResult<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             var ridgeResult = (ControllerCallResult<T>)actionResult.Result;
@@ -17,7 +18,8 @@ namespace Ridge.CallResult.Controller.Extensions
         }
 
         [SuppressMessage("", "RS0030")]
-        public static HttpResponseMessage HttpResponseMessage<T>(this ActionResult<T> actionResult)
+        public static HttpResponseMessage HttpResponseMessage<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             var ridgeResult = (ControllerCallResult)actionResult.Result;
@@ -25,7 +27,8 @@ namespace Ridge.CallResult.Controller.Extensions
         }
 
         [SuppressMessage("", "RS0030")]
-        public static string ResultAsString<T>(this ActionResult<T> actionResult)
+        public static string ResultAsString<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             var ridgeResult = (ControllerCallResult)actionResult.Result;
@@ -33,7 +36,8 @@ namespace Ridge.CallResult.Controller.Extensions
         }
 
         [SuppressMessage("", "RS0030")]
-        public static HttpStatusCode StatusCode<T>(this ActionResult<T> actionResult)
+        public static HttpStatusCode StatusCode<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             var ridgeResult = (ControllerCallResult<T>)actionResult.Result;
@@ -41,7 +45,8 @@ namespace Ridge.CallResult.Controller.Extensions
         }
 
         [SuppressMessage("", "RS0030")]
-        public static bool IsSuccessStatusCode<T>(this ActionResult<T> actionResult)
+        public static bool IsSuccessStatusCode<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             var ridgeResult = (ControllerCallResult)actionResult.Result;
@@ -49,7 +54,8 @@ namespace Ridge.CallResult.Controller.Extensions
         }
 
         [SuppressMessage("", "RS0030")]
-        public static bool IsRedirectStatusCode<T>(this ActionResult<T> actionResult)
+        public static bool IsRedirectStatusCode<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             var ridgeResult = (ControllerCallResult)actionResult.Result;
@@ -57,7 +63,8 @@ namespace Ridge.CallResult.Controller.Extensions
         }
 
         [SuppressMessage("", "RS0030")]
-        public static bool IsClientErrorStatusCode<T>(this ActionResult<T> actionResult)
+        public static bool IsClientErrorStatusCode<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             var ridgeResult = (ControllerCallResult)actionResult.Result;
@@ -65,7 +72,8 @@ namespace Ridge.CallResult.Controller.Extensions
         }
 
         [SuppressMessage("", "RS0030")]
-        public static bool IsServerErrorStatusCode<T>(this ActionResult<T> actionResult)
+        public static bool IsServerErrorStatusCode<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             var ridgeResult = (ControllerCallResult)actionResult.Result;
@@ -73,14 +81,16 @@ namespace Ridge.CallResult.Controller.Extensions
         }
 
         [SuppressMessage("", "RS0030")]
-        public static ControllerCallResult<T> Unwrap<T>(this ActionResult<T> actionResult)
+        public static ControllerCallResult<T> Unwrap<T>(
+            this ActionResult<T> actionResult)
         {
             EnsureActionResultContainsControllerCallResult(actionResult);
             return (ControllerCallResult<T>)actionResult.Result;
         }
 
         [SuppressMessage("", "RS0030")]
-        private static void EnsureActionResultContainsControllerCallResult<T>(ActionResult<T> actionResult)
+        private static void EnsureActionResultContainsControllerCallResult<T>(
+            ActionResult<T> actionResult)
         {
             if (actionResult.Result is not ControllerCallResult<T>)
             {

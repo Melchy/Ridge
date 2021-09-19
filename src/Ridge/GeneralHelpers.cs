@@ -12,34 +12,38 @@ namespace Ridge
 {
     internal static class GeneralHelpers
     {
-        public static object CreateObjectWithoutCallingConstructor(Type type)
+        public static object CreateObjectWithoutCallingConstructor(
+            Type type)
         {
             return FormatterServices.GetUninitializedObject(type);
         }
-        
-        public static bool HasAttribute<TAttribute>(ParameterInfo parameterInfo) where TAttribute : Attribute
+
+        public static bool HasAttribute<TAttribute>(
+            ParameterInfo parameterInfo)
+            where TAttribute : Attribute
         {
             return parameterInfo.GetCustomAttributes(typeof(TAttribute), true).Any();
         }
 
-        public static bool HasAttribute<TAttribute>(MethodInfo methodInfo) where TAttribute : Attribute
+        public static bool HasAttribute<TAttribute>(
+            MethodInfo methodInfo)
+            where TAttribute : Attribute
         {
             var attributeType = typeof(TAttribute);
             return methodInfo.GetCustomAttributes(attributeType, true).Any();
         }
 
-        public static IDictionary<string, object?> ToDictionary(object source)
+        public static IDictionary<string, object?> ToDictionary(
+            object source)
         {
             var bindingAttr = BindingFlags.Instance | BindingFlags.Public;
             var fields = source.GetType().GetFields(bindingAttr);
             var properties = source.GetType().GetProperties(bindingAttr);
-            var dictionaryOfProperties = properties.ToDictionary
-            (
+            var dictionaryOfProperties = properties.ToDictionary(
                 propInfo => propInfo.Name,
                 propInfo => propInfo.GetValue(source, null)
             );
-            var dictionaryOfFields = fields.ToDictionary
-            (
+            var dictionaryOfFields = fields.ToDictionary(
                 propInfo => propInfo.Name,
                 propInfo => propInfo.GetValue(source)
             );
@@ -48,15 +52,16 @@ namespace Ridge
                 .ToDictionary(pair => pair.Key, pair => pair.Value)!;
         }
 
-        public static bool IsSimpleType(Type type)
+        public static bool IsSimpleType(
+            Type type)
         {
             if (type.IsPrimitive)
             {
                 return true;
             }
-            
+
             if (type == typeof(string) ||
-                type == typeof(Decimal) ||
+                type == typeof(decimal) ||
                 type == typeof(DateTime) ||
                 type == typeof(DateTimeOffset) ||
                 type == typeof(TimeSpan) ||
@@ -65,16 +70,18 @@ namespace Ridge
             {
                 return true;
             }
+
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
                 IsSimpleType(type.GetGenericArguments()[0]))
             {
                 return true;
             }
-            
+
             return Convert.GetTypeCode(type) != TypeCode.Object;
         }
 
-        public static IEnumerable<MethodInfo> GetPublicMethods(Type type)
+        public static IEnumerable<MethodInfo> GetPublicMethods(
+            Type type)
         {
             return type.GetMethods(
                     BindingFlags.Instance |
@@ -83,7 +90,8 @@ namespace Ridge
                 .Where(x => x.IsPublic);
         }
 
-        public static IDictionary<string, string>? ToKeyValue(object? metaToken)
+        public static IDictionary<string, string>? ToKeyValue(
+            object? metaToken)
         {
             if (metaToken == null)
             {
@@ -118,14 +126,13 @@ namespace Ridge
                 return null;
             }
 
-            var value = jValue.Type == JTokenType.Date ?
-                jValue.ToString("o", CultureInfo.InvariantCulture) :
-                jValue.ToString(CultureInfo.InvariantCulture);
+            var value = jValue.Type == JTokenType.Date ? jValue.ToString("o", CultureInfo.InvariantCulture) : jValue.ToString(CultureInfo.InvariantCulture);
 
             return new Dictionary<string, string> { { token.Path, value } };
         }
 
-        public static Type GetReturnTypeOrGenericArgumentOfTask(MethodInfo methodInfo)
+        public static Type GetReturnTypeOrGenericArgumentOfTask(
+            MethodInfo methodInfo)
         {
             var actionReturnType = methodInfo.ReturnType;
             if (typeof(Task).IsAssignableFrom(methodInfo.ReturnType))
@@ -136,17 +143,22 @@ namespace Ridge
             return actionReturnType;
         }
 
-        public static PropertyInfo GetProperty(Type type, string propertyName)
+        public static PropertyInfo GetProperty(
+            Type type,
+            string propertyName)
         {
             var property = type.GetProperty(propertyName, BindingFlagsAny.Get());
             if (property == null)
             {
                 throw new InvalidOperationException($"Property with name {propertyName} not found on type {type.Name}");
             }
+
             return property;
         }
 
-        public static bool IsOrImplements(Type child,Type parentOrGivenObject)
+        public static bool IsOrImplements(
+            Type child,
+            Type parentOrGivenObject)
         {
             if (parentOrGivenObject.IsGenericTypeDefinition) //open generic types can not be checked using IsAssignableFrom
             {
@@ -156,38 +168,42 @@ namespace Ridge
             return parentOrGivenObject.IsAssignableFrom(child);
         }
 
-        private static bool ImplementsOpenGenericType(Type type, Type generic)
+        private static bool ImplementsOpenGenericType(
+            Type type,
+            Type generic)
         {
             var toCheck = type;
-            while (toCheck != null && toCheck != typeof(object)) {
+            while (toCheck != null && toCheck != typeof(object))
+            {
                 var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic == cur) {
+                if (generic == cur)
+                {
                     return true;
                 }
+
                 toCheck = toCheck.BaseType;
             }
+
             return false;
         }
 
-        public static class BindingFlagsAny
-        {
-            public static BindingFlags Get()
-            {
-                return BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-            }
-        }
-
-        [SuppressMessage("","CA1508", Justification = "false positive")]
-        public static object CreateInstance(Type type, params object?[] args)
+        [SuppressMessage("", "CA1508", Justification = "false positive")]
+        public static object CreateInstance(
+            Type type,
+            params object?[] args)
         {
             try
             {
                 object? instance = Activator.CreateInstance(type,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, args,  null);
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    null,
+                    args,
+                    null);
                 if (instance == null)
                 {
                     throw new InvalidOperationException("Nullable value type can not be proxied.");
                 }
+
                 return instance;
             }
             catch (MissingMethodException)
@@ -196,10 +212,20 @@ namespace Ridge
             }
         }
 
-        public static Dictionary<TKey, TValue> MergeDictionaries<TKey, TValue>(params IDictionary<TKey, TValue>[] dictionaries) where TKey : notnull
+        public static Dictionary<TKey, TValue> MergeDictionaries<TKey, TValue>(
+            params IDictionary<TKey, TValue>[] dictionaries)
+            where TKey : notnull
         {
             return dictionaries.SelectMany(x => x)
                 .ToDictionary(x => x.Key, y => y.Value);
+        }
+
+        public static class BindingFlagsAny
+        {
+            public static BindingFlags Get()
+            {
+                return BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+            }
         }
     }
 }

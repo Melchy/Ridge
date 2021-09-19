@@ -16,13 +16,16 @@ namespace Ridge.Interceptor
         {
             private readonly SynchronizationContext _synchronizationContext;
 
-            public Disposable(SynchronizationContext synchronizationContext)
+            public Disposable(
+                SynchronizationContext synchronizationContext)
             {
                 _synchronizationContext = synchronizationContext;
             }
 
-            public void Dispose() =>
+            public void Dispose()
+            {
                 SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
+            }
         }
     }
 }

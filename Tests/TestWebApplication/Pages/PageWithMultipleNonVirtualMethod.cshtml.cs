@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Ridge.Results;
+using System.Threading.Tasks;
 
 namespace TestWebApplication.Pages
 {
@@ -10,12 +10,12 @@ namespace TestWebApplication.Pages
         {
             return await Task.FromResult(Page());
         }
-        
+
         public async Task<PageResult<PageWithMultipleNonVirtualMethod>> OnPostNonVirtual()
         {
             return await Task.FromResult(Page());
         }
-        
+
         public virtual async Task<PageResult<PageWithMultipleNonVirtualMethod>> OnGetSomething()
         {
             return await Task.FromResult(Page());

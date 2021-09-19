@@ -98,7 +98,7 @@ namespace RidgeExamples
                 },
                 complexObjectsFromBody: new List<ComplexObject>()
                 {
-                    new ComplexObject()
+                    new()
                     {
                         Str = "str",
                         NestedComplexObject = new NestedComplexObject()

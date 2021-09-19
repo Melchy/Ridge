@@ -6,9 +6,8 @@ namespace TestWebApplication.Pages
     {
         public virtual void OnGetVoid()
         {
-            return;
         }
-        
+
         public virtual int OnGetInt()
         {
             return 1;

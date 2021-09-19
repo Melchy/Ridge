@@ -32,11 +32,12 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
 
         /// <summary>
-        /// Creates Controller instance with intercepted calls.
+        ///     Creates Controller instance with intercepted calls.
         /// </summary>
         /// <typeparam name="TController"></typeparam>
         /// <returns></returns>
-        public TController CreateController<TController>() where TController : class
+        public TController CreateController<TController>()
+            where TController : class
         {
             CheckIfControllerActionsCanBeProxied<TController>();
             var webCaller = GetWebCaller(_httpClient, _logWriter);
@@ -53,7 +54,8 @@ namespace Ridge.Interceptor.InterceptorFactory
             return CreateClassFromInterceptor<TController>(interceptor);
         }
 
-        private void EnsureCorrectReturnType(MethodInfo method)
+        private void EnsureCorrectReturnType(
+            MethodInfo method)
         {
             var returnType = method.ReturnType;
             if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
@@ -74,7 +76,7 @@ namespace Ridge.Interceptor.InterceptorFactory
 
             if (nonVirtualMethods.Any())
             {
-                throw new InvalidOperationException($"To use controller caller you must mark all methods with attribute HttpXXX as virtual. " +
+                throw new InvalidOperationException("To use controller caller you must mark all methods with attribute HttpXXX as virtual. " +
                                                     $"Mark following methods in controller '{typeof(T).Name}' as virtual: " +
                                                     $"{string.Join(", ", nonVirtualMethods.Select(x => x.Name))}");
             }
@@ -82,7 +84,8 @@ namespace Ridge.Interceptor.InterceptorFactory
 
         private static IEnumerable<MethodInfo> GetAllNonVirtualMethodsWithHttpXxxAttribute<T>()
         {
-            return typeof(T).GetMethods().Where(m =>
+            return typeof(T).GetMethods()
+                .Where(m =>
                     GeneralHelpers.HasAttribute<HttpPostAttribute>(m) ||
                     GeneralHelpers.HasAttribute<HttpGetAttribute>(m) ||
                     GeneralHelpers.HasAttribute<HttpPutAttribute>(m) ||

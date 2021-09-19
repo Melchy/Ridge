@@ -11,10 +11,12 @@ namespace Ridge.Pipeline.Public.DefaulPipelineParts
         private readonly AuthenticationHeaderValue _authenticationHeaderValue;
 
 
-        public AddAuthenticationPipelinePart(AuthenticationHeaderValue authenticationHeaderValue)
+        public AddAuthenticationPipelinePart(
+            AuthenticationHeaderValue authenticationHeaderValue)
         {
             _authenticationHeaderValue = authenticationHeaderValue;
         }
+
         public async Task<HttpResponseMessage> InvokeAsync(
             Func<Task<HttpResponseMessage>> next,
             HttpRequestMessage httpRequestMessage,

@@ -8,6 +8,10 @@ namespace RidgeTests.PagesTests.Infrastructure
 {
     public sealed class PagesApplication : IDisposable
     {
+        public WebApplicationFactory<Startup> WebApplicationFactory { get; }
+        public RazorPageFactory RazorPageFactory { get; }
+        public HttpClient HttpClient { get; }
+
         public PagesApplication(
             WebApplicationFactory<Startup> webApplicationFactory,
             RazorPageFactory razorPageFactory,
@@ -18,16 +22,10 @@ namespace RidgeTests.PagesTests.Infrastructure
             HttpClient = httpClient;
         }
 
-        public WebApplicationFactory<Startup> WebApplicationFactory { get; }
-        public RazorPageFactory RazorPageFactory { get; }
-        public HttpClient HttpClient { get; }
-
         public void Dispose()
         {
             WebApplicationFactory?.Dispose();
             GC.SuppressFinalize(this);
         }
     }
-
-
 }

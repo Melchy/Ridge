@@ -109,19 +109,20 @@ namespace RidgeTests
             var result = await testController.Index();
             result.IsSuccessStatusCode().Should().BeTrue();
         }
-        
+
         [Test]
         public void ControllerMustHaveAllMethodsMarkedAsVirtual()
         {
             using var application = CreateApplication();
             Action call = () => application.ControllerFactory.CreateController<ControllerWithNonVirtualMethods>();
-            call.Should().Throw<InvalidOperationException>()
-                .Where(x=> x.Message.Contains(nameof(ControllerWithNonVirtualMethods)))
-                .Where(x=> x.Message.Contains(nameof(ControllerWithNonVirtualMethods.NonVirtual)))
-                .Where(x=> x.Message.Contains(nameof(ControllerWithNonVirtualMethods.NonVirtual2)))
-                .Where(x=> !(x.Message.Contains(nameof(ControllerWithNonVirtualMethods.Index))));
+            call.Should()
+                .Throw<InvalidOperationException>()
+                .Where(x => x.Message.Contains(nameof(ControllerWithNonVirtualMethods)))
+                .Where(x => x.Message.Contains(nameof(ControllerWithNonVirtualMethods.NonVirtual)))
+                .Where(x => x.Message.Contains(nameof(ControllerWithNonVirtualMethods.NonVirtual2)))
+                .Where(x => !x.Message.Contains(nameof(ControllerWithNonVirtualMethods.Index)));
         }
-        
+
         [Test]
         public async Task MethodOverloadingIsSupported()
         {
@@ -130,27 +131,26 @@ namespace RidgeTests
             var result = await testController.OverloadedAction();
             result.IsSuccessStatusCode().Should().BeTrue();
         }
-        
+
         [Test]
         public async Task SimpleArgumentsAreMapped()
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.SimpleArguments(1,DateTime.Today, TestController.TestEnum.Zero, 100, DateTime.Today);
+            var result = await testController.SimpleArguments(1, DateTime.Today, TestController.TestEnum.Zero, 100, DateTime.Today);
             result.GetResult().FromRoute.Should().Be(1);
             result.GetResult().Body.Should().Be(DateTime.Today);
             result.GetResult().FromQuery.Should().Be(TestController.TestEnum.Zero);
             result.GetResult().FromRoute2.Should().Be(100);
             result.GetResult().FromQuery2.Should().Be(DateTime.Today);
         }
-        
+
         [Test]
         public async Task BodyCanContainComplexObject()
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.ComplexBody(new TestController.ComplexArgument
-            (
+            var result = await testController.ComplexBody(new TestController.ComplexArgument(
                 integer: 10,
                 str: "test",
                 dateTime: DateTime.Today,
@@ -160,22 +160,20 @@ namespace RidgeTests
             result.GetResult().Str.Should().Be("test");
             result.GetResult().DateTime.Should().Be(DateTime.Today);
             result.GetResult().InnerObject!.Str.Should().Be("InnerStr");
-
         }
-        
+
         [Test]
-        public async Task  FromQueryCanContainComplexObject()
+        public async Task FromQueryCanContainComplexObject()
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.ComplexFromQuery(new TestController.ComplexArgument
-            (
+            var result = await testController.ComplexFromQuery(new TestController.ComplexArgument(
                 integer: 10,
                 str: "test",
                 dateTime: DateTime.Today,
                 innerObject: new TestController.InnerObject("test")
                 {
-                    List = new List<string>(){"a", "b"}
+                    List = new List<string>() { "a", "b" },
                 }
             ));
             result.GetResult().Integer.Should().Be(10);
@@ -184,14 +182,13 @@ namespace RidgeTests
             result.GetResult().InnerObject!.Str.Should().Be("test");
             result.GetResult().InnerObject!.List.Should().ContainInOrder("a", "b");
         }
-        
+
         [Test]
         public async Task FromFormIsSupported()
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.FromForm(new TestController.ComplexArgument
-            (
+            var result = await testController.FromForm(new TestController.ComplexArgument(
                 integer: 10,
                 str: "test",
                 dateTime: DateTime.UtcNow.Date,
@@ -202,14 +199,13 @@ namespace RidgeTests
             result.GetResult().DateTime.ToString("dd/MM/yyyy").Should().Be(DateTime.UtcNow.ToString("dd/MM/yyyy"));
             result.GetResult().InnerObject!.Str.Should().Be("InnerStr");
         }
-        
+
         [Test]
         public void FromHeaderWithComplexArgumentsIsNotSupported()
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> sutCall = () =>  testController.FromHeader(new TestController.ComplexArgument(
-
+            Func<Task> sutCall = () => testController.FromHeader(new TestController.ComplexArgument(
                 integer: 10,
                 str: "test",
                 dateTime: DateTime.Today,
@@ -232,7 +228,7 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.FromQueryWithNameComplexArgument(new TestController.Test(){Foo = 1});
+            var result = await testController.FromQueryWithNameComplexArgument(new TestController.Test() { Foo = 1 });
             result.GetResult().Foo.Should().Be(1);
         }
 
@@ -283,7 +279,7 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.ArrayInFromQuery(new List<int>(){1,1,1});
+            var result = await testController.ArrayInFromQuery(new List<int>() { 1, 1, 1 });
             result.GetResult().Should().AllBeEquivalentTo(1);
         }
 
@@ -323,7 +319,7 @@ namespace RidgeTests
             var result = await testController.HttpGetWithoutBody();
             result.IsSuccessStatusCode().Should().BeTrue();
         }
-        
+
         [Test]
         public async Task FromServicesIsIgnored()
         {
@@ -332,7 +328,7 @@ namespace RidgeTests
             var result = await testController.FromServices(null);
             result.GetResult().Should().BeTrue();
         }
-        
+
         [Test]
         public async Task ArrayInBodyIsSupported()
         {
@@ -340,32 +336,32 @@ namespace RidgeTests
             var testController = application.ControllerFactory.CreateController<TestController>();
             var data = new List<TestController.ComplexArgument>
             {
-                new TestController.ComplexArgument
-                (
+                new(
                     integer: 10,
                     str: "test",
                     dateTime: DateTime.Today
                 ),
-                new TestController.ComplexArgument
-                (
+                new(
                     integer: 100,
                     str: "testt",
                     dateTime: DateTime.Today
                 ),
             };
             var result = await testController.ArrayInBody(data);
-            result.GetResult().Should().SatisfyRespectively(x =>
-                {
-                    x.Integer.Should().Be(10);
-                    x.Str.Should().Be("test");
-                    x.DateTime.Should().Be(DateTime.Today);
-                },
-                x =>
-                {
-                    x.Integer.Should().Be(100);
-                    x.Str.Should().Be("testt");
-                    x.DateTime.Should().Be(DateTime.Today);
-                });
+            result.GetResult()
+                .Should()
+                .SatisfyRespectively(x =>
+                    {
+                        x.Integer.Should().Be(10);
+                        x.Str.Should().Be("test");
+                        x.DateTime.Should().Be(DateTime.Today);
+                    },
+                    x =>
+                    {
+                        x.Integer.Should().Be(100);
+                        x.Str.Should().Be("testt");
+                        x.DateTime.Should().Be(DateTime.Today);
+                    });
         }
 
 
@@ -374,14 +370,14 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             application.ControllerFactory.AddHeader("foo", "foo");
-            application.ControllerFactory.AddAuthorization(new AuthenticationHeaderValue("Bearer","key"));
+            application.ControllerFactory.AddAuthorization(new AuthenticationHeaderValue("Bearer", "key"));
             application.ControllerFactory.AddHeaders(new Dictionary<string, string?>()
             {
                 ["header1"] = "header",
                 ["header2"] = "header2",
             });
             var testController = application.ControllerFactory.CreateController<TestController>();
-            
+
             var result = await testController.MethodReturningHeaders();
 
             result.GetResult()["foo"].First().Should().Be("foo");
@@ -398,7 +394,7 @@ namespace RidgeTests
             var result = await testController.HttpPostWithoutBody();
             result.IsSuccessStatusCode().Should().BeTrue();
         }
-        
+
         [Test]
         public async Task HttpGetWithBody()
         {
@@ -455,19 +451,19 @@ namespace RidgeTests
         public async Task ModelBinderIsSupported()
         {
             using var application = CreateApplication();
-            application.ControllerFactory.AddHttpRequestPipelinePart(new ListSeparatedByCommasPipelinePart(new List<int>(){1,1,1}));
+            application.ControllerFactory.AddHttpRequestPipelinePart(new ListSeparatedByCommasPipelinePart(new List<int>() { 1, 1, 1 }));
             var testController = application.ControllerFactory.CreateController<TestController>();
             var result = await testController.CustomBinder(null!);
             result.GetResult().Should().AllBeEquivalentTo(1);
         }
-        
+
         [Test]
         public async Task PreModelBinderTest()
         {
             using var application = CreateApplication();
             application.ControllerFactory.AddActionInfoTransformer(new TestObjectActionInfoTransformer());
             var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.CustomBinderFullObject(new TestController.CountryCodeBinded(){CountryCode = "cz"});
+            var result = await testController.CustomBinderFullObject(new TestController.CountryCodeBinded() { CountryCode = "cz" });
             result.GetResult().Should().BeEquivalentTo("cz");
         }
 
@@ -507,12 +503,23 @@ namespace RidgeTests
             actionResult.Should().Throw<InvalidOperationException>();
         }
 
+        public static Application CreateApplication()
+        {
+            var webAppFactory = new WebApplicationFactory<Startup>();
+            var client = webAppFactory.CreateClient();
+            return new Application(
+                webAppFactory,
+                new ControllerFactory(client, webAppFactory.Services, new NunitLogWriter())
+            );
+        }
+
 
         public class ListSeparatedByCommasPipelinePart : IHttpRequestPipelinePart
         {
             private readonly IEnumerable<int> _data;
 
-            public ListSeparatedByCommasPipelinePart(IEnumerable<int> data)
+            public ListSeparatedByCommasPipelinePart(
+                IEnumerable<int> data)
             {
                 _data = data;
             }
@@ -529,7 +536,7 @@ namespace RidgeTests
                 return next();
             }
         }
-        
+
         public class TestObjectActionInfoTransformer : IActionInfoTransformer
         {
             public Task TransformAsync(
@@ -546,21 +553,13 @@ namespace RidgeTests
                 return Task.CompletedTask;
             }
         }
-
-        public static Application CreateApplication()
-        {
-            var webAppFactory = new WebApplicationFactory<Startup>();
-            var client = webAppFactory.CreateClient();
-            return new Application
-            (
-                webAppFactory,
-                new ControllerFactory(client, webAppFactory.Services, new NunitLogWriter())
-            );
-        }
     }
 
     public sealed class Application : IDisposable
     {
+        public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
+        public ControllerFactory ControllerFactory { get; set; }
+
         public Application(
             WebApplicationFactory<Startup> webApplicationFactory,
             ControllerFactory controllerFactory)
@@ -569,9 +568,6 @@ namespace RidgeTests
             ControllerFactory = controllerFactory;
         }
 
-        public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
-        public ControllerFactory ControllerFactory { get; set; }
-        
         public void Dispose()
         {
             WebApplicationFactory?.Dispose();

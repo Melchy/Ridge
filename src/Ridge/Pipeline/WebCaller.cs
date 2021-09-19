@@ -14,12 +14,16 @@ namespace Ridge.Pipeline
         private readonly ILogWriter? _logger;
         private readonly List<IHttpRequestPipelinePart> _pipelineParts;
 
-        public WebCaller(HttpClient httpClient, ILogWriter? logger, List<IHttpRequestPipelinePart> pipelineParts)
+        public WebCaller(
+            HttpClient httpClient,
+            ILogWriter? logger,
+            List<IHttpRequestPipelinePart> pipelineParts)
         {
             _httpClient = httpClient;
             _logger = logger;
             _pipelineParts = pipelineParts;
         }
+
         public Task<HttpResponseMessage> Call(
             HttpRequestMessage httpRequestMessage,
             IReadOnlyActionInfo actionInfo,

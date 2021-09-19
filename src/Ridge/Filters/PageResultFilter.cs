@@ -7,7 +7,9 @@ namespace Ridge.Filters
 {
     internal class PageResultFilter : RidgeFilter, IAsyncPageFilter
     {
-        public async Task OnPageHandlerExecutionAsync(PageHandlerExecutingContext context, PageHandlerExecutionDelegate next)
+        public async Task OnPageHandlerExecutionAsync(
+            PageHandlerExecutingContext context,
+            PageHandlerExecutionDelegate next)
         {
             var pageHandlerExecutedContext = await next.Invoke();
 
@@ -19,11 +21,13 @@ namespace Ridge.Filters
                 {
                     pageResult.ViewData ??= ((PageModel)context.HandlerInstance).ViewData;
                 }
+
                 CallDataDictionary.InsertModel(context.HttpContext, context.HandlerInstance);
             }
         }
 
-        public Task OnPageHandlerSelectionAsync(PageHandlerSelectedContext context)
+        public Task OnPageHandlerSelectionAsync(
+            PageHandlerSelectedContext context)
         {
             return Task.CompletedTask;
         }

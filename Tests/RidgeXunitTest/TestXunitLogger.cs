@@ -14,12 +14,13 @@ namespace RidgeXunitTest
 {
     public class XunitLoggerTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public XunitLoggerTests(ITestOutputHelper testOutputHelper)
+        public XunitLoggerTests(
+            ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
         }
+
+        private readonly ITestOutputHelper _testOutputHelper;
 
         [Fact]
         public async Task TestXunitLogger()
@@ -35,8 +36,7 @@ namespace RidgeXunitTest
             var webAppFactory = new WebApplicationFactory<Startup>();
             var client = webAppFactory.CreateClient();
 
-            return new Application
-            (
+            return new Application(
                 webAppFactory,
                 new ControllerFactory(client, webAppFactory.Services, new XunitLogWriter(_testOutputHelper))
             );
@@ -45,6 +45,9 @@ namespace RidgeXunitTest
 
     public sealed class Application : IDisposable
     {
+        public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
+        public ControllerFactory ControllerFactory { get; set; }
+
         public Application(
             WebApplicationFactory<Startup> webApplicationFactory,
             ControllerFactory controllerFactory)
@@ -52,9 +55,6 @@ namespace RidgeXunitTest
             WebApplicationFactory = webApplicationFactory;
             ControllerFactory = controllerFactory;
         }
-
-        public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
-        public ControllerFactory ControllerFactory { get; set; }
 
         public void Dispose()
         {

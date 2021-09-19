@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Ridge.Interceptor;
+﻿using Ridge.Interceptor;
 using Ridge.LogWriter;
 using Ridge.Pipeline.Public;
 using System;

@@ -4,18 +4,20 @@ namespace Ridge.Serialization
 {
     internal class SystemJsonSerializer : IRidgeSerializer
     {
-        public TResult Deserialize<TResult>(string data)
+        public TResult Deserialize<TResult>(
+            string data)
         {
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
             };
-            return System.Text.Json.JsonSerializer.Deserialize<TResult>(data, options);
+            return JsonSerializer.Deserialize<TResult>(data, options);
         }
 
-        public string? Serialize(object? obj)
+        public string? Serialize(
+            object? obj)
         {
-            return System.Text.Json.JsonSerializer.Serialize(obj);
+            return JsonSerializer.Serialize(obj);
         }
 
         public string? GetSerializerName()

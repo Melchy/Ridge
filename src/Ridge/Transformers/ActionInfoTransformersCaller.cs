@@ -8,12 +8,15 @@ namespace Ridge.Transformers
     {
         private readonly List<IActionInfoTransformer> _transformers;
 
-        public ActionInfoTransformersCaller(List<IActionInfoTransformer> transformers)
+        public ActionInfoTransformersCaller(
+            List<IActionInfoTransformer> transformers)
         {
             _transformers = transformers;
         }
 
-        public async Task Call(IActionInfo actionInfo, InvocationInfo invocationInfo)
+        public async Task Call(
+            IActionInfo actionInfo,
+            InvocationInfo invocationInfo)
         {
             foreach (var actionInfoTransformer in _transformers)
             {

@@ -10,14 +10,15 @@ namespace Ridge
     internal class RazorPageMethodHelpers
     {
         /// <summary>
-        /// Determines if the specified <paramref name="methodInfo"/> is a handler.
+        ///     Determines if the specified <paramref name="methodInfo" /> is a handler.
         /// </summary>
-        /// <param name="methodInfo">The <see cref="MethodInfo"/>.</param>
-        /// <returns><c>true</c> if the <paramref name="methodInfo"/> is a handler. Otherwise <c>false</c>.</returns>
+        /// <param name="methodInfo">The <see cref="MethodInfo" />.</param>
+        /// <returns><c>true</c> if the <paramref name="methodInfo" /> is a handler. Otherwise <c>false</c>.</returns>
         /// <remarks>
-        /// Override this method to provide custom logic to determine which methods are considered handlers.
+        ///     Override this method to provide custom logic to determine which methods are considered handlers.
         /// </remarks>
-        private static bool IsHandler(MethodInfo methodInfo)
+        private static bool IsHandler(
+            MethodInfo methodInfo)
         {
             // The SpecialName bit is set to flag members that are treated in a special way by some compilers
             // (such as property accessors and operator overloading methods).
@@ -80,12 +81,14 @@ namespace Ridge
             return true;
         }
 
-        public static bool IsMethodValidHandler(MethodInfo methodInfo)
+        public static bool IsMethodValidHandler(
+            MethodInfo methodInfo)
         {
             return TryParseHandlerMethod(methodInfo, out _, out _);
         }
 
-        public static (string httpMethod, string handlerName) GetHttpMethodAndHandlerName(MethodInfo methodInfo)
+        public static (string httpMethod, string handlerName) GetHttpMethodAndHandlerName(
+            MethodInfo methodInfo)
         {
             if (TryParseHandlerMethod(methodInfo, out var httpMethod, out var handlerName))
             {
@@ -95,7 +98,10 @@ namespace Ridge
             throw new InvalidOperationException($"{methodInfo.Name} is not valid handler.");
         }
 
-        public static bool TryParseHandlerMethod(MethodInfo method, out string? httpMethod, out string? handler)
+        public static bool TryParseHandlerMethod(
+            MethodInfo method,
+            out string? httpMethod,
+            out string? handler)
         {
             var methodName = method.Name;
             httpMethod = null;
@@ -105,6 +111,7 @@ namespace Ridge
             {
                 return false;
             }
+
             // Handler method names always start with "On"
             if (!methodName.StartsWith("On") || methodName.Length <= "On".Length)
             {

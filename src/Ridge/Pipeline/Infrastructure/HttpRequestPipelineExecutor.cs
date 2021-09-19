@@ -17,12 +17,13 @@ namespace Ridge.Pipeline.Infrastructure
             InvocationInfo invocationInfo)
         {
             pipelineParts.Reverse();
-            Wrapper lastCallExecutor = new Wrapper(callWebAppPipelinePart,null!, httpRequestMessage, actionInfo, invocationInfo);
+            Wrapper lastCallExecutor = new(callWebAppPipelinePart, null!, httpRequestMessage, actionInfo, invocationInfo);
             var previous = lastCallExecutor;
             foreach (var pipelinePart in pipelineParts)
             {
                 previous = new Wrapper(pipelinePart, previous.Execute, httpRequestMessage, actionInfo, invocationInfo);
             }
+
             return await previous.Execute();
         }
 

@@ -39,8 +39,7 @@ namespace Application2Tests
         {
             var webAppFactory = new WebApplicationFactory<Startup>();
             var client = webAppFactory.CreateClient();
-            return new Application
-            (
+            return new Application(
                 webAppFactory,
                 new ControllerFactory(client, webAppFactory.Services, new NunitLogWriter())
             );
@@ -48,16 +47,16 @@ namespace Application2Tests
 
         public sealed class Application : IDisposable
         {
+            public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
+            public ControllerFactory ControllerFactory { get; set; }
+
             public Application(
-                WebApplicationFactory<TestWebAplication2.Startup> webApplicationFactory,
+                WebApplicationFactory<Startup> webApplicationFactory,
                 ControllerFactory controllerFactory)
             {
                 WebApplicationFactory = webApplicationFactory;
                 ControllerFactory = controllerFactory;
             }
-
-            public WebApplicationFactory<TestWebAplication2.Startup> WebApplicationFactory { get; set; }
-            public ControllerFactory ControllerFactory { get; set; }
 
             public void Dispose()
             {
@@ -66,6 +65,4 @@ namespace Application2Tests
             }
         }
     }
-
-
 }

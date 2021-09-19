@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using Ridge.Interceptor;
-using Ridge.Serialization;
+﻿using Ridge.Serialization;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -22,8 +20,8 @@ namespace Ridge.CallResult.Controller
         }
 
         /// <summary>
-        /// This method throws if result can not be deserialized into TResult
-        /// or when result is failed
+        ///     This method throws if result can not be deserialized into TResult
+        ///     or when result is failed
         /// </summary>
         /// <returns></returns>
         private TResult GetResultOrThrow()
@@ -37,7 +35,7 @@ namespace Ridge.CallResult.Controller
             {
                 if (string.IsNullOrEmpty(ResultAsString))
                 {
-                    return default(TResult)!;
+                    return default!;
                 }
 
                 if (typeof(TResult) == typeof(string))
@@ -49,9 +47,10 @@ namespace Ridge.CallResult.Controller
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException($"Deserialization to type: " +
+                throw new InvalidOperationException("Deserialization to type: " +
                                                     $"{typeof(TResult)} failed using serializer: {_serializer.GetSerializerName()}." +
-                                                    $" Json that was sent from server: '{ResultAsString}'", e);
+                                                    $" Json that was sent from server: '{ResultAsString}'",
+                    e);
             }
         }
     }

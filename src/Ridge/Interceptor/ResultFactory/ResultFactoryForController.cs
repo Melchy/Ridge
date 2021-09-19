@@ -15,12 +15,14 @@ namespace Ridge.Interceptor.ResultFactory
     {
         private readonly IRidgeSerializer _serializer;
 
-        public ResultFactoryForController(IRidgeSerializer serializer)
+        public ResultFactoryForController(
+            IRidgeSerializer serializer)
         {
             _serializer = serializer;
         }
 
-        public async Task<object> Create<T>(HttpResponseMessage httpResponseMessage,
+        public async Task<object> Create<T>(
+            HttpResponseMessage httpResponseMessage,
             string callId,
             MethodInfo methodInfo)
         {
@@ -37,7 +39,8 @@ namespace Ridge.Interceptor.ResultFactory
             {
                 return new ControllerCallResult(httpResponseMessage, resultString, httpResponseMessage.StatusCode);
             }
-            else if (GeneralHelpers.IsOrImplements(actionReturnType, typeof(ActionResult<>)))
+
+            if (GeneralHelpers.IsOrImplements(actionReturnType, typeof(ActionResult<>)))
             {
                 var genericTypeOfActionResult = actionReturnType.GenericTypeArguments.First();
                 var ridgeResult = GeneralHelpers.CreateInstance(
@@ -49,14 +52,13 @@ namespace Ridge.Interceptor.ResultFactory
                 var actionResult = GeneralHelpers.CreateInstance(actionReturnType, ridgeResult);
                 return actionResult;
             }
-            else if (GeneralHelpers.IsOrImplements(actionReturnType, typeof(IActionResult)))
+
+            if (GeneralHelpers.IsOrImplements(actionReturnType, typeof(IActionResult)))
             {
                 return new ControllerCallResult(httpResponseMessage, resultString, httpResponseMessage.StatusCode);
             }
-            else
-            {
-                throw new InvalidOperationException($"Controller method must return {nameof(ActionResult)} or {nameof(ActionResult)}<T> or {nameof(IActionResult)}");
-            }
+
+            throw new InvalidOperationException($"Controller method must return {nameof(ActionResult)} or {nameof(ActionResult)}<T> or {nameof(IActionResult)}");
         }
     }
 }

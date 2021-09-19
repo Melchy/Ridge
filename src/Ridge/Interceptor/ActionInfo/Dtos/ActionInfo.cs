@@ -36,7 +36,9 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             RouteParams["area"] = area;
         }
 
-        public static ActionInfo CreateActionInfo(IEnumerable<object?> methodArguments, MethodInfo methodInfo)
+        public static ActionInfo CreateActionInfo(
+            IEnumerable<object?> methodArguments,
+            MethodInfo methodInfo)
         {
             var methodParams = CreateParametersWithValues(methodArguments, methodInfo);
             var body = GetBody(methodParams);
@@ -46,13 +48,19 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             return new ActionInfo(body, routeParams, bodyFormat, headerParams);
         }
 
-        private static IEnumerable<(ParameterInfo parameterReflection, object? parameterValue)> CreateParametersWithValues(IEnumerable<object?> methodArguments, MethodInfo methodInfo)
+        private static IEnumerable<(ParameterInfo parameterReflection, object? parameterValue)> CreateParametersWithValues(
+            IEnumerable<object?> methodArguments,
+            MethodInfo methodInfo)
         {
             return methodInfo.GetParameters()
-                .Zip(methodArguments, (parameterReflection, parameterValue) => (parameterReflection, parameterValue));
+                .Zip(methodArguments,
+                    (
+                        parameterReflection,
+                        parameterValue) => (parameterReflection, parameterValue));
         }
 
-        private static string GetBodyFormat(IEnumerable<(ParameterInfo parameterReflection, object? parameterValue)> methodParams)
+        private static string GetBodyFormat(
+            IEnumerable<(ParameterInfo parameterReflection, object? parameterValue)> methodParams)
         {
             var hasParameterWithAttributeFromForm = methodParams
                 .Any(x => GeneralHelpers.HasAttribute<FromFormAttribute>(x.parameterReflection));
@@ -60,13 +68,12 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             {
                 return "application/x-www-form-urlencoded";
             }
-            else
-            {
-                return "application/json";
-            }
+
+            return "application/json";
         }
 
-        private static IDictionary<string, object?> GetHeadersFromMethodArguments(IEnumerable<(ParameterInfo parameterReflection, object? value)> methodParams)
+        private static IDictionary<string, object?> GetHeadersFromMethodArguments(
+            IEnumerable<(ParameterInfo parameterReflection, object? value)> methodParams)
         {
             var fromHeadParams = methodParams.Where(x =>
                 GeneralHelpers.HasAttribute<FromHeaderAttribute>(x.parameterReflection));
@@ -89,6 +96,7 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                     throw new InvalidOperationException($"FromHeader attribute does not support complex types. Parameter name: {attribute.parameterReflection.Name}.");
                 }
             }
+
             return routeDataDictionary;
         }
 
@@ -105,7 +113,8 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             return GeneralHelpers.MergeDictionaries(formRouteDictionary, fromQueryDictionary);
         }
 
-        private static IDictionary<string, object?> GetFromRouteParams(IEnumerable<(ParameterInfo parameterReflection, object? value)> methodParams)
+        private static IDictionary<string, object?> GetFromRouteParams(
+            IEnumerable<(ParameterInfo parameterReflection, object? value)> methodParams)
         {
             var fromRouteParams = methodParams.Where(x =>
                 GeneralHelpers.HasAttribute<FromRouteAttribute>(x.parameterReflection));
@@ -117,7 +126,7 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 if (fromRouteParam.value == null)
                 {
                     throw new InvalidOperationException($"Argument with [FromRoute] attribute can not contain null. Parameter containing null: {fromRouteParam.parameterReflection.Name}. " +
-                                                        $"[FromRoute] can not contain null because route would not match any endpoint or it would match incorrect endpoint.");
+                                                        "[FromRoute] can not contain null because route would not match any endpoint or it would match incorrect endpoint.");
                 }
 
                 if (GeneralHelpers.IsSimpleType(fromRouteParam.value.GetType()))
@@ -134,7 +143,8 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
         }
 
 
-        private static IDictionary<string, object?> GetFromQueryParamsAndParamsWithoutAttribute(IEnumerable<(ParameterInfo parameterReflection, object? Value)> methodParams)
+        private static IDictionary<string, object?> GetFromQueryParamsAndParamsWithoutAttribute(
+            IEnumerable<(ParameterInfo parameterReflection, object? Value)> methodParams)
         {
             var fromQueryParams = methodParams.Where(x =>
                 GeneralHelpers.HasAttribute<FromQueryAttribute>(x.parameterReflection));
@@ -162,7 +172,6 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 }
                 else
                 {
-
                     if (HandleIEnumerable(attribute.Value, routeDataDictionary, parameterNameInRequest))
                     {
                         continue;
@@ -179,7 +188,8 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             return routeDataDictionary;
         }
 
-        private static IEnumerable<(ParameterInfo parameterReflection, object? Value)> GetParametersWithoutMvcAttributes(IEnumerable<(ParameterInfo parameterReflection, object? Value)> methodParams)
+        private static IEnumerable<(ParameterInfo parameterReflection, object? Value)> GetParametersWithoutMvcAttributes(
+            IEnumerable<(ParameterInfo parameterReflection, object? Value)> methodParams)
         {
             return methodParams.Where(x =>
                 !GeneralHelpers.HasAttribute<FromRouteAttribute>(x.parameterReflection) &&
@@ -203,6 +213,7 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                     routeDataDictionary[parameterNameInRequest] = argumentValue;
                     return true;
                 }
+
                 var genericArgument = genericArguments[0];
                 if (!GeneralHelpers.IsSimpleType(genericArgument))
                 {
@@ -218,7 +229,8 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             return false;
         }
 
-        public static IDictionary<string, object?> ConvertObjectToDictionaryWithNestedProperties(object obj)
+        public static IDictionary<string, object?> ConvertObjectToDictionaryWithNestedProperties(
+            object obj)
         {
             var innerAttributes = GeneralHelpers.ToDictionary(obj);
             var routeDataDictionary = new Dictionary<string, object?>();
@@ -233,7 +245,8 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 if (GeneralHelpers.IsSimpleType(innerAttribute.Value.GetType()))
                 {
                     routeDataDictionary[innerAttribute.Key] = innerAttribute.Value;
-                }else if (innerAttribute.Value is IEnumerable)
+                }
+                else if (innerAttribute.Value is IEnumerable)
                 {
                     routeDataDictionary[innerAttribute.Key] = innerAttribute.Value;
                 }
@@ -269,10 +282,8 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 // This value can not be null. Null is only for return parameter
                 return parameter.Name;
             }
-            else
-            {
-                return modelNameProvider.Name;
-            }
+
+            return modelNameProvider.Name;
         }
 
 
@@ -280,9 +291,11 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             IEnumerable<(ParameterInfo parameterInfo, object? value)> methodParams)
         {
             var parametersWithFromForm = methodParams.Where(
-                x => GeneralHelpers.HasAttribute<FromFormAttribute>(x.parameterInfo)).ToList();
+                    x => GeneralHelpers.HasAttribute<FromFormAttribute>(x.parameterInfo))
+                .ToList();
             var parametersWithFromBody = methodParams.Where(
-                x => GeneralHelpers.HasAttribute<FromBodyAttribute>(x.parameterInfo)).ToList();
+                    x => GeneralHelpers.HasAttribute<FromBodyAttribute>(x.parameterInfo))
+                .ToList();
 
             if (parametersWithFromBody.Count > 1)
             {

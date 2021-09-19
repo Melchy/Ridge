@@ -13,7 +13,11 @@
 </head>
 <body>
 <div>
-    @Component.InvokeAsync("Test", new {MaxPriotiry=2,IsDone = false})
+    @Component.InvokeAsync("Test", new
+    {
+        MaxPriotiry = 2,
+        IsDone = false,
+    })
     <vc:Test max-priority="2" is-done="false">
     </vc:Test>
 </div>

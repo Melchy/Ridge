@@ -1,26 +1,26 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Ridge.Results;
+using System;
+using System.Threading.Tasks;
 
 namespace TestWebApplication.Pages
 {
     public class GeneralPageModel : PageModel
     {
-        public Test Test { get; set; } = new Test(){ParamFromBody = "asd"};
-        
+        public Test Test { get; set; } = new() { ParamFromBody = "asd" };
+
         public virtual async Task<PageResult<GeneralPageModel>> OnGetBadRequest()
         {
             return await Task.FromResult(BadRequest("Bad request error"));
         }
-        
+
         public virtual async Task<PageResult<GeneralPageModel>> OnGetRedirect()
         {
-            return await Task.FromResult(RedirectToPage(new {handler="Redirected"}));
+            return await Task.FromResult(RedirectToPage(new { handler = "Redirected" }));
         }
-        
+
         public virtual async Task<PageResult<GeneralPageModel>> OnGetRedirected()
         {
             return await Task.FromResult(new OkObjectResult("Redirected!!"));
@@ -35,19 +35,21 @@ namespace TestWebApplication.Pages
         {
             throw new InvalidOperationException("Error");
         }
-        
+
         public virtual async Task<PageResult<GeneralPageModel>> OnGetReturn500()
         {
-           return await Task.FromResult(new StatusCodeResult(StatusCodes.Status500InternalServerError));
+            return await Task.FromResult(new StatusCodeResult(StatusCodes.Status500InternalServerError));
         }
-        
+
         public virtual async Task<PageResult<GeneralPageModel>> OnGetFooStatic()
         {
             Test.ParamFromBody = "Foo";
             return await Task.FromResult(Page());
         }
 
-        public virtual async Task<PageResult<GeneralPageModel>> OnGetFoo2([FromBody] string ParamFromBody, [FromQuery] string ParamFromQuery)
+        public virtual async Task<PageResult<GeneralPageModel>> OnGetFoo2(
+            [FromBody] string ParamFromBody,
+            [FromQuery] string ParamFromQuery)
         {
             Test.ParamFromBody = ParamFromBody;
             Test.ParamFromQuery = ParamFromQuery;

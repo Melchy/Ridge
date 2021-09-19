@@ -4,12 +4,14 @@ namespace Ridge.Serialization
 {
     internal class NewtonsoftJsonSerializer : IRidgeSerializer
     {
-        public TResult Deserialize<TResult>(string data)
+        public TResult Deserialize<TResult>(
+            string data)
         {
             return JsonConvert.DeserializeObject<TResult>(data);
         }
 
-        public string? Serialize(object? obj)
+        public string? Serialize(
+            object? obj)
         {
             return JsonConvert.SerializeObject(obj);
         }

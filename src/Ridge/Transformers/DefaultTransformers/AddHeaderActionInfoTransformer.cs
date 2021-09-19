@@ -8,7 +8,9 @@ namespace Ridge.Transformers.DefaultTransformers
         private readonly string _key;
         private readonly object? _value;
 
-        public AddHeaderActionInfoTransformer(string key, object? value)
+        public AddHeaderActionInfoTransformer(
+            string key,
+            object? value)
         {
             _key = key;
             _value = value;
@@ -18,7 +20,7 @@ namespace Ridge.Transformers.DefaultTransformers
             IActionInfo actionInfo,
             InvocationInfo invocationInfo)
         {
-            actionInfo.Headers.Add(_key,_value);
+            actionInfo.Headers.Add(_key, _value);
         }
     }
 }

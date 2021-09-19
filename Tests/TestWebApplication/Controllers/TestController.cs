@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Logging;
 using TestWebApplication.Controllers.Examples;
 
 namespace TestWebApplication.Controllers
@@ -14,17 +14,20 @@ namespace TestWebApplication.Controllers
     {
         private readonly ILogger<TestController> _logger;
 
-        public TestController(ILogger<TestController> logger)
+        public TestController(
+            ILogger<TestController> logger)
         {
             _logger = logger;
         }
+
         [HttpGet("GetWithBody")]
-        public virtual async Task<ActionResult<int>> HttpGetWithBody([FromBody] int foo)
+        public virtual async Task<ActionResult<int>> HttpGetWithBody(
+            [FromBody] int foo)
         {
             await Task.CompletedTask;
             return Ok(foo);
         }
-        
+
         [HttpPost("PostWithoutBody")]
         public virtual async Task<ActionResult> HttpPostWithoutBody()
         {
@@ -36,19 +39,19 @@ namespace TestWebApplication.Controllers
         {
             return await Task.FromResult(BadRequest());
         }
-        
+
         [HttpPost]
         public virtual async Task<ActionResult> BadRequestAction()
         {
             return BadRequest();
         }
-        
+
         [HttpPut]
         public virtual async Task<ActionResult<int>> Return10()
         {
             return 10;
         }
-        
+
         [HttpDelete]
         public virtual async Task<ActionResult<int>> ReturnAsync()
         {
@@ -60,19 +63,19 @@ namespace TestWebApplication.Controllers
         {
             return Ok();
         }
-        
+
         [HttpPatch]
         public virtual async Task<ActionResult> IActionResultAsync()
         {
             return await Task.FromResult(Ok());
         }
-        
+
         [HttpOptions]
         public virtual async Task<ActionResult> IActionResult()
         {
             return Ok();
         }
-        
+
         [HttpPost("{fromRoute}/{fromRoute2}")]
         public virtual async Task<ActionResult<SimpleArgumentResult>> SimpleArguments(
             [FromRoute] int fromRoute,
@@ -92,7 +95,12 @@ namespace TestWebApplication.Controllers
             public long FromRoute2 { get; }
             public DateTime FromQuery2 { get; }
 
-            public SimpleArgumentResult(int fromRoute, DateTime body, TestEnum fromQuery, long fromRoute2, DateTime fromQuery2)
+            public SimpleArgumentResult(
+                int fromRoute,
+                DateTime body,
+                TestEnum fromQuery,
+                long fromRoute2,
+                DateTime fromQuery2)
             {
                 FromRoute = fromRoute;
                 Body = body;
@@ -101,7 +109,7 @@ namespace TestWebApplication.Controllers
                 FromQuery2 = fromQuery2;
             }
         }
-        
+
         [HttpPost("complexBody")]
         public virtual async Task<ActionResult<ComplexArgument>> ComplexBody(
             [FromBody] ComplexArgument body)
@@ -115,7 +123,7 @@ namespace TestWebApplication.Controllers
         {
             return fromQuery;
         }
-        
+
         [HttpPost("ComplexFromForm")]
         public virtual async Task<ActionResult<ComplexArgument>> FromForm(
             [FromForm] ComplexArgument fromRoute)
@@ -140,23 +148,25 @@ namespace TestWebApplication.Controllers
 
         [HttpGet("Foo/{asd}")]
         public virtual async Task<ActionResult<int>> Foo(
-            [FromQuery(Name = "asd")] int foo2, [FromRoute(Name = "asd")] int foo)
+            [FromQuery(Name = "asd")] int foo2,
+            [FromRoute(Name = "asd")] int foo)
         {
-            var result = RedirectToAction("Foo", new Dictionary<string, string>()
-            {
-                ["asd"] = "1",
-            });
+            var result = RedirectToAction("Foo",
+                new Dictionary<string, string>()
+                {
+                    ["asd"] = "1",
+                });
             return result;
         }
 
         public class FooTest
         {
+            public string Test2 { get; set; }
+
             public FooTest()
             {
                 Test2 = null!;
             }
-
-            public string Test2 { get; set; }
         }
 
 
@@ -166,7 +176,7 @@ namespace TestWebApplication.Controllers
         {
             return new Test()
             {
-                Foo = fromQuery.Foo
+                Foo = fromQuery.Foo,
             };
         }
 
@@ -185,7 +195,10 @@ namespace TestWebApplication.Controllers
 
         [HttpGet("NullsTest/{route}")]
         public virtual async Task<ActionResult<(int?, ComplexArgument?, DateTime?, string?)>> NullsTest(
-            int? query, [FromBody] ComplexArgument? body, [FromHeader] DateTime? header, [FromRoute] string? route)
+            int? query,
+            [FromBody] ComplexArgument? body,
+            [FromHeader] DateTime? header,
+            [FromRoute] string? route)
         {
             return (query, body, header, route);
         }
@@ -193,7 +206,8 @@ namespace TestWebApplication.Controllers
 
         [HttpGet("FromRouteFromQuerySame/{route}")]
         public virtual async Task<ActionResult> FromRouteFromQuerySameName(
-            [FromQuery(Name = "foo")] string foo, [FromRoute(Name = "foo")] string foo2)
+            [FromQuery(Name = "foo")] string foo,
+            [FromRoute(Name = "foo")] string foo2)
         {
             return Ok();
         }
@@ -211,7 +225,7 @@ namespace TestWebApplication.Controllers
         {
             return fromServices != null;
         }
-        
+
         [HttpPost("ArrayInBody")]
         public virtual async Task<ActionResult<IEnumerable<ComplexArgument>>> ArrayInBody(
             [FromBody] IEnumerable<ComplexArgument> complexArguments)
@@ -229,14 +243,14 @@ namespace TestWebApplication.Controllers
         }
 
         [HttpPost("MethodReturningHeaders")]
-        public virtual async Task<ActionResult<Dictionary<string,List<string>>>> MethodReturningHeaders()
+        public virtual async Task<ActionResult<Dictionary<string, List<string>>>> MethodReturningHeaders()
         {
-            return HttpContext.Request.Headers.ToDictionary(x=>x.Key, 
-                x=>x.Value.ToList());
+            return HttpContext.Request.Headers.ToDictionary(x => x.Key,
+                x => x.Value.ToList());
         }
 
         [HttpGet("MethodThrowingInvalidOperationException")]
-        public virtual Task<ActionResult<Dictionary<string,string>>> MethodThrowingInvalidOperationException()
+        public virtual Task<ActionResult<Dictionary<string, string>>> MethodThrowingInvalidOperationException()
         {
             throw new InvalidOperationException("Correct");
         }
@@ -248,13 +262,17 @@ namespace TestWebApplication.Controllers
         }
 
         [HttpGet("ArrayOfComplexArgumentsInFromQuery")]
-        public virtual async Task<ActionResult<IEnumerable<ComplexArgument>>> ArrayOfComplexArgumentsInFromQuery([FromQuery] IEnumerable<ComplexArgument> complexArguments)
+        public virtual async Task<ActionResult<IEnumerable<ComplexArgument>>> ArrayOfComplexArgumentsInFromQuery(
+            [FromQuery] IEnumerable<ComplexArgument> complexArguments)
         {
             return complexArguments.ToList();
         }
 
         [HttpGet("ArgumentsWithoutAttributes/{fromRoute}")]
-        public virtual async Task<ActionResult<SpecialComplexObject>> ArgumentsWithoutAttributes(ComplexObject complexObjectFromQuery, int fromRoute, int fromQuery)
+        public virtual async Task<ActionResult<SpecialComplexObject>> ArgumentsWithoutAttributes(
+            ComplexObject complexObjectFromQuery,
+            int fromRoute,
+            int fromQuery)
         {
             return new SpecialComplexObject()
             {
@@ -265,19 +283,22 @@ namespace TestWebApplication.Controllers
         }
 
         [HttpGet("DefaultPropertiesInCtorTest")]
-        public virtual async Task<ActionResult<ObjectWithDefaultProperties>> DefaultPropertiesInCtorTest([FromBody] ObjectWithDefaultProperties objectWithDefaultProperties)
+        public virtual async Task<ActionResult<ObjectWithDefaultProperties>> DefaultPropertiesInCtorTest(
+            [FromBody] ObjectWithDefaultProperties objectWithDefaultProperties)
         {
             return objectWithDefaultProperties;
         }
 
         [HttpGet("CustomBinder")]
-        public virtual async Task<ActionResult<List<int>>> CustomBinder([ModelBinder(BinderType = typeof(CommaDelimitedArrayParameterBinder))]List<int> properties)
+        public virtual async Task<ActionResult<List<int>>> CustomBinder(
+            [ModelBinder(BinderType = typeof(CommaDelimitedArrayParameterBinder))] List<int> properties)
         {
             return properties;
         }
 
         [HttpGet("CustomBinderFullObject/{countryCode}")]
-        public virtual async Task<ActionResult<string>> CustomBinderFullObject([ModelBinder(BinderType = typeof(CountryCodeBinder))]CountryCodeBinded countryCodeBinded)
+        public virtual async Task<ActionResult<string>> CustomBinderFullObject(
+            [ModelBinder(BinderType = typeof(CountryCodeBinder))] CountryCodeBinded countryCodeBinded)
         {
             await Task.CompletedTask;
             return countryCodeBinded.CountryCode;
@@ -306,14 +327,12 @@ namespace TestWebApplication.Controllers
 #pragma warning disable CS8618
             public ComplexArgument()
             {
-
             }
 #pragma warning restore
             public string Str { get; set; }
             public int Integer { get; set; }
             public DateTime DateTime { get; set; }
             public InnerObject? InnerObject { get; set; }
-
         }
 
         public class InnerObject
@@ -328,7 +347,6 @@ namespace TestWebApplication.Controllers
 #pragma warning disable CS8618
             public InnerObject()
             {
-
             }
 #pragma warning restore
 
@@ -336,7 +354,7 @@ namespace TestWebApplication.Controllers
 
             public IEnumerable<string> List { get; set; }
         }
-        
+
         public enum TestEnum
         {
             Zero = 0,
@@ -345,7 +363,6 @@ namespace TestWebApplication.Controllers
         [HttpGet("MethodReturningVoid")]
         public virtual async Task MethodReturningVoid()
         {
-            return;
         }
 
         [HttpGet("AsyncMethodReturningTask")]
@@ -371,9 +388,10 @@ namespace TestWebApplication.Controllers
         {
             return Ok();
         }
-        
+
         [HttpGet("OverloadedAction2")]
-        public virtual async Task<ActionResult> OverloadedAction(int a)
+        public virtual async Task<ActionResult> OverloadedAction(
+            int a)
         {
             return Ok();
         }
@@ -424,21 +442,20 @@ namespace TestWebApplication.Controllers
 
     public class ObjectWithDefaultProperties
     {
+        public string Str { get; }
+
         public ObjectWithDefaultProperties(
             string str = "test")
         {
             Str = str;
         }
-
-        public string Str { get; }
     }
 
     public class CommaDelimitedArrayParameterBinder : IModelBinder
     {
-
-        public Task BindModelAsync(ModelBindingContext bindingContext)
+        public Task BindModelAsync(
+            ModelBindingContext bindingContext)
         {
-
             var value = bindingContext.ActionContext.HttpContext.Request.Query[bindingContext.FieldName].ToString();
 
             // Check if the argument value is null or empty
@@ -451,7 +468,7 @@ namespace TestWebApplication.Controllers
 
             bindingContext.Result = ModelBindingResult.Success(ints);
 
-            if(bindingContext.ModelType == typeof(List<int>))
+            if (bindingContext.ModelType == typeof(List<int>))
             {
                 bindingContext.Result = ModelBindingResult.Success(ints.ToList());
             }
@@ -463,10 +480,11 @@ namespace TestWebApplication.Controllers
 
     public class CountryCodeBinder : IModelBinder
     {
-        public Task BindModelAsync(ModelBindingContext bindingContext)
+        public Task BindModelAsync(
+            ModelBindingContext bindingContext)
         {
             var countryCode = bindingContext.ActionContext.HttpContext.Request.RouteValues["countryCode"]!.ToString();
-            bindingContext.Result = ModelBindingResult.Success(new TestController.CountryCodeBinded(){CountryCode = countryCode!});
+            bindingContext.Result = ModelBindingResult.Success(new TestController.CountryCodeBinded() { CountryCode = countryCode! });
             return Task.CompletedTask;
         }
     }

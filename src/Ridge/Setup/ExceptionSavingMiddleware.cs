@@ -10,7 +10,7 @@ namespace Ridge.Setup
         private readonly RequestDelegate _next;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeveloperExceptionPageMiddleware"/> class
+        ///     Initializes a new instance of the <see cref="DeveloperExceptionPageMiddleware" /> class
         /// </summary>
         /// <param name="next"></param>
         /// <param name="options"></param>
@@ -23,16 +23,17 @@ namespace Ridge.Setup
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
         }
-        
-        
-        public async Task Invoke(HttpContext context)
+
+
+        public async Task Invoke(
+            HttpContext context)
         {
             if (!CallDataDictionary.IsTestCall(context))
             {
                 await _next(context);
                 return;
             }
-            
+
             try
             {
                 await _next(context);

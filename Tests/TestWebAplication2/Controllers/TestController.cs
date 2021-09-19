@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace TestWebAplication2.Controllers
 {
@@ -12,7 +8,10 @@ namespace TestWebAplication2.Controllers
     public class TestController : ControllerBase
     {
         [HttpGet("ArgumentsWithoutAttributes/{fromRoute}")]
-        public virtual async Task<ActionResult<SpecialComplexObject>> ArgumentsWithoutAttributes(ComplexObject complexObjectFromQuery, int fromRoute, int fromQuery)
+        public virtual async Task<ActionResult<SpecialComplexObject>> ArgumentsWithoutAttributes(
+            ComplexObject complexObjectFromQuery,
+            int fromRoute,
+            int fromQuery)
         {
             var foo = new SpecialComplexObject()
             {

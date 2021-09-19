@@ -16,7 +16,7 @@ namespace TestWebApplication.Controllers
         {
             return Ok();
         }
-        
+
         [HttpGet("c")]
         public ActionResult NonVirtual2()
         {

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Ridge.Serialization;
+﻿using Ridge.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -41,20 +40,22 @@ namespace Ridge.Interceptor
             return request;
         }
 
-        private static ByteArrayContent CreateContent(string content, object? obj, IRidgeSerializer serializer)
+        private static ByteArrayContent CreateContent(
+            string content,
+            object? obj,
+            IRidgeSerializer serializer)
         {
             if (content == "application/json")
             {
                 return new StringContent(serializer.Serialize(obj), Encoding.UTF8, content);
             }
-            else if(content == "application/x-www-form-urlencoded")
+
+            if (content == "application/x-www-form-urlencoded")
             {
                 return new FormUrlEncodedContent(GeneralHelpers.ToKeyValue(obj));
             }
-            else
-            {
-                throw new InvalidOperationException($"Unsupported content type {content}");
-            }
+
+            throw new InvalidOperationException($"Unsupported content type {content}");
         }
     }
 }

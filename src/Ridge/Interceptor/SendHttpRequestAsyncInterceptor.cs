@@ -21,7 +21,7 @@ namespace Ridge.Interceptor
         private readonly IResultFactory _resultFactory;
         private readonly ActionInfoTransformersCaller _actionInfoTransformersCaller;
         private readonly Action<MethodInfo>? _methodValidation;
-        private IRidgeSerializer _serializer;
+        private readonly IRidgeSerializer _serializer;
 
         internal SendHttpRequestAsyncInterceptor(
             WebCaller webCaller,
@@ -40,19 +40,21 @@ namespace Ridge.Interceptor
         }
 
         /// <summary>
-        /// Sync over async is tricky.
-        /// We can not use CallControllerAsync(invocation.Arguments, invocation.Method).GetAwaiter().GetResult() or
-        /// CallControllerAsync(invocation.Arguments, invocation.Method).Wait() these calls can cause deadlock.
-        /// Issue: Issue: https://github.com/xunit/xunit/issues/864?fbclid=IwAR1d4nLltbDGyO6SlhCYmBBskw_OJfycxBxRf_82gR_M-g-68lLmcFNGjFU
-        ///
-        /// Task.Run(() => CallControllerAsync(invocation.Arguments, invocation.Method)).Wait()
-        /// causes thread starvation when used in xunit test on single processor machine.
-        /// Issue: https://github.com/JSkimming/Castle.Core.AsyncInterceptor/pull/54#issuecomment-480953342
-        /// This solution replaces the synchronization context which should cause that new task is not limited by number of threads
-        /// dictated in xunit synchronization context.
+        ///     Sync over async is tricky.
+        ///     We can not use CallControllerAsync(invocation.Arguments, invocation.Method).GetAwaiter().GetResult() or
+        ///     CallControllerAsync(invocation.Arguments, invocation.Method).Wait() these calls can cause deadlock.
+        ///     Issue: Issue:
+        ///     https://github.com/xunit/xunit/issues/864?fbclid=IwAR1d4nLltbDGyO6SlhCYmBBskw_OJfycxBxRf_82gR_M-g-68lLmcFNGjFU
+        ///     Task.Run(() => CallControllerAsync(invocation.Arguments, invocation.Method)).Wait()
+        ///     causes thread starvation when used in xunit test on single processor machine.
+        ///     Issue: https://github.com/JSkimming/Castle.Core.AsyncInterceptor/pull/54#issuecomment-480953342
+        ///     This solution replaces the synchronization context which should cause that new task is not limited by number of
+        ///     threads
+        ///     dictated in xunit synchronization context.
         /// </summary>
         /// <param name="invocation"></param>
-        public void InterceptSynchronous(IInvocation invocation)
+        public void InterceptSynchronous(
+            IInvocation invocation)
         {
             using (NoSynchronizationContextScope.Enter())
             {
@@ -60,17 +62,20 @@ namespace Ridge.Interceptor
             }
         }
 
-        public void InterceptAsynchronous(IInvocation invocation)
+        public void InterceptAsynchronous(
+            IInvocation invocation)
         {
             throw new InvalidOperationException($"Method must return can not return {nameof(Task)}");
         }
 
-        public void InterceptAsynchronous<TResult>(IInvocation invocation)
+        public void InterceptAsynchronous<TResult>(
+            IInvocation invocation)
         {
             invocation.ReturnValue = InternalInterceptAsynchronous<TResult>(invocation);
         }
 
-        private async Task<TResult> InternalInterceptAsynchronous<TResult>(IInvocation invocation)
+        private async Task<TResult> InternalInterceptAsynchronous<TResult>(
+            IInvocation invocation)
         {
             var foo = await CallControllerAsync(invocation.Arguments, invocation.Method);
             return (TResult)foo!;
@@ -105,6 +110,9 @@ namespace Ridge.Interceptor
 
     public class InvocationInfo
     {
+        public IEnumerable<object?> Arguments { get; }
+        public MethodInfo MethodInfo { get; }
+
         public InvocationInfo(
             IEnumerable<object?> arguments,
             MethodInfo methodInfo)
@@ -112,8 +120,5 @@ namespace Ridge.Interceptor
             Arguments = arguments;
             MethodInfo = methodInfo;
         }
-
-        public IEnumerable<object?> Arguments { get; }
-        public MethodInfo MethodInfo { get; }
     }
 }
