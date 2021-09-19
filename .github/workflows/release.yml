@@ -22,6 +22,6 @@ jobs:
             -   name: pack the nuget
                 run: |
                     cd src/Ridge
-                    dotnet pack --configuration Release /p:Version=${GITHUB_REF:10}
+                    dotnet pack --configuration Release /p:Version=${GITHUB_REF:10} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true
             -   name: release package
                 run: dotnet nuget push **/*.nupkg --api-key ${{secrets.nuget}} --source https://api.nuget.org/v3/index.json
