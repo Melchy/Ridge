@@ -2,21 +2,16 @@
 
 namespace Ridge.LogWriter
 {
+    /// <summary>
+    ///     Nunit console logger.
+    /// </summary>
     public class NunitLogWriter : ILogWriter
     {
+        /// <inheritdoc />
         public void WriteLine(
             string text)
         {
             TestContext.Progress.WriteLine(text);
-        }
-    }
-
-    public class CustomLogWriter : ILogWriter
-    {
-        public void WriteLine(
-            string text)
-        {
-            // write line somewhere
         }
     }
 }

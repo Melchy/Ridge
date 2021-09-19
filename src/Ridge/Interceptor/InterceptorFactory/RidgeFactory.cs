@@ -13,6 +13,9 @@ using System.Reflection;
 
 namespace Ridge.Interceptor.InterceptorFactory
 {
+    /// <summary>
+    ///     Base factory.
+    /// </summary>
     public abstract class RidgeFactory
     {
         private readonly List<IHttpRequestPipelinePart> _pipelineParts = new();
@@ -30,7 +33,7 @@ namespace Ridge.Interceptor.InterceptorFactory
             return new ActionInfoTransformersCaller(_actionInfoTransformers);
         }
 
-        protected T CreateClassFromInterceptor<T>(
+        private protected T CreateClassFromInterceptor<T>(
             IAsyncInterceptor interceptor)
             where T : class
         {
@@ -39,7 +42,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
 
         /// <summary>
-        ///     Adds Call pipeline part which can transform request after url is constructed
+        ///     Adds <see cref="IHttpRequestPipelinePart"/> which can transform request after url is constructed.
         /// </summary>
         /// <param name="httpRequestPipelinePart"></param>
         public void AddHttpRequestPipelinePart(
@@ -49,7 +52,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
 
         /// <summary>
-        ///     Adds transformer which can transform request before url is constructed
+        ///     Adds <see cref="IActionInfoTransformer"/> which can transform request before url is constructed.
         /// </summary>
         /// <param name="actionInfoTransformer"></param>
         public void AddActionInfoTransformer(
@@ -59,7 +62,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
 
         /// <summary>
-        ///     Adds transformer which adds header to the request
+        ///     Adds <see cref="IActionInfoTransformer"/> which adds header to the request.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -72,7 +75,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
 
         /// <summary>
-        ///     Adds multiple transformers which add headers
+        ///     Adds multiple <see cref="IActionInfoTransformer"/> which adds headers to the request.
         /// </summary>
         /// <param name="headers"></param>
         public void AddHeaders(
@@ -85,7 +88,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
 
         /// <summary>
-        ///     Adds pipeline part which sets Authorization
+        ///     Adds pipeline part which sets Authorization.
         /// </summary>
         /// <param name="authenticationHeaderValue"></param>
         public void AddAuthorization(

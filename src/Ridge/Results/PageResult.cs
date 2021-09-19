@@ -10,7 +10,7 @@ namespace Ridge.Results
     /// <summary>
     ///     This part of class represents result of page call
     /// </summary>
-    public partial class PageResult<TPage> : IActionResult
+    internal partial class PageResult<TPage> : IActionResult
     {
         public HttpResponseMessage HttpResponseMessage { get; }
         public TPage Model { get; }
@@ -35,7 +35,7 @@ namespace Ridge.Results
     /// <summary>
     ///     This part of actionResult is used by asp.net
     /// </summary>
-    public partial class PageResult<TPage> : IResultWrapper
+    internal partial class PageResult<TPage> : IResultWrapper
     {
         private ActionContext? _actionContext { get; }
         private ActionResult _actionResult { get; }

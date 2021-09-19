@@ -9,15 +9,6 @@ namespace Ridge.Setup
     {
         private readonly RequestDelegate _next;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DeveloperExceptionPageMiddleware" /> class
-        /// </summary>
-        /// <param name="next"></param>
-        /// <param name="options"></param>
-        /// <param name="loggerFactory"></param>
-        /// <param name="hostingEnvironment"></param>
-        /// <param name="diagnosticSource"></param>
-        /// <param name="filters"></param>
         public ExceptionSavingMiddleware(
             RequestDelegate next)
         {

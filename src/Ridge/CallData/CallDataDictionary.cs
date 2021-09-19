@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Ridge.CallData
 {
-    public static class CallDataDictionary
+    internal static class CallDataDictionary
     {
         private static ConcurrentDictionary<string, CallDataDto> Data { get; } = new();
 

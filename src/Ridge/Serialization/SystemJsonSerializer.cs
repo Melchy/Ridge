@@ -2,8 +2,12 @@
 
 namespace Ridge.Serialization
 {
-    internal class SystemJsonSerializer : IRidgeSerializer
+    /// <summary>
+    ///     SystemJson implementation of serializer.
+    /// </summary>
+    public class SystemJsonSerializer : IRidgeSerializer
     {
+        /// <inheritdoc />
         public TResult Deserialize<TResult>(
             string data)
         {
@@ -14,12 +18,14 @@ namespace Ridge.Serialization
             return JsonSerializer.Deserialize<TResult>(data, options);
         }
 
+        /// <inheritdoc />
         public string? Serialize(
             object? obj)
         {
             return JsonSerializer.Serialize(obj);
         }
 
+        /// <inheritdoc />
         public string? GetSerializerName()
         {
             return "System.Text.Json";

@@ -26,7 +26,7 @@ namespace Ridge.Serialization
 
             if (actionResultExecutor.GetType().Name == "NewtonsoftJsonResultExecutor")
             {
-                return new NewtonsoftJsonSerializer();
+                return new JsonNetSerializer();
             }
 
             throw new InvalidOperationException(

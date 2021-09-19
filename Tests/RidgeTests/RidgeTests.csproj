@@ -35,4 +35,13 @@
         </ProjectReference>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.3"/>
     </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="PagesTests\**"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Remove="PagesTests\**"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Remove="PagesTests\**"/>
+    </ItemGroup>
 </Project>

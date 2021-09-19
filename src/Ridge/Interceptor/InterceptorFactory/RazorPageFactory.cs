@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.InterceptorFactory
 {
-    public class RazorPageFactory : RidgeFactory
+    internal class RazorPageFactory : RidgeFactory
     {
         private readonly HttpClient _httpClient;
         private readonly IServiceProvider _serviceProvider;

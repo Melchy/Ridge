@@ -1,19 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <!--    Hide deprecated .net version warning    -->
+        <CheckEolTargetFramework>false</CheckEolTargetFramework>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
         <PackageId>RidgeDotNet</PackageId>
         <Authors>Michal Motyčka</Authors>
         <Product>Ridge</Product>
         <Company>Michal Motyčka</Company>
-        <Description>Tool that alows strongly typed integration tests and subcutaneous razor tests.</Description>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Description>Testing tool which allows strongly typed http requests using WebApplicationFactory.</Description>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/Melchy/Ridge</PackageProjectUrl>
+        <PackageTags>aspnetcore, aspnetcoremvc, aspnetcoremvctesting</PackageTags>
+        <PackageIcon>ridge.png</PackageIcon>
+        <PackageReleaseNotes>See https://github.com/Melchy/Ridge/releases</PackageReleaseNotes>
         <RepositoryUrl>https://github.com/Melchy/Ridge</RepositoryUrl>
-        <PackageTags>Testing, integration, strongly typed, razor</PackageTags>
+        <RepositoryType>git</RepositoryType>
+        <Copyright>Copyright Michal Motyčka 2010-2021</Copyright>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    </ItemGroup>
     <ItemGroup>
         <AdditionalFiles Include="BannedSymbols.txt"/>
     </ItemGroup>
@@ -29,5 +42,8 @@
         <PackageReference Include="NUnit" Version="3.6.0"/>
         <PackageReference Include="System.Text.Json" Version="4.6.0"/>
         <PackageReference Include="xunit.abstractions" Version="2.0.1"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\ridge.png" Pack="true" PackagePath=""/>
     </ItemGroup>
 </Project>

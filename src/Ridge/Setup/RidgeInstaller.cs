@@ -2,9 +2,15 @@
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.DependencyInjection;
 using Ridge.Filters;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("TestWebApplication")]
 
 namespace Ridge.Setup
 {
+    /// <summary>
+    ///     Ridge installer.
+    /// </summary>
     public static class RidgeInstaller
     {
         /// <summary>
@@ -12,7 +18,7 @@ namespace Ridge.Setup
         /// </summary>
         /// <param name="pageConventionCollection"></param>
         /// <returns></returns>
-        public static PageConventionCollection UseRidgePagesFilter(
+        internal static PageConventionCollection UseRidgePagesFilter(
             this PageConventionCollection pageConventionCollection)
         {
             return pageConventionCollection.ConfigureFilter(new PageResultFilter());

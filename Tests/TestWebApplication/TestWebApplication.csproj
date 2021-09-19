@@ -15,11 +15,27 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Pages\Shared"/>
+        <ProjectReference Include="..\..\src\Ridge\Ridge.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Ridge\Ridge.csproj"/>
+        <Compile Remove="Pages\**"/>
+        <Compile Remove="ViewComponents\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Remove="Pages\**"/>
+        <EmbeddedResource Remove="ViewComponents\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Pages\**"/>
+        <None Remove="ViewComponents\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Remove="Pages\**"/>
+        <Content Remove="ViewComponents\**"/>
     </ItemGroup>
 
 

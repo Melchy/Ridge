@@ -464,3 +464,7 @@ public class Mixed
     public string HeaderName { get; set; }
 }
 ```
+
+## Contributions
+
+Icon made by [Freepik](https://www.freepik.com) from [www.flaticon.com](https://www.flaticon.com/).

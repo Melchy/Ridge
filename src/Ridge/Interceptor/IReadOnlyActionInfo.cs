@@ -2,6 +2,10 @@
 
 namespace Ridge.Interceptor
 {
+    /// <summary>
+    ///     Contains information which were used to generate request url.
+    ///     Ridge will not work with those information anymore therefore there is no point in changing them.
+    /// </summary>
     public interface IReadOnlyActionInfo
     {
         /// <summary>

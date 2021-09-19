@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Ridge.Transformers
 {
+    /// <summary>
+    ///     Transformers allows you to transform request data before URL is generated.
+    /// </summary>
     public interface IActionInfoTransformer
     {
         /// <summary>

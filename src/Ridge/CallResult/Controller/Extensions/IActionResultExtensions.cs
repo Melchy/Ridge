@@ -5,8 +5,16 @@ using System.Net.Http;
 
 namespace Ridge.CallResult.Controller.Extensions
 {
+    /// <summary>
+    ///     Extension methods allowing work with <see cref="ControllerCallResult" /> wrapped in <see cref="IActionResult" />.
+    /// </summary>
     public static class IActionResultExtensions
     {
+        /// <summary>
+        ///     Tries to deserialize response to T.
+        /// </summary>
+        /// <param name="actionResult"></param>
+        /// <returns></returns>
         public static HttpResponseMessage HttpResponseMessage(
             this IActionResult actionResult)
         {
@@ -15,6 +23,11 @@ namespace Ridge.CallResult.Controller.Extensions
             return ridgeResult.HttpResponseMessage;
         }
 
+        /// <summary>
+        ///     Response content as a string.
+        /// </summary>
+        /// <param name="actionResult"></param>
+        /// <returns></returns>
         public static string ResultAsString(
             this IActionResult actionResult)
         {
@@ -23,6 +36,9 @@ namespace Ridge.CallResult.Controller.Extensions
             return ridgeResult.ResultAsString;
         }
 
+        /// <summary>
+        ///     Status code returned from server.
+        /// </summary>
         public static HttpStatusCode StatusCode(
             this IActionResult actionResult)
         {
@@ -31,6 +47,9 @@ namespace Ridge.CallResult.Controller.Extensions
             return ridgeResult.HttpResponseMessage.StatusCode;
         }
 
+        /// <summary>
+        ///     Indicates if status code has number between 200 and 300
+        /// </summary>
         public static bool IsSuccessStatusCode(
             this IActionResult actionResult)
         {
@@ -39,6 +58,9 @@ namespace Ridge.CallResult.Controller.Extensions
             return ridgeResult.IsSuccessStatusCode;
         }
 
+        /// <summary>
+        ///     Indicates if status code has number between 300 and 400
+        /// </summary>
         public static bool IsRedirectStatusCode(
             this IActionResult actionResult)
         {
@@ -47,6 +69,9 @@ namespace Ridge.CallResult.Controller.Extensions
             return ridgeResult.IsRedirectStatusCode;
         }
 
+        /// <summary>
+        ///     Indicates if status code has number between 400 and 500
+        /// </summary>
         public static bool IsClientErrorStatusCode(
             this IActionResult actionResult)
         {
@@ -55,6 +80,9 @@ namespace Ridge.CallResult.Controller.Extensions
             return ridgeResult.IsClientErrorStatusCode;
         }
 
+        /// <summary>
+        ///     Indicates if status code has number between 500 and 600
+        /// </summary>
         public static bool IsServerErrorStatusCode(
             this IActionResult actionResult)
         {
@@ -63,6 +91,12 @@ namespace Ridge.CallResult.Controller.Extensions
             return ridgeResult.IsServerErrorStatusCode;
         }
 
+
+        /// <summary>
+        ///     Get representation of controller response from this <see cref="ActionResult{TValue}" />.
+        /// </summary>
+        /// <param name="actionResult"></param>
+        /// <returns></returns>
         public static ControllerCallResult Unwrap(
             this IActionResult actionResult)
         {

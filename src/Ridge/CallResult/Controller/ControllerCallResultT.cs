@@ -5,9 +5,14 @@ using System.Net.Http;
 
 namespace Ridge.CallResult.Controller
 {
+    /// <inheritdoc />
     public class ControllerCallResult<TResult> : ControllerCallResult
     {
         private readonly IRidgeSerializer _serializer;
+
+        /// <summary>
+        ///     Tries to deserialize body content to TResult.
+        /// </summary>
         public TResult Result => GetResultOrThrow();
 
         internal ControllerCallResult(

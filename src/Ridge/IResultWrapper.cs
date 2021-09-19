@@ -2,7 +2,7 @@
 
 namespace Ridge
 {
-    public interface IResultWrapper
+    internal interface IResultWrapper
     {
         public ActionResult GetInnerActionResult();
     }

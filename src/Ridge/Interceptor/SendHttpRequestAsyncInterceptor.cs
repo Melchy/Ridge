@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Ridge.Interceptor
 {
-    public class SendHttpRequestAsyncInterceptor<T> : IAsyncInterceptor
+    internal class SendHttpRequestAsyncInterceptor<T> : IAsyncInterceptor
     {
         private readonly WebCaller _webCaller;
         private readonly IGetInfo _getInfo;
@@ -105,20 +105,6 @@ namespace Ridge.Interceptor
 
             var result = await _webCaller.Call(request, actionInfo, new InvocationInfo(arguments, method));
             return await _resultFactory.Create<T>(result, callId.ToString(), method);
-        }
-    }
-
-    public class InvocationInfo
-    {
-        public IEnumerable<object?> Arguments { get; }
-        public MethodInfo MethodInfo { get; }
-
-        public InvocationInfo(
-            IEnumerable<object?> arguments,
-            MethodInfo methodInfo)
-        {
-            Arguments = arguments;
-            MethodInfo = methodInfo;
         }
     }
 }

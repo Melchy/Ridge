@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace Ridge.Pipeline.Public
 {
+    /// <summary>
+    ///     Represent pipeline part which will be called before request is send to server.
+    ///     Parts are called in order in which they were registered.
+    /// </summary>
     public interface IHttpRequestPipelinePart
     {
         /// <summary>

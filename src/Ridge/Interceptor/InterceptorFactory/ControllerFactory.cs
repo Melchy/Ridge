@@ -12,6 +12,11 @@ using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.InterceptorFactory
 {
+    /// <summary>
+    ///     This factory returns custom implementation of provided controller.
+    ///     This custom implementation is created at runtime and it's methods replace
+    ///     user implementation by http calls using mock server.
+    /// </summary>
     public class ControllerFactory : RidgeFactory
     {
         private readonly HttpClient _httpClient;
@@ -19,6 +24,20 @@ namespace Ridge.Interceptor.InterceptorFactory
         private readonly ILogWriter? _logWriter;
         private readonly IRidgeSerializer _serializer;
 
+        /// <summary>
+        ///     Create controller factory.
+        /// </summary>
+        /// <param name="httpClient"></param>
+        /// <param name="serviceProvider">Service provider present in WebApplicationFactory.</param>
+        /// <param name="logWriter">
+        ///     Used to log requests and responses from server.
+        ///     Use <see cref="XunitLogWriter" /> or <see cref="NunitLogWriter" /> or implement custom <see cref="ILogWriter" />
+        /// </param>
+        /// <param name="ridgeSerializer">
+        ///     Serializer used to serialize and deserialize requests.
+        ///     Serializer is by default chosen based on asp.net settings. If you need custom serializer implement
+        ///     <see cref="IRidgeSerializer" />.
+        /// </param>
         public ControllerFactory(
             HttpClient httpClient,
             IServiceProvider serviceProvider,
@@ -32,7 +51,9 @@ namespace Ridge.Interceptor.InterceptorFactory
         }
 
         /// <summary>
-        ///     Creates Controller instance with intercepted calls.
+        /// Creates type inherited from <typeparamref name="TController"/>.
+        /// This inherited type is created at runtime and it replaces all method calls
+        /// by http calls using mock server.
         /// </summary>
         /// <typeparam name="TController"></typeparam>
         /// <returns></returns>
