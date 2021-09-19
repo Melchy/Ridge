@@ -45,7 +45,9 @@ public async Task ExampleTest()
 }
 ```
 
-With Ridge you can change the http call to strongly typed method call:
+Ridge improves the user experience
+of [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
+by allowing you to call methods on controllers which are in runtime transformed to http calls:
 
 ```csharp
 [Test]
@@ -59,7 +61,7 @@ public void TestUsingRidge()
         new NunitLogWriter());
 
     var testController = controllerFactory.CreateController<ExamplesController>();
-    // Ridge transforms method call to httpRequest
+    // Ridge replaces this method call with http request
     var response = testController.ReturnGivenNumber(10);
 
     Assert.True(response.IsSuccessStatusCode());
