@@ -20,9 +20,9 @@ dotnet add package RidgeDotNet
 
 ## Simple example
 
-In ASP.NET Core 2.1 microsoft
+ASP.NET Core 2.1
 added [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
-which can create mock web server. This web server allows you to make http calls in-process without network overhead.
+which can create mock web server. This web server allows you to make http calls in-process without network overhead:
 
 ```csharp
 // Example controller
