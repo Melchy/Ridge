@@ -18,11 +18,11 @@ Install using .Net Core command line:
 dotnet add package RidgeDotNet
 ```
 
-## Simple example
+## Example
 
 ASP.NET Core 2.1
 added [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
-which can create mock web server. This web server allows you to make http calls in-process without network overhead:
+which can be used to create mock web server. Mock web server can perform http calls in-process without network overhead:
 
 ```csharp
 // Example controller
@@ -45,9 +45,7 @@ public async Task ExampleTest()
 }
 ```
 
-Ridge improves the user experience
-of [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
-by allowing you to call methods on controllers which are in runtime transformed to http calls:
+Ridge simplifies use of [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory) by creating HttpRequest from method call:
 
 ```csharp
 [Test]
@@ -60,10 +58,12 @@ public void TestUsingRidge()
         webApplicationFactory.Services,
         new NunitLogWriter());
 
+    // Ridge inherits from ExamplesController at runtime and replaces all methods with custom implementation.
     var testController = controllerFactory.CreateController<ExamplesController>();
-    // Ridge replaces this method call with http request
+    // This call generates http request and returns it's result as ActionResult.
     var response = testController.ReturnGivenNumber(10);
 
+    // Ridge provides extension methods to access HttpResponse wrapped in ActionResult
     Assert.True(response.IsSuccessStatusCode());
     Assert.AreEqual(10, response.GetResult());
 }
