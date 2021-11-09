@@ -1,8 +1,7 @@
 # Ridge
 
 Testing tool which allows strongly typed http requests using
-[WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
-.
+[WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory).
 
 ## Installing Ridge
 
@@ -108,7 +107,7 @@ public class Startup
 Ridge offers multiple extension methods which you can use to assert result:
 
 ```csharp
-// Exctension methods on IActionResult and ActionResult
+// Extension methods on IActionResult and ActionResult
 actionResult.HttpResponseMessage()
 actionResult.ResultAsString()
 actionResult.StatusCode()
@@ -345,7 +344,7 @@ public class HttpRequestTransformationPipelinePart : IHttpRequestPipelinePart
 
 ## Logging
 
-To log request and responses add `XunitLogWriter` or `NunitLogWriter` or implement custom log writer and pass it
+To log requests and responses add `XunitLogWriter` or `NunitLogWriter` or implement custom log writer and pass it
 to `ControllerFactory`. Example:
 
 ```csharp
