@@ -3,7 +3,7 @@
 namespace Ridge.LogWriter
 {
     /// <summary>
-    ///     Nunit console logger.
+    ///     Nunit console logger. Which uses TestContext.WriteLine.
     /// </summary>
     public class NunitLogWriter : ILogWriter
     {
@@ -11,7 +11,7 @@ namespace Ridge.LogWriter
         public void WriteLine(
             string text)
         {
-            TestContext.Progress.WriteLine(text);
+            TestContext.WriteLine(text);
         }
     }
 }
