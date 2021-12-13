@@ -5,7 +5,7 @@ namespace Ridge.LogWriter;
 /// <summary>
 ///     Nunit console logger. Which uses TestContext.Progress.WriteLine.
 /// </summary>
-public class NunitImmediateLogWriter : ILogWriter
+public class NunitProgressLogWriter : ILogWriter
 {
     /// <inheritdoc />
     public void WriteLine(
