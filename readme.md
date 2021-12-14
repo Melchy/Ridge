@@ -68,6 +68,22 @@ public void TestUsingRidge()
 }
 ```
 
+## Table of contents
+
+* [Setup](#setup)
+    + [Startup example](#startup-example)
+* [Assertions](#assertions)
+* [Exceptions](#exceptions)
+* [Complex example](#complex-example)
+* [Custom model binders](#custom-model-binders)
+* [Ridge extendability](#ridge-extendability)
+* [Logging](#logging)
+* [Serialization](#serialization)
+* [Best practices](#best-practices)
+* [Not supported features](#not-supported-features)
+    + [Features which may be implemented in future](#features-which-may-be-implemented-in-future)
+* [Contributions](#contributions)
+
 ## Setup
 
 * Mark methods in controller as virtual.
