@@ -26,7 +26,7 @@ namespace RidgeExamples
             var webApplicationFactory = new WebApplicationFactory<Startup>();
             var client = webApplicationFactory.CreateClient();
 
-            var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
+            var result = await client.GetFromJsonAsync<int>("/ReturnGivenNumber?input=10");
 
             Assert.AreEqual(10, result);
         }

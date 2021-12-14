@@ -1,16 +1,17 @@
 ﻿using NUnit.Framework;
 
-namespace Ridge.LogWriter;
-
-/// <summary>
-///     Nunit console logger. Which uses TestContext.Progress.WriteLine.
-/// </summary>
-public class NunitProgressLogWriter : ILogWriter
+namespace Ridge.LogWriter
 {
-    /// <inheritdoc />
-    public void WriteLine(
-        string text)
+    /// <summary>
+    ///     Nunit console logger. Which uses TestContext.Progress.WriteLine.
+    /// </summary>
+    public class NunitProgressLogWriter : ILogWriter
     {
-        TestContext.Progress.WriteLine(text);
+        /// <inheritdoc />
+        public void WriteLine(
+            string text)
+        {
+            TestContext.Progress.WriteLine(text);
+        }
     }
 }
