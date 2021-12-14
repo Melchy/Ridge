@@ -40,22 +40,24 @@ namespace Ridge.Interceptor
             return request;
         }
 
-        private static ByteArrayContent CreateContent(
-            string content,
-            object? obj,
+        private static ByteArrayContent? CreateContent(
+            string contentType,
+            object? content,
             IRidgeSerializer serializer)
         {
-            if (content == "application/json")
+            if (contentType == "application/json")
             {
-                return new StringContent(serializer.Serialize(obj), Encoding.UTF8, content);
+                var serializedContent = serializer.Serialize(content);
+                return new StringContent(serializedContent!, Encoding.UTF8, contentType);
             }
 
-            if (content == "application/x-www-form-urlencoded")
+            if (contentType == "application/x-www-form-urlencoded")
             {
-                return new FormUrlEncodedContent(GeneralHelpers.ToKeyValue(obj));
+                var contentAsDictionary = GeneralHelpers.ToKeyValue(content);
+                return new FormUrlEncodedContent(contentAsDictionary!);
             }
 
-            throw new InvalidOperationException($"Unsupported content type {content}");
+            throw new InvalidOperationException($"Unsupported content type {contentType}");
         }
     }
 }

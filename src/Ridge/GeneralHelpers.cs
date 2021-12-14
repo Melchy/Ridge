@@ -66,6 +66,10 @@ namespace Ridge
                 type == typeof(DateTimeOffset) ||
                 type == typeof(TimeSpan) ||
                 type == typeof(Guid) ||
+#if NET6_0_OR_GREATER
+                type == typeof(DateOnly) ||
+                type == typeof(TimeOnly) ||
+#endif
                 type.IsEnum)
             {
                 return true;

@@ -15,7 +15,7 @@ namespace Ridge.Serialization
             {
                 PropertyNameCaseInsensitive = true,
             };
-            return JsonSerializer.Deserialize<TResult>(data, options);
+            return JsonSerializer.Deserialize<TResult>(data, options)!;
         }
 
         /// <inheritdoc />

@@ -25,8 +25,6 @@ namespace TestWebApplication
                 .ConfigureApiBehaviorOptions(options => options.SuppressInferBindingSourcesForParameters = true)
                 .AddControllersAsServices()
                 .AddNewtonsoftJson();
-            services.AddRazorPages(options => options.Conventions.UseRidgePagesFilter())
-                .AddNewtonsoftJson();
             services.AddSwaggerGen();
         }
 
@@ -55,7 +53,6 @@ namespace TestWebApplication
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
                     name: "complexExample",
                     "{controller}/{action}/{fromRoute}/");

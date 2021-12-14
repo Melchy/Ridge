@@ -29,7 +29,7 @@ namespace Ridge.Pipeline.Infrastructure
             if (_logger != null)
             {
                 var body = httpRequestMessage.Content;
-                var bodyAsString = body == null ? null : await httpRequestMessage.Content.ReadAsStringAsync();
+                var bodyAsString = body == null ? null : await body.ReadAsStringAsync();
                 _logger.WriteLine("Request:");
                 _logger.WriteLine($"{httpRequestMessage}");
                 _logger.WriteLine("Body:");

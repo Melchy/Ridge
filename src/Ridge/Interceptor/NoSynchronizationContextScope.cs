@@ -14,10 +14,10 @@ namespace Ridge.Interceptor
 
         public struct Disposable : IDisposable
         {
-            private readonly SynchronizationContext _synchronizationContext;
+            private readonly SynchronizationContext? _synchronizationContext;
 
             public Disposable(
-                SynchronizationContext synchronizationContext)
+                SynchronizationContext? synchronizationContext)
             {
                 _synchronizationContext = synchronizationContext;
             }

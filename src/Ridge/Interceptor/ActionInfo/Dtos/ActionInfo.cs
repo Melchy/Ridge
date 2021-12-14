@@ -274,13 +274,13 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             var modelNameProvider = (IModelNameProvider?)parameter.GetCustomAttributes(typeof(IModelNameProvider), true).FirstOrDefault();
             if (modelNameProvider == null)
             {
-                return parameter.Name;
+                return parameter.Name!;
             }
 
             if (string.IsNullOrEmpty(modelNameProvider.Name))
             {
                 // This value can not be null. Null is only for return parameter
-                return parameter.Name;
+                return parameter.Name!;
             }
 
             return modelNameProvider.Name;
