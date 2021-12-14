@@ -373,9 +373,19 @@ public void Test(){
 //...
 var controllerFactory = new ControllerFactory(client,
                 webAppFactory.Services,
-                new NunitLogWriter());
+                new NunitLogWriter()); // Uses TestContext.WriteLine()
 //...
 }
+ 
+// Nunit proggresive logging
+public void Test(){
+//...
+var controllerFactory = new ControllerFactory(client,
+                webAppFactory.Services,
+                new NunitProgressLogWriter()); // Uses TestContext.Progress.WriteLine()
+//...
+}
+         
          
                 
 // Custom implementation
