@@ -3,7 +3,7 @@
 Testing tool which allows strongly typed http requests using
 [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory).
 
-## Installing Ridge
+## Install Ridge
 
 Install Ridge using [nuget](https://www.nuget.org/packages/RidgeDotNet/):
 
