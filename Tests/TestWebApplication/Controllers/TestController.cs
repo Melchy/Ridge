@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
+using Ridge;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using TestWebApplication.Controllers.Examples;
 
 namespace TestWebApplication.Controllers
 {
+    [GenerateStronglyTypedCallerForTesting]
     [Route("[controller]")]
     public class TestController : ControllerBase
     {
@@ -371,6 +373,11 @@ namespace TestWebApplication.Controllers
             await Task.Yield();
         }
 
+        public virtual async Task TestThisIsNowGood()
+        {
+            await Task.Yield();
+        }
+
         [HttpGet("MethodReturningTaskNotAsync")]
         public virtual Task MethodReturningTaskNotAsync()
         {
@@ -488,4 +495,7 @@ namespace TestWebApplication.Controllers
             return Task.CompletedTask;
         }
     }
+    
+    
+    
 }

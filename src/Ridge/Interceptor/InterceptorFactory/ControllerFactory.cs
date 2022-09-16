@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ridge.Interceptor.ActionInfo;
-using Ridge.Interceptor.ResultFactory;
 using Ridge.LogWriter;
 using Ridge.Serialization;
 using System;
@@ -22,7 +20,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         private readonly HttpClient _httpClient;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogWriter? _logWriter;
-        private readonly IRidgeSerializer _serializer;
+        private readonly IRidgeSerializer? _serializer;
 
         /// <summary>
         ///     Create controller factory.
@@ -31,7 +29,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         /// <param name="serviceProvider">Service provider present in WebApplicationFactory.</param>
         /// <param name="logWriter">
         ///     Used to log requests and responses from server.
-        ///     Use <see cref="XunitLogWriter" /> or <see cref="NunitLogWriter" /> or implement custom <see cref="ILogWriter" />
+        ///     Use <see cref="XunitLogWriter" /> or <see cref="NunitLogWriter" /> or <see cref="NunitProgressLogWriter"/> or implement custom <see cref="ILogWriter" />
         /// </param>
         /// <param name="ridgeSerializer">
         ///     Serializer used to serialize and deserialize requests.
@@ -47,7 +45,7 @@ namespace Ridge.Interceptor.InterceptorFactory
             _httpClient = httpClient;
             _serviceProvider = serviceProvider;
             _logWriter = logWriter;
-            _serializer = SerializerProvider.GetSerializer(serviceProvider, ridgeSerializer);
+            _serializer = ridgeSerializer;
         }
 
         /// <summary>
@@ -61,15 +59,11 @@ namespace Ridge.Interceptor.InterceptorFactory
             where TController : class
         {
             CheckIfControllerActionsCanBeProxied<TController>();
-            var webCaller = GetWebCaller(_httpClient, _logWriter);
-            var actionInfoTransformerCaller = GetActionInfoTransformerCaller();
-            var createInfoForController = new CreateInfoForController(_serviceProvider);
-            var resultFactoryForController = new ResultFactoryForController(_serializer);
-            var interceptor = new SendHttpRequestAsyncInterceptor<TController>(
-                webCaller,
-                createInfoForController,
-                resultFactoryForController,
-                actionInfoTransformerCaller,
+            var interceptor = new SendHttpRequestAsyncInterceptor(
+                RequestBuilder,
+                _logWriter,
+                _httpClient,
+                _serviceProvider,
                 _serializer,
                 EnsureCorrectReturnType);
             return CreateClassFromInterceptor<TController>(interceptor);

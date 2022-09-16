@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6;net5;netcoreapp3.1;netcoreapp3.0</TargetFrameworks>
+        <TargetFramework>net6</TargetFramework>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
@@ -11,37 +11,12 @@
         <PackageReference Include="nunit" Version="3.13.1"/>
         <PackageReference Include="NUnit3TestAdapter" Version="3.17.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1"/>
+
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Ridge\Ridge.csproj"/>
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-        <ProjectReference Include="..\..\src\Ridge\Ridge.csproj">
-            <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
-        </ProjectReference>
-        <ProjectReference Include="..\TestWebApplication\TestWebApplication.csproj">
-            <SetTargetFramework>TargetFramework=netcoreapp3.0</SetTargetFramework>
-        </ProjectReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.0.3"/>
-    </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
-        <ProjectReference Include="..\..\src\Ridge\Ridge.csproj">
-            <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
-        </ProjectReference>
-        <ProjectReference Include="..\TestWebApplication\TestWebApplication.csproj">
-            <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
-        </ProjectReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.12"/>
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'net5'">
-        <ProjectReference Include="..\..\src\Ridge\Ridge.csproj">
-            <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
-        </ProjectReference>
-        <ProjectReference Include="..\TestWebApplication\TestWebApplication.csproj">
-            <SetTargetFramework>TargetFramework=net5</SetTargetFramework>
-        </ProjectReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.3"/>
+        <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net6'">
         <ProjectReference Include="..\..\src\Ridge\Ridge.csproj">

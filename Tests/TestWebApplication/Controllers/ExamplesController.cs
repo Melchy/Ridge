@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable disable
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Ridge;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-#nullable disable
 namespace TestWebApplication.Controllers.Examples
 {
+    [GenerateStronglyTypedCallerForTesting]
     public class ExamplesController : Controller
     {
         // Example controller
@@ -21,9 +23,10 @@ namespace TestWebApplication.Controllers.Examples
         [HttpGet("ThrowException")]
         public virtual ActionResult ThrowException()
         {
+            
             throw new InvalidOperationException("Exception throw");
         }
-
+        
         // notice that you don't have to use endpoint routing
         // route for this action is defined in startup in following way
         // endpoints.MapControllerRoute(name: "complexExample", "{controller}/{action}/{fromRoute}");

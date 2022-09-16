@@ -21,25 +21,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         private readonly List<IHttpRequestPipelinePart> _pipelineParts = new();
         private readonly List<IActionInfoTransformer> _actionInfoTransformers = new();
 
-        internal WebCaller GetWebCaller(
-            HttpClient httpClient,
-            ILogWriter? logger)
-        {
-            return new WebCaller(httpClient, logger, _pipelineParts);
-        }
-
-        internal ActionInfoTransformersCaller GetActionInfoTransformerCaller()
-        {
-            return new ActionInfoTransformersCaller(_actionInfoTransformers);
-        }
-
-        private protected T CreateClassFromInterceptor<T>(
-            IAsyncInterceptor interceptor)
-            where T : class
-        {
-            var controllerProxy = ProxyGeneratorWithoutCallingCtor.CreateProxyWithoutCallingConstructor(typeof(T), interceptor.ToInterceptor());
-            return (T)controllerProxy;
-        }
+        internal readonly RequestBuilder RequestBuilder = new();
 
         /// <summary>
         ///     Adds <see cref="IHttpRequestPipelinePart"/> which can transform request after url is constructed.
@@ -48,7 +30,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         public void AddHttpRequestPipelinePart(
             IHttpRequestPipelinePart httpRequestPipelinePart)
         {
-            _pipelineParts.Add(httpRequestPipelinePart);
+            RequestBuilder.AddHttpRequestPipelinePart(httpRequestPipelinePart);
         }
 
         /// <summary>
@@ -58,7 +40,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         public void AddActionInfoTransformer(
             IActionInfoTransformer actionInfoTransformer)
         {
-            _actionInfoTransformers.Add(actionInfoTransformer);
+            RequestBuilder.AddActionInfoTransformer(actionInfoTransformer);
         }
 
         /// <summary>
@@ -70,8 +52,7 @@ namespace Ridge.Interceptor.InterceptorFactory
             string key,
             string? value)
         {
-            var addHeaderTransformer = new AddHeaderActionInfoTransformer(key, value);
-            _actionInfoTransformers.Add(addHeaderTransformer);
+            RequestBuilder.AddHeader(key, value);
         }
 
         /// <summary>
@@ -81,10 +62,7 @@ namespace Ridge.Interceptor.InterceptorFactory
         public void AddHeaders(
             IDictionary<string, string?> headers)
         {
-            foreach (var header in headers)
-            {
-                AddHeader(header.Key, header.Value);
-            }
+            RequestBuilder.AddHeaders(headers);
         }
 
         /// <summary>
@@ -94,10 +72,17 @@ namespace Ridge.Interceptor.InterceptorFactory
         public void AddAuthorization(
             AuthenticationHeaderValue authenticationHeaderValue)
         {
-            var addAuthenticationPipelinePart = new AddAuthenticationPipelinePart(authenticationHeaderValue);
-            _pipelineParts.Add(addAuthenticationPipelinePart);
+            RequestBuilder.AddAuthorization(authenticationHeaderValue);
         }
 
+        private protected T CreateClassFromInterceptor<T>(
+            IAsyncInterceptor interceptor)
+            where T : class
+        {
+            var controllerProxy = ProxyGeneratorWithoutCallingCtor.CreateProxyWithoutCallingConstructor(typeof(T), interceptor.ToInterceptor());
+            return (T)controllerProxy;
+        }
+        
         /// <summary>
         ///     Default proxy generator requires real instance of proxied object. We are never calling the real object
         ///     so we do not need real instance. Therefore we use  FormatterServices.GetUninitializedObject()
@@ -141,6 +126,84 @@ namespace Ridge.Interceptor.InterceptorFactory
 
                 field.SetValue(proxy, new[] { interceptor });
             }
+        }
+    }
+
+    /// <summary>
+    ///     TODO
+    /// </summary>
+    public class RequestBuilder
+    {
+        private readonly List<IHttpRequestPipelinePart> _pipelineParts = new();
+        private readonly List<IActionInfoTransformer> _actionInfoTransformers = new();
+
+        internal WebCaller BuildWebCaller(
+            HttpClient httpClient,
+            ILogWriter logger)
+        {
+            return new WebCaller(httpClient, logger, _pipelineParts);
+        }
+
+        internal ActionInfoTransformersCaller BuildActionInfoTransformerCaller()
+        {
+            return new ActionInfoTransformersCaller(_actionInfoTransformers);
+        }
+
+        /// <summary>
+        ///     TODO
+        /// </summary>
+        /// <param name="httpRequestPipelinePart"></param>
+        public void AddHttpRequestPipelinePart(
+            IHttpRequestPipelinePart httpRequestPipelinePart)
+        {
+            _pipelineParts.Add(httpRequestPipelinePart);
+        }
+
+        /// <summary>
+        ///     TODO
+        /// </summary>
+        /// <param name="actionInfoTransformer"></param>
+        public void AddActionInfoTransformer(
+            IActionInfoTransformer actionInfoTransformer)
+        {
+            _actionInfoTransformers.Add(actionInfoTransformer);
+        }
+
+        /// <summary>
+        ///     TODO
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void AddHeader(
+            string key,
+            string? value)
+        {
+            var addHeaderTransformer = new AddHeaderActionInfoTransformer(key, value);
+            _actionInfoTransformers.Add(addHeaderTransformer);
+        }
+
+        /// <summary>
+        ///     TODO
+        /// </summary>
+        /// <param name="headers"></param>
+        public void AddHeaders(
+            IDictionary<string, string?> headers)
+        {
+            foreach (var header in headers)
+            {
+                AddHeader(header.Key, header.Value);
+            }
+        }
+
+        /// <summary>
+        ///     TODO
+        /// </summary>
+        /// <param name="authenticationHeaderValue"></param>
+        public void AddAuthorization(
+            AuthenticationHeaderValue authenticationHeaderValue)
+        {
+            var addAuthenticationPipelinePart = new AddAuthenticationPipelinePart(authenticationHeaderValue);
+            _pipelineParts.Add(addAuthenticationPipelinePart);
         }
     }
 }

@@ -11,12 +11,12 @@ namespace Ridge.Pipeline
     internal class WebCaller
     {
         private readonly HttpClient _httpClient;
-        private readonly ILogWriter? _logger;
+        private readonly ILogWriter _logger;
         private readonly List<IHttpRequestPipelinePart> _pipelineParts;
 
         public WebCaller(
             HttpClient httpClient,
-            ILogWriter? logger,
+            ILogWriter logger,
             List<IHttpRequestPipelinePart> pipelineParts)
         {
             _httpClient = httpClient;
