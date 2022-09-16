@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Ridge;
 using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers
 {
     [Area("Area")]
     [Route("[controller]")]
+    [GenerateStronglyTypedCallerForTesting]
     public class ControllerInArea : ControllerBase
     {
         [HttpGet("index")]

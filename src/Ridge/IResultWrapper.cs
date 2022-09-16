@@ -7,3 +7,8 @@ namespace Ridge
         public ActionResult GetInnerActionResult();
     }
 }
+
+
+namespace Ridge
+{
+}

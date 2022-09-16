@@ -21,20 +21,15 @@ namespace Ridge.Interceptor.ResultFactory
             _serializer = serializer;
         }
 
-        public async Task<object> Create<T>(
+        public async Task<object> Create(
             HttpResponseMessage httpResponseMessage,
             string callId,
             MethodInfo methodInfo)
         {
+            CheckIfExceptionOccuredAndThrowIfItDid(callId);
+            
             var actionReturnType = GeneralHelpers.GetReturnTypeOrGenericArgumentOfTask(methodInfo);
             var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
-            CallDataDto callDataDto = CallDataDictionary.GetData(callId);
-            if (callDataDto.Exception != null)
-            {
-                ExceptionDispatchInfo.Capture(callDataDto.Exception).Throw();
-                throw new InvalidOperationException("This is never thrown"); // this line is never reached
-            }
-
             if (actionReturnType == typeof(ActionResult))
             {
                 return new ControllerCallResult(httpResponseMessage, resultString, httpResponseMessage.StatusCode);
@@ -59,6 +54,45 @@ namespace Ridge.Interceptor.ResultFactory
             }
 
             throw new InvalidOperationException($"Controller method must return {nameof(ActionResult)} or {nameof(ActionResult)}<T> or {nameof(IActionResult)}");
+        }
+
+        public async Task<ControllerCallResult<TReturn>> CreateControllerCallResult<TReturn>(
+            HttpResponseMessage httpResponseMessage,
+            string callId)
+        {
+            CheckIfExceptionOccuredAndThrowIfItDid(callId);
+
+            var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
+            var ridgeResult = new ControllerCallResult<TReturn>(
+                httpResponseMessage,
+                resultString,
+                httpResponseMessage.StatusCode,
+                _serializer);
+            return ridgeResult;
+        }
+
+        public async Task<ControllerCallResult> CreateControllerCallResult(
+            HttpResponseMessage httpResponseMessage,
+            string callId)
+        {
+            CheckIfExceptionOccuredAndThrowIfItDid(callId);
+            var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
+            var ridgeResult = new ControllerCallResult(
+                httpResponseMessage,
+                resultString,
+                httpResponseMessage.StatusCode);
+            return ridgeResult;
+        }
+
+        private static void CheckIfExceptionOccuredAndThrowIfItDid(
+            string callId)
+        {
+            CallDataDto callDataDto = CallDataDictionary.GetData(callId);
+            if (callDataDto.Exception != null)
+            {
+                ExceptionDispatchInfo.Capture(callDataDto.Exception).Throw();
+                throw new InvalidOperationException("This is never thrown"); // this line is never reached
+            }
         }
     }
 }

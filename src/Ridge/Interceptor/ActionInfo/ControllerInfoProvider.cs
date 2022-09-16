@@ -11,19 +11,19 @@ using System.Threading.Tasks;
 
 namespace Ridge.Interceptor.ActionInfo
 {
-    internal class CreateInfoForController : IGetInfo
+    internal class ControllerInfoProvider
     {
         private readonly LinkGenerator _linkGenerator;
         private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
 
-        public CreateInfoForController(
+        public ControllerInfoProvider(
             IServiceProvider serviceProvider)
         {
             _linkGenerator = serviceProvider.GetService<LinkGenerator>();
             _actionDescriptorCollectionProvider = serviceProvider.GetService<IActionDescriptorCollectionProvider>();
         }
 
-        public async Task<(string url, Dtos.ActionInfo actionArgumentsInfo)> GetInfo<T>(
+        public async Task<(string url, Dtos.ActionInfo actionArgumentsInfo)> GetInfo(
             IEnumerable<object?> arguments,
             MethodInfo methodInfo,
             ActionInfoTransformersCaller actionInfoTransformersCaller)

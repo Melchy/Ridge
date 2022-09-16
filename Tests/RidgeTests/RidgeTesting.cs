@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TestWebApplication;
 using TestWebApplication.Controllers;
@@ -28,44 +27,31 @@ namespace RidgeTests
         public async Task SyncCallWithoutResult()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = testController.ReturnSync();
-            result.IsSuccessStatusCode().Should().BeTrue();
+            var response = await application.TestControllerCaller.Call_ReturnSync();
+            response.IsSuccessStatusCode().Should().BeTrue();
         }
 
         [Test]
         public async Task SyncCallWithResult()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = testController.ReturnSyncWithResult();
-            result.IsSuccessStatusCode().Should().BeTrue();
-            result.GetResult().Should().Be("ok");
+            var response = await application.TestControllerCaller.Call_ReturnSyncWithResult();
+            response.IsSuccessStatusCode().Should().BeTrue();
+            response.Result.Should().Be("ok");
         }
 
         [Test]
         public async Task SyncCallThrowingNotWrappedException()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Action result = () => testController.SyncThrow();
+            Func<Task> result = async () => await application.TestControllerCaller.Call_SyncThrow();
             result.Should().Throw<InvalidOperationException>().WithMessage("Error");
         }
-
-        [Test]
-        public async Task SyncMethodWithIncorrectReturnType()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Action sutCall = () => testController.SyncNotReturningActionResult();
-            sutCall.Should().Throw<InvalidOperationException>().WithMessage("*ActionResult*");
-        }
-
+        
         [Test]
         public async Task ArgumentsWithoutAttributesAreSupported()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
             var complexObject = new ComplexObject()
             {
                 Str = "foo",
@@ -75,29 +61,27 @@ namespace RidgeTests
                     Str = "br",
                 },
             };
-            var response = await testController.ArgumentsWithoutAttributes(complexObject,
+            var response = await application.TestControllerCaller.Call_ArgumentsWithoutAttributes(complexObject,
                 1,
                 2);
-            response.GetResult().ComplexObject.Should().BeEquivalentTo(complexObject);
-            response.GetResult().FromQuery.Should().Be(2);
-            response.GetResult().FromRoute.Should().Be(1);
+            response.Result.ComplexObject.Should().BeEquivalentTo(complexObject);
+            response.Result.FromQuery.Should().Be(2);
+            response.Result.FromRoute.Should().Be(1);
         }
 
         [Test]
         public async Task AsyncCallWithResult()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.ReturnAsync();
-            result.GetResult().Should().Be(10);
+            var result = await application.TestControllerCaller.Call_ReturnAsync();
+            result.Result.Should().Be(10);
         }
 
         [Test]
         public async Task AsyncCallWithoutResult()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.BadRequestAsync();
+            var result = await application.TestControllerCaller.Call_BadRequestAsync();
             result.StatusCode().Should().Be(HttpStatusCode.BadRequest);
         }
 
@@ -105,30 +89,17 @@ namespace RidgeTests
         public async Task AreasAreSupported()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<ControllerInArea>();
-            var result = await testController.Index();
+            var result = await application.ControllerInAreaCaller.Call_Index();
             result.IsSuccessStatusCode().Should().BeTrue();
-        }
-
-        [Test]
-        public void ControllerMustHaveAllMethodsMarkedAsVirtual()
-        {
-            using var application = CreateApplication();
-            Action call = () => application.ControllerFactory.CreateController<ControllerWithNonVirtualMethods>();
-            call.Should()
-                .Throw<InvalidOperationException>()
-                .Where(x => x.Message.Contains(nameof(ControllerWithNonVirtualMethods)))
-                .Where(x => x.Message.Contains(nameof(ControllerWithNonVirtualMethods.NonVirtual)))
-                .Where(x => x.Message.Contains(nameof(ControllerWithNonVirtualMethods.NonVirtual2)))
-                .Where(x => !x.Message.Contains(nameof(ControllerWithNonVirtualMethods.Index)));
         }
 
         [Test]
         public async Task MethodOverloadingIsSupported()
         {
+            // TODO overload nefunguje
+            
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.OverloadedAction();
+            var result = await application.TestControllerCaller.Call_OverloadedAction();
             result.IsSuccessStatusCode().Should().BeTrue();
         }
 
@@ -136,38 +107,40 @@ namespace RidgeTests
         public async Task SimpleArgumentsAreMapped()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.SimpleArguments(1, DateTime.Today, TestController.TestEnum.Zero, 100, DateTime.Today);
-            result.GetResult().FromRoute.Should().Be(1);
-            result.GetResult().Body.Should().Be(DateTime.Today);
-            result.GetResult().FromQuery.Should().Be(TestController.TestEnum.Zero);
-            result.GetResult().FromRoute2.Should().Be(100);
-            result.GetResult().FromQuery2.Should().Be(DateTime.Today);
+            var response =
+                await application.TestControllerCaller.Call_SimpleArguments(1,
+                    DateTime.Today,
+                    TestController.TestEnum.Zero,
+                    100,
+                    DateTime.Today);
+            response.Result.FromRoute.Should().Be(1);
+            response.Result.Body.Should().Be(DateTime.Today);
+            response.Result.FromQuery.Should().Be(TestController.TestEnum.Zero);
+            response.Result.FromRoute2.Should().Be(100);
+            response.Result.FromQuery2.Should().Be(DateTime.Today);
         }
 
         [Test]
         public async Task BodyCanContainComplexObject()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.ComplexBody(new TestController.ComplexArgument(
+            var result = await application.TestControllerCaller.Call_ComplexBody(new TestController.ComplexArgument(
                 integer: 10,
                 str: "test",
                 dateTime: DateTime.Today,
                 innerObject: new TestController.InnerObject(str: "InnerStr")
             ));
-            result.GetResult().Integer.Should().Be(10);
-            result.GetResult().Str.Should().Be("test");
-            result.GetResult().DateTime.Should().Be(DateTime.Today);
-            result.GetResult().InnerObject!.Str.Should().Be("InnerStr");
+            result.Result.Integer.Should().Be(10);
+            result.Result.Str.Should().Be("test");
+            result.Result.DateTime.Should().Be(DateTime.Today);
+            result.Result.InnerObject!.Str.Should().Be("InnerStr");
         }
 
         [Test]
         public async Task FromQueryCanContainComplexObject()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.ComplexFromQuery(new TestController.ComplexArgument(
+            var result = await application.TestControllerCaller.Call_ComplexFromQuery(new TestController.ComplexArgument(
                 integer: 10,
                 str: "test",
                 dateTime: DateTime.Today,
@@ -176,36 +149,34 @@ namespace RidgeTests
                     List = new List<string>() { "a", "b" },
                 }
             ));
-            result.GetResult().Integer.Should().Be(10);
-            result.GetResult().Str.Should().Be("test");
-            result.GetResult().DateTime.Should().Be(DateTime.Today);
-            result.GetResult().InnerObject!.Str.Should().Be("test");
-            result.GetResult().InnerObject!.List.Should().ContainInOrder("a", "b");
+            result.Result.Integer.Should().Be(10);
+            result.Result.Str.Should().Be("test");
+            result.Result.DateTime.Should().Be(DateTime.Today);
+            result.Result.InnerObject!.Str.Should().Be("test");
+            result.Result.InnerObject!.List.Should().ContainInOrder("a", "b");
         }
 
         [Test]
         public async Task FromFormIsSupported()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.FromForm(new TestController.ComplexArgument(
+            var result = await application.TestControllerCaller.Call_FromForm(new TestController.ComplexArgument(
                 integer: 10,
                 str: "test",
                 dateTime: DateTime.UtcNow.Date,
                 innerObject: new TestController.InnerObject(str: "InnerStr")
             ));
-            result.GetResult().Integer.Should().Be(10);
-            result.GetResult().Str.Should().Be("test");
-            result.GetResult().DateTime.ToString("dd/MM/yyyy").Should().Be(DateTime.UtcNow.ToString("dd/MM/yyyy"));
-            result.GetResult().InnerObject!.Str.Should().Be("InnerStr");
+            result.Result.Integer.Should().Be(10);
+            result.Result.Str.Should().Be("test");
+            result.Result.DateTime.ToString("dd/MM/yyyy").Should().Be(DateTime.UtcNow.ToString("dd/MM/yyyy"));
+            result.Result.InnerObject!.Str.Should().Be("InnerStr");
         }
 
         [Test]
         public void FromHeaderWithComplexArgumentsIsNotSupported()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> sutCall = () => testController.FromHeader(new TestController.ComplexArgument(
+            Func<Task> sutCall = () => application.TestControllerCaller.Call_FromHeader(new TestController.ComplexArgument(
                 integer: 10,
                 str: "test",
                 dateTime: DateTime.Today,
@@ -218,27 +189,24 @@ namespace RidgeTests
         public async Task FromHeaderIsSupportedForSimpleArguments()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.FromHeaderSimple(1);
-            result.GetResult().Should().Be(1);
+            var result = await application.TestControllerCaller.Call_FromHeaderSimple(1);
+            result.Result.Should().Be(1);
         }
 
         [Test]
         public async Task NameInFromQueryAttributeIsSupportedForComplexArgument()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.FromQueryWithNameComplexArgument(new TestController.Test() { Foo = 1 });
-            result.GetResult().Foo.Should().Be(1);
+            var result = await application.TestControllerCaller.Call_FromQueryWithNameComplexArgument(new TestController.Test() {Foo = 1});
+            result.Result.Foo.Should().Be(1);
         }
 
         [Test]
         public async Task NameInFromQueryAttributeIsSupportedSimpleArgument()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.FromQueryWithNameSimpleArgument(1);
-            result.GetResult().Should().Be(1);
+            var result = await application.TestControllerCaller.Call_FromQueryWithNameSimpleArgument(1);
+            result.Result.Should().Be(1);
         }
 
 
@@ -246,8 +214,7 @@ namespace RidgeTests
         public void ArrayOfComplexArgumentsInFromQueryIsNotSupported()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> sutCall = () => testController.ArrayOfComplexArgumentsInFromQuery(new List<TestController.ComplexArgument>());
+            Func<Task> sutCall = () => application.TestControllerCaller.Call_ArrayOfComplexArgumentsInFromQuery(new List<TestController.ComplexArgument>());
             sutCall.Should().Throw<InvalidOperationException>().WithMessage("*complex type*");
         }
 
@@ -258,29 +225,26 @@ namespace RidgeTests
         public async Task ObjectWithDefaultValuesInCtorDoesNotWorkWhenBindingUsingJsonNet()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.DefaultPropertiesInCtorTest(new ObjectWithDefaultProperties());
-            result.GetResult().Str.Should().Be("test");
+            var result = await application.TestControllerCaller.Call_DefaultPropertiesInCtorTest(new ObjectWithDefaultProperties());
+            result.Result.Str.Should().Be("test");
         }
 
         [Test]
         public async Task NullsCanBePlacedInFromQueryOrFromBodyOrFromHead()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.NullsTest(null, null, null, "asd");
-            result.GetResult().Item1.Should().Be(null);
-            result.GetResult().Item2.Should().Be(null);
-            result.GetResult().Item3.Should().Be(null);
+            var result = await application.TestControllerCaller.Call_NullsTest(null, null, null, "asd");
+            result.Result.Item1.Should().Be(null);
+            result.Result.Item2.Should().Be(null);
+            result.Result.Item3.Should().Be(null);
         }
 
         [Test]
         public async Task ArrayInFromQueryIsSupported()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.ArrayInFromQuery(new List<int>() { 1, 1, 1 });
-            result.GetResult().Should().AllBeEquivalentTo(1);
+            var result = await application.TestControllerCaller.Call_ArrayInFromQuery(new List<int>() {1, 1, 1});
+            result.Result.Should().AllBeEquivalentTo(1);
         }
 
 
@@ -288,8 +252,7 @@ namespace RidgeTests
         public async Task FromQueryAndFromRouteCanNotHaveSameName()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> sutCall = () => testController.FromRouteFromQuerySameName("asd", "asd");
+            Func<Task> sutCall = () => application.TestControllerCaller.Call_FromRouteFromQuerySameName("asd", "asd");
             sutCall.Should().Throw<InvalidOperationException>().WithMessage("*FromRoute*").WithMessage("*FromQuery*");
         }
 
@@ -297,8 +260,7 @@ namespace RidgeTests
         public void NullsCanNotBeInFromRouteArgument()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> sutCall = () => testController.NullsTest(1, new TestController.ComplexArgument(), DateTime.Now, null);
+            Func<Task> sutCall = () => application.TestControllerCaller.Call_NullsTest(1, new TestController.ComplexArgument(), DateTime.Now, null);
             sutCall.Should().Throw<InvalidOperationException>().WithMessage("*route*");
         }
 
@@ -306,17 +268,15 @@ namespace RidgeTests
         public async Task NameInFromRouteAttributeIsSupportedSimpleArgument()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.FromRouteWithNameSimpleArgument(1);
-            result.GetResult().Should().Be(1);
+            var result = await application.TestControllerCaller.Call_FromRouteWithNameSimpleArgument(1);
+            result.Result.Should().Be(1);
         }
 
         [Test]
         public async Task ClassicalRoutingIsSupported()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<ControllerWithoutAttributeRouting>();
-            var result = await testController.HttpGetWithoutBody();
+            var result = await application.ControllerWithoutAttributeRoutingCaller.Call_HttpGetWithoutBody();
             result.IsSuccessStatusCode().Should().BeTrue();
         }
 
@@ -324,16 +284,14 @@ namespace RidgeTests
         public async Task FromServicesIsIgnored()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.FromServices(null);
-            result.GetResult().Should().BeTrue();
+            var result = await application.TestControllerCaller.Call_FromServices(null);
+            result.Result.Should().BeTrue();
         }
 
         [Test]
         public async Task ArrayInBodyIsSupported()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
             var data = new List<TestController.ComplexArgument>
             {
                 new(
@@ -347,8 +305,8 @@ namespace RidgeTests
                     dateTime: DateTime.Today
                 ),
             };
-            var result = await testController.ArrayInBody(data);
-            result.GetResult()
+            var result = await application.TestControllerCaller.Call_ArrayInBody(data);
+            result.Result
                 .Should()
                 .SatisfyRespectively(x =>
                     {
@@ -365,33 +323,32 @@ namespace RidgeTests
         }
 
 
-        [Test]
-        public async Task HeadersCanBeAlteredUsingBuilder()
-        {
-            using var application = CreateApplication();
-            application.ControllerFactory.AddHeader("foo", "foo");
-            application.ControllerFactory.AddAuthorization(new AuthenticationHeaderValue("Bearer", "key"));
-            application.ControllerFactory.AddHeaders(new Dictionary<string, string?>()
-            {
-                ["header1"] = "header",
-                ["header2"] = "header2",
-            });
-            var testController = application.ControllerFactory.CreateController<TestController>();
-
-            var result = await testController.MethodReturningHeaders();
-
-            result.GetResult()["foo"].First().Should().Be("foo");
-            result.GetResult()["header1"].First().Should().Be("header");
-            result.GetResult()["header2"].First().Should().Be("header2");
-            result.GetResult()["Authorization"].First().Should().Be("Bearer key");
-        }
+        // TODO headers
+        // [Test]
+        // public async Task HeadersCanBeAlteredUsingBuilder()
+        // {
+        //     using var application = CreateApplication();
+        //     application.ControllerFactory.AddHeader("foo", "foo");
+        //     application.ControllerFactory.AddAuthorization(new AuthenticationHeaderValue("Bearer", "key"));
+        //     application.ControllerFactory.AddHeaders(new Dictionary<string, string?>()
+        //     {
+        //         ["header1"] = "header",
+        //         ["header2"] = "header2",
+        //     });
+        //
+        //     var result = await application.TestControllerCaller.Call_MethodReturningHeaders();
+        //
+        //     result.Result["foo"].First().Should().Be("foo");
+        //     result.Result["header1"].First().Should().Be("header");
+        //     result.Result["header2"].First().Should().Be("header2");
+        //     result.Result["Authorization"].First().Should().Be("Bearer key");
+        // }
 
         [Test]
         public async Task HttpPostWithoutBody()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.HttpPostWithoutBody();
+            var result = await application.TestControllerCaller.Call_HttpPostWithoutBody();
             result.IsSuccessStatusCode().Should().BeTrue();
         }
 
@@ -399,17 +356,15 @@ namespace RidgeTests
         public async Task HttpGetWithBody()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.HttpGetWithBody(5);
-            result.GetResult().Should().Be(5);
+            var result = await application.TestControllerCaller.Call_HttpGetWithBody(5);
+            result.Result.Should().Be(5);
         }
 
         [Test]
         public void ExceptionsAreCorrectlyRethrown()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> sutCall = () => testController.MethodThrowingInvalidOperationException();
+            Func<Task> sutCall = () => application.TestControllerCaller.Call_MethodThrowingInvalidOperationException();
             sutCall.Should().Throw<InvalidOperationException>().WithMessage("Correct");
         }
 
@@ -417,8 +372,7 @@ namespace RidgeTests
         public void When500IsReturnedNoExceptionIsThrown()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> sutCall = () => testController.MethodReturning500();
+            Func<Task> sutCall = () => application.TestControllerCaller.Call_MethodReturning500();
             sutCall.Should().NotThrow();
         }
 
@@ -426,81 +380,33 @@ namespace RidgeTests
         public async Task WhenActionReturnsIncorrectTypeDeserializationFails()
         {
             using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            ActionResult<int> response = await testController.MethodReturningBadRequestWithTypedResult();
+            ActionResult<int> response = await application.TestControllerCaller.Call_MethodReturningBadRequestWithTypedResult();
             response.IsClientErrorStatusCode().Should().BeTrue();
             Action sutCall = () =>
             {
-                _ = response.GetResult();
+                _ = response.Result;
             };
             sutCall.Should().Throw<InvalidOperationException>();
         }
 
-        [Test]
-        public async Task WhenActionReturnsIncorrectTypeDefaultValueIsUsed()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            ActionResult<string> response = await testController.MehodReturningControllerCallWithoutType();
-            response.IsSuccessStatusCode().Should().BeTrue();
-            response.GetResult().Should().Be(null);
-        }
-
-
+        //TODO custom pipeline transformation
         [Test]
         public async Task ModelBinderIsSupported()
         {
             using var application = CreateApplication();
             application.ControllerFactory.AddHttpRequestPipelinePart(new ListSeparatedByCommasPipelinePart(new List<int>() { 1, 1, 1 }));
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.CustomBinder(null!);
-            result.GetResult().Should().AllBeEquivalentTo(1);
+            var result = await application.TestControllerCaller.Call_CustomBinder(null!);
+            result.Result.Should().AllBeEquivalentTo(1);
         }
 
+        //TODO custom pipeline transformation
         [Test]
         public async Task PreModelBinderTest()
         {
             using var application = CreateApplication();
             application.ControllerFactory.AddActionInfoTransformer(new TestObjectActionInfoTransformer());
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var result = await testController.CustomBinderFullObject(new TestController.CountryCodeBinded() { CountryCode = "cz" });
-            result.GetResult().Should().BeEquivalentTo("cz");
-        }
-
-        [Test]
-        public void MethodsReturningVoidAreNotSupported()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> actionResult = () => testController.MethodReturningVoid();
-            actionResult.Should().Throw<InvalidOperationException>();
-        }
-
-        [Test]
-        public void AsyncMethodsReturningTaskAreNotSupported()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> actionResult = () => testController.MethodReturningTask();
-            actionResult.Should().Throw<InvalidOperationException>();
-        }
-
-        [Test]
-        public void MethodsReturningTaskAreNotSupported()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> actionResult = () => testController.MethodReturningTaskNotAsync();
-            actionResult.Should().Throw<InvalidOperationException>();
-        }
-
-        [Test]
-        public void MethodsReturningTaskWithIncorrectGenericType()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            Func<Task> actionResult = () => testController.MethodReturningIncorrectTypeInTask();
-            actionResult.Should().Throw<InvalidOperationException>();
+            var result = await application.TestControllerCaller.Call_CustomBinderFullObject(new TestController.CountryCodeBinded() {CountryCode = "cz"});
+            result.Result.Should().BeEquivalentTo("cz");
         }
 
         [Test]
@@ -569,12 +475,28 @@ namespace RidgeTests
         public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
         public ControllerFactory ControllerFactory { get; set; }
 
+        public TestControllerCaller TestControllerCaller { get; }
+        public ControllerInAreaCaller ControllerInAreaCaller { get; set; }
+        public ControllerWithoutAttributeRoutingCaller ControllerWithoutAttributeRoutingCaller { get; set; }
+        
         public Application(
             WebApplicationFactory<Startup> webApplicationFactory,
             ControllerFactory controllerFactory)
         {
             WebApplicationFactory = webApplicationFactory;
             ControllerFactory = controllerFactory;
+            TestControllerCaller = new TestControllerCaller(
+                webApplicationFactory.CreateClient(),
+                webApplicationFactory.Services,
+                new NunitProgressLogWriter());
+            ControllerInAreaCaller = new ControllerInAreaCaller(
+                webApplicationFactory.CreateClient(),
+                webApplicationFactory.Services,
+                new NunitProgressLogWriter());
+            ControllerWithoutAttributeRoutingCaller = new ControllerWithoutAttributeRoutingCaller(
+                webApplicationFactory.CreateClient(),
+                webApplicationFactory.Services,
+                new NunitProgressLogWriter()); 
         }
 
         public void Dispose()
