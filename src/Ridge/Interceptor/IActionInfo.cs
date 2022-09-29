@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 namespace Ridge.Interceptor
 {
@@ -30,7 +31,7 @@ namespace Ridge.Interceptor
         /// <summary>
         ///     Headers which will be used in request.
         /// </summary>
-        public IDictionary<string, object?> Headers { get; set; }
+        public HttpRequestHeaders Headers { get; set; }
 
         /// <summary>
         ///     Http method of the request.

@@ -9,7 +9,7 @@ namespace Ridge.Transformers.DefaultTransformers
     public class AddHeaderActionInfoTransformer : IActionInfoTransformer
     {
         private readonly string _key;
-        private readonly object? _value;
+        private readonly string? _value;
 
         /// <summary>
         ///     Create <see cref="AddHeaderActionInfoTransformer" />.
@@ -18,7 +18,7 @@ namespace Ridge.Transformers.DefaultTransformers
         /// <param name="value">Header value.</param>
         public AddHeaderActionInfoTransformer(
             string key,
-            object? value)
+            string? value)
         {
             _key = key;
             _value = value;

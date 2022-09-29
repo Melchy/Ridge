@@ -32,7 +32,6 @@ public static class SourceGenerationHelper
 using Ridge.CallResult.Controller;
 using Ridge.Interceptor;
 using Ridge.Interceptor.ActionInfo;
-using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
 using Ridge.Pipeline.Public;
 using Ridge.Serialization;
@@ -96,41 +95,28 @@ public class ");
     /// <summary>
     ///     Adds <see cref=""IHttpRequestPipelinePart""/> which can transform request after url is constructed.
     /// </summary>
-    /// <param name=""httpRequestPipelinePart""></param>
-    public void AddHttpRequestPipelinePart(
-        IHttpRequestPipelinePart httpRequestPipelinePart)
+    /// <param name=""httpRequestPipelineParts""></param>
+    public void AddHttpRequestPipelineParts(
+        IEnumerable<IHttpRequestPipelinePart> httpRequestPipelineParts)
     {
-        _requestBuilder.AddHttpRequestPipelinePart(httpRequestPipelinePart);
+        _requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
     }
 
     /// <summary>
     ///     Adds <see cref=""IActionInfoTransformer""/> which can transform request before url is constructed.
     /// </summary>
-    /// <param name=""actionInfoTransformer""></param>
+    /// <param name=""actionInfoTransformers""></param>
     public void AddActionInfoTransformer(
-        IActionInfoTransformer actionInfoTransformer)
+        IEnumerable<IActionInfoTransformer> actionInfoTransformers)
     {
-        _requestBuilder.AddActionInfoTransformer(actionInfoTransformer);
+        _requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
     }
 
     /// <summary>
-    ///     Adds <see cref=""IActionInfoTransformer""/> which adds header to the request.
-    /// </summary>
-    /// <param name=""key""></param>
-    /// <param name=""value""></param>
-    public void AddHeader(
-        string key,
-        string? value)
-    {
-        _requestBuilder.AddHeader(key, value);
-    }
-
-    /// <summary>
-    ///     Adds multiple <see cref=""IActionInfoTransformer""/> which adds headers to the request.
+    ///     Adds multiple headers using <see cref=""IActionInfoTransformer""/>.
     /// </summary>
     /// <param name=""headers""></param>
-    public void AddHeaders(
-        IDictionary<string, string?> headers)
+    public void AddHeaders(IEnumerable<KeyValuePair<string, string?>> headers)
     {
         _requestBuilder.AddHeaders(headers);
     }
@@ -139,10 +125,10 @@ public class ");
     ///     Adds pipeline part which sets Authorization.
     /// </summary>
     /// <param name=""authenticationHeaderValue""></param>
-    public void AddAuthorization(
+    public void AddAuthenticationHeaderValue(
         AuthenticationHeaderValue authenticationHeaderValue)
     {
-        _requestBuilder.AddAuthorization(authenticationHeaderValue);
+        _requestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
     }
     ");
 
@@ -188,20 +174,22 @@ public class ");
             sb.Append("Call_");
             sb.Append(publicMethod.Name);
             sb.Append("(");
-            var discriminator = "";
             foreach (var publicMethodParameter in publicMethod.Parameters)
             {
-                sb.Append(discriminator);
                 sb.Append(@"
             ");
 
                 sb.Append(publicMethodParameter.Type);
                 sb.Append(" ");
                 sb.Append(publicMethodParameter.Name);
-                discriminator = @",";
+                sb.Append(",");
             }
 
-            sb.AppendLine(")");
+            sb.AppendLine(@"IEnumerable<KeyValuePair<string, string?>>? headers = null,
+            AuthenticationHeaderValue? authenticationHeaderValue = null,
+            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
+            )");
 
             sb.AppendLine(@"    {");
             sb.Append(@"        var methodName = ");
@@ -228,7 +216,12 @@ public class ");
 
 
             sb.AppendLine(@"
-        var caller = new ControllerCaller(_requestBuilder,
+        var requestBuilder = new RequestBuilder();
+        requestBuilder.AddHeaders(headers);
+        requestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
+        requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
+        requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
+        var caller = new ControllerCaller(requestBuilder,
             _logWriter,
             _httpClient,
             _serviceProvider,

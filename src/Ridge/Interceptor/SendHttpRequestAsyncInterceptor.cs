@@ -2,7 +2,6 @@
 using Ridge.CallData;
 using Ridge.CallResult.Controller;
 using Ridge.Interceptor.ActionInfo;
-using Ridge.Interceptor.InterceptorFactory;
 using Ridge.Interceptor.ResultFactory;
 using Ridge.LogWriter;
 using Ridge.Pipeline;

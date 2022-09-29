@@ -8,6 +8,8 @@ namespace RidgeSourceGeneratorTest;
 
 public class Tests
 {
+    // TODO rename test
+    // TODO fix formatovani vygenerovaneho kodu
     [Test]
     public Task Test1()
     {

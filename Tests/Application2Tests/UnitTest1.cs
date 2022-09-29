@@ -1,68 +1,93 @@
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using NUnit.Framework;
-using Ridge.CallResult.Controller.Extensions;
-using Ridge.Interceptor.InterceptorFactory;
+using Ridge.Interceptor;
 using Ridge.LogWriter;
+using Ridge.Pipeline.Public;
+using Ridge.Serialization;
+using Ridge.Transformers;
 using System;
-using System.Threading.Tasks;
-using TestWebAplication2;
-using TestWebAplication2.Controllers;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Application2Tests
 {
     public class Tests
     {
-        [Test]
-        public async Task ArgumentsWithoutAttributesAreSupported()
+        //TODO fix
+        // [Test]
+        // public async Task ArgumentsWithoutAttributesAreSupported()
+        // {
+        //     using var application = CreateApplication();
+        //     var testController = application.ControllerFactory.CreateController<TestController>();
+        //     var complexObject = new ComplexObject()
+        //     {
+        //         Str = "foo",
+        //         NestedComplexObject = new NestedComplexObject()
+        //         {
+        //             Integer = 1,
+        //             Str = "br",
+        //         },
+        //     };
+        //     var response = await testController.ArgumentsWithoutAttributes(complexObject,
+        //         1,
+        //         2);
+        //     response.GetResult().ComplexObject.Should().BeEquivalentTo(complexObject);
+        //     response.GetResult().FromQuery.Should().Be(2);
+        //     response.GetResult().FromRoute.Should().Be(1);
+        // }
+    }
+
+
+    public class Foo
+    {
+        public RequestBuilder _requestBuilder { get; set; } = new();
+
+        public Foo(
+            HttpClient httpClient,
+            IServiceProvider serviceProvider,
+            ILogWriter? logWriter = null,
+            IRidgeSerializer? ridgeSerializer = null)
         {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<TestController>();
-            var complexObject = new ComplexObject()
-            {
-                Str = "foo",
-                NestedComplexObject = new NestedComplexObject()
-                {
-                    Integer = 1,
-                    Str = "br",
-                },
-            };
-            var response = await testController.ArgumentsWithoutAttributes(complexObject,
-                1,
-                2);
-            response.GetResult().ComplexObject.Should().BeEquivalentTo(complexObject);
-            response.GetResult().FromQuery.Should().Be(2);
-            response.GetResult().FromRoute.Should().Be(1);
+
         }
 
-        public static Application CreateApplication()
+        /// <summary>
+        ///     Adds <see cref="" IHttpRequestPipelinePart"" /> which can transform request after url is constructed.
+        /// </summary>
+        /// <param name="" httpRequestPipelineParts""></param>
+        public void AddHttpRequestPipelineParts(
+            IEnumerable<IHttpRequestPipelinePart> httpRequestPipelineParts)
         {
-            var webAppFactory = new WebApplicationFactory<Startup>();
-            var client = webAppFactory.CreateClient();
-            return new Application(
-                webAppFactory,
-                new ControllerFactory(client, webAppFactory.Services, new NunitLogWriter())
-            );
+            _requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
         }
 
-        public sealed class Application : IDisposable
+        /// <summary>
+        ///     Adds <see cref="" IActionInfoTransformer"" /> which can transform request before url is constructed.
+        /// </summary>
+        /// <param name="" actionInfoTransformers""></param>
+        public void AddActionInfoTransformer(
+            IEnumerable<IActionInfoTransformer> actionInfoTransformers)
         {
-            public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
-            public ControllerFactory ControllerFactory { get; set; }
+            _requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
+        }
 
-            public Application(
-                WebApplicationFactory<Startup> webApplicationFactory,
-                ControllerFactory controllerFactory)
-            {
-                WebApplicationFactory = webApplicationFactory;
-                ControllerFactory = controllerFactory;
-            }
+        /// <summary>
+        ///     Adds multiple headers using <see cref="" IActionInfoTransformer"" />.
+        /// </summary>
+        /// <param name="" headers""></param>
+        public void AddHeaders(
+            IEnumerable<KeyValuePair<string, string?>> headers)
+        {
+            _requestBuilder.AddHeaders(headers);
+        }
 
-            public void Dispose()
-            {
-                WebApplicationFactory?.Dispose();
-                GC.SuppressFinalize(this);
-            }
+        /// <summary>
+        ///     Adds pipeline part which sets Authorization.
+        /// </summary>
+        /// <param name="" authenticationHeaderValue""></param>
+        public void AddAuthenticationHeaderValue(
+            AuthenticationHeaderValue authenticationHeaderValue)
+        {
+            _requestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
         }
     }
 }

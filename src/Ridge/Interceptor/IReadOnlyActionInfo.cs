@@ -27,7 +27,7 @@ namespace Ridge.Interceptor
         /// <summary>
         ///     Header which will be used in request
         /// </summary>
-        public IReadOnlyDictionary<string, object?> Headers { get; }
+        public IEnumerable<KeyValuePair<string, IEnumerable<string>>> Headers { get; }
 
         /// <summary>
         ///     Http method of request
