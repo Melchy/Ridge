@@ -1,7 +1,8 @@
 ﻿using Ridge.Serialization;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Ridge.Interceptor
@@ -14,7 +15,7 @@ namespace Ridge.Interceptor
             object? contentData,
             Guid callId,
             string contentType,
-            IDictionary<string, object?> headerParams,
+            HttpRequestHeaders headers,
             IRidgeSerializer serializer)
         {
             var httpMethodObject = new HttpMethod(httpMethod);
@@ -32,9 +33,9 @@ namespace Ridge.Interceptor
                 request.Content = CreateContent(contentType, contentData, serializer);
             }
 
-            foreach (var headerParam in headerParams)
+            foreach (var headerParam in headers)
             {
-                request.Headers.Add(headerParam.Key, headerParam.Value?.ToString());
+                request.Headers.Add(headerParam.Key, headerParam.Value.Select(x => x));
             }
 
             request.Headers.Add("ridgeCallId", callId.ToString());

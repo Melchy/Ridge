@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using Ridge.Interceptor.InterceptorFactory;
-using Ridge.LogWriter;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -57,8 +55,7 @@ public class Tests
         var client = webAppFactory.CreateClient();
         return new Application(
             webAppFactory,
-            client,
-            new ControllerFactory(client, webAppFactory.Services, new NunitLogWriter())
+            client
         );
     }
 }
@@ -67,16 +64,13 @@ public sealed class Application : IDisposable
 {
     public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
     public HttpClient HttpClient { get; }
-    public ControllerFactory ControllerFactory { get; set; }
 
     public Application(
         WebApplicationFactory<Startup> webApplicationFactory,
-        HttpClient httpClient,
-        ControllerFactory controllerFactory)
+        HttpClient httpClient)
     {
         WebApplicationFactory = webApplicationFactory;
         HttpClient = httpClient;
-        ControllerFactory = controllerFactory;
     }
 
     public void Dispose()

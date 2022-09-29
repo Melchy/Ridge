@@ -1,11 +1,10 @@
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
 using NUnit.Framework;
+using Ridge.CallResult.Controller;
 using Ridge.CallResult.Controller.Extensions;
 using Ridge.Interceptor;
-using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
 using Ridge.Pipeline.Public;
 using Ridge.Transformers;
@@ -380,7 +379,7 @@ namespace RidgeTests
         public async Task WhenActionReturnsIncorrectTypeDeserializationFails()
         {
             using var application = CreateApplication();
-            ActionResult<int> response = await application.TestControllerCaller.Call_MethodReturningBadRequestWithTypedResult();
+            ControllerCallResult<int> response = await application.TestControllerCaller.Call_MethodReturningBadRequestWithTypedResult();
             response.IsClientErrorStatusCode().Should().BeTrue();
             Action sutCall = () =>
             {
@@ -394,18 +393,27 @@ namespace RidgeTests
         public async Task ModelBinderIsSupported()
         {
             using var application = CreateApplication();
-            application.ControllerFactory.AddHttpRequestPipelinePart(new ListSeparatedByCommasPipelinePart(new List<int>() { 1, 1, 1 }));
-            var result = await application.TestControllerCaller.Call_CustomBinder(null!);
+            var result = await application.TestControllerCaller.Call_CustomBinder(null!,
+                httpRequestPipelineParts: new List<IHttpRequestPipelinePart>()
+                {
+                    new ListSeparatedByCommasPipelinePart(new List<int>() {1, 1, 1}),
+                });
             result.Result.Should().AllBeEquivalentTo(1);
         }
+        // TODO globalni nastaveni headeru, autorizace, actionTranformerů a httpRequestPipelineParts
+        
 
         //TODO custom pipeline transformation
         [Test]
         public async Task PreModelBinderTest()
         {
             using var application = CreateApplication();
-            application.ControllerFactory.AddActionInfoTransformer(new TestObjectActionInfoTransformer());
-            var result = await application.TestControllerCaller.Call_CustomBinderFullObject(new TestController.CountryCodeBinded() {CountryCode = "cz"});
+            var result = await application.TestControllerCaller.Call_CustomBinderFullObject(
+                new TestController.CountryCodeBinded() {CountryCode = "cz"},
+                actionInfoTransformers: new List<IActionInfoTransformer>()
+                {
+                    new TestObjectActionInfoTransformer(),
+                });
             result.Result.Should().BeEquivalentTo("cz");
         }
 
@@ -421,10 +429,8 @@ namespace RidgeTests
         public static Application CreateApplication()
         {
             var webAppFactory = new WebApplicationFactory<Startup>();
-            var client = webAppFactory.CreateClient();
             return new Application(
-                webAppFactory,
-                new ControllerFactory(client, webAppFactory.Services, new NunitLogWriter())
+                webAppFactory
             );
         }
 
@@ -473,18 +479,14 @@ namespace RidgeTests
     public sealed class Application : IDisposable
     {
         public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
-        public ControllerFactory ControllerFactory { get; set; }
-
         public TestControllerCaller TestControllerCaller { get; }
         public ControllerInAreaCaller ControllerInAreaCaller { get; set; }
         public ControllerWithoutAttributeRoutingCaller ControllerWithoutAttributeRoutingCaller { get; set; }
         
         public Application(
-            WebApplicationFactory<Startup> webApplicationFactory,
-            ControllerFactory controllerFactory)
+            WebApplicationFactory<Startup> webApplicationFactory)
         {
             WebApplicationFactory = webApplicationFactory;
-            ControllerFactory = controllerFactory;
             TestControllerCaller = new TestControllerCaller(
                 webApplicationFactory.CreateClient(),
                 webApplicationFactory.Services,

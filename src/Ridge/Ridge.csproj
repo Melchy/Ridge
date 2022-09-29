@@ -45,4 +45,7 @@
     <ItemGroup>
         <None Include="..\..\ridge.png" Pack="true" PackagePath=""/>
     </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Interceptor\InterceptorFactory"/>
+    </ItemGroup>
 </Project>

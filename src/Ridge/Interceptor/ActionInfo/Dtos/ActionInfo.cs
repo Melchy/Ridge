@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 
 namespace Ridge.Interceptor.ActionInfo.Dtos
@@ -14,20 +15,20 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
         public object? Body { get; set; }
         public IDictionary<string, object?> RouteParams { get; set; }
         public string BodyFormat { get; set; }
-        public IDictionary<string, object?> Headers { get; set; }
-        IReadOnlyDictionary<string, object?> IReadOnlyActionInfo.Headers => new ReadOnlyDictionary<string, object?>(Headers);
+        public HttpRequestHeaders Headers { get; set; }
+        IEnumerable<KeyValuePair<string, IEnumerable<string>>> IReadOnlyActionInfo.Headers => Headers;
         public string HttpMethod { get; set; } = null!;
 
         private ActionInfo(
             object? body,
             IDictionary<string, object?> routeParams,
             string bodyFormat,
-            IDictionary<string, object?> headerParams)
+            HttpRequestHeaders headers)
         {
             Body = body;
             RouteParams = routeParams;
             BodyFormat = bodyFormat;
-            Headers = headerParams;
+            Headers = headers;
         }
 
         public void AddArea(
@@ -43,9 +44,9 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             var methodParams = CreateParametersWithValues(methodArguments, methodInfo);
             var body = GetBody(methodParams);
             var routeParams = GetRouteAndQueryParamsFromMethodArguments(methodParams);
-            var headerParams = GetHeadersFromMethodArguments(methodParams);
+            var headers = GetHeadersFromMethodArguments(methodParams);
             var bodyFormat = GetBodyFormat(methodParams);
-            return new ActionInfo(body, routeParams, bodyFormat, headerParams);
+            return new ActionInfo(body, routeParams, bodyFormat, headers);
         }
 
         private static IEnumerable<(ParameterInfo parameterReflection, object? parameterValue)> CreateParametersWithValues(
@@ -72,24 +73,28 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
             return "application/json";
         }
 
-        private static IDictionary<string, object?> GetHeadersFromMethodArguments(
+        private static HttpRequestHeaders GetHeadersFromMethodArguments(
             IEnumerable<(ParameterInfo parameterReflection, object? value)> methodParams)
         {
             var fromHeadParams = methodParams.Where(x =>
                 GeneralHelpers.HasAttribute<FromHeaderAttribute>(x.parameterReflection));
-            var routeDataDictionary = new Dictionary<string, object?>();
+            // HttpRequestMessage has internal constructor therefore we need to create it using HttpRequestMessage 
+            using var message = new HttpRequestMessage();
+            var headers = message.Headers;
             foreach (var attribute in fromHeadParams)
             {
                 var parameterNameInRequest = GetAttributeNamePropertyOrParameterName(attribute.parameterReflection);
                 if (attribute.value == null)
                 {
-                    routeDataDictionary[parameterNameInRequest] = attribute.value;
+                    // TODO udelat testy na headery. Co se stane kdyz mam vice FromHeader attributu se stejnym klicem.
+                    // co se stane kdyz mam header ktery neni string??
+                    headers.Add(parameterNameInRequest, (string?)null);
                     continue;
                 }
 
                 if (GeneralHelpers.IsSimpleType(attribute.value.GetType()))
                 {
-                    routeDataDictionary[parameterNameInRequest] = attribute.value;
+                    headers.Add(parameterNameInRequest, attribute.value.ToString());
                 }
                 else
                 {
@@ -97,7 +102,7 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 }
             }
 
-            return routeDataDictionary;
+            return headers;
         }
 
         private static IDictionary<string, object?> GetRouteAndQueryParamsFromMethodArguments(
