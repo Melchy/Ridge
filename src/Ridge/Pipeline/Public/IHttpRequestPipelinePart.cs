@@ -1,4 +1,5 @@
-﻿using Ridge.Interceptor;
+﻿using Ridge.ActionInfo;
+using Ridge.Interceptor;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -21,12 +22,12 @@ namespace Ridge.Pipeline.Public
         ///     pipeline part.
         /// </param>
         /// <param name="actionInfo">Read only information about action which will be called.</param>
-        /// <param name="invocationInfo">Information about method which was called.</param>
+        /// <param name="methodInvocationInfo">Information about method which was called.</param>
         /// <returns></returns>
         public Task<HttpResponseMessage> InvokeAsync(
             Func<Task<HttpResponseMessage>> next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyActionInfo actionInfo,
-            InvocationInfo invocationInfo);
+            MethodInvocationInfo methodInvocationInfo);
     }
 }

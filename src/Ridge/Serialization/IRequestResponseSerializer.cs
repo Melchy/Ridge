@@ -4,7 +4,7 @@
     ///     Serializer which is used by ridge to serialize and deserialize request.
     ///     Default serializer is chosen automatically based on the settings of asp.net core.
     /// </summary>
-    public interface IRidgeSerializer
+    public interface IRequestResponseSerializer
     {
         /// <summary>
         ///     Deserialize data.

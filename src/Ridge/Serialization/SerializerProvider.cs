@@ -7,9 +7,9 @@ namespace Ridge.Serialization
 {
     internal static class SerializerProvider
     {
-        public static IRidgeSerializer GetSerializer(
+        public static IRequestResponseSerializer GetSerializer(
             IServiceProvider serviceProvider,
-            IRidgeSerializer? customSerializer)
+            IRequestResponseSerializer? customSerializer)
         {
             if (customSerializer != null)
             {

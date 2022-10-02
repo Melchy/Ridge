@@ -3,23 +3,24 @@ using System;
 using System.Net;
 using System.Net.Http;
 
-namespace Ridge.CallResult.Controller
+namespace Ridge.Response
 {
     /// <inheritdoc />
-    public class ControllerCallResult<TResult> : ControllerCallResult
+    public class HttpCallResponse<TResult> : HttpCallResponse
     {
-        private readonly IRidgeSerializer _serializer;
+        private readonly IRequestResponseSerializer _serializer;
 
         /// <summary>
-        ///     Tries to deserialize body content to TResult.
+        ///     Deserialize body content to TResult.
         /// </summary>
         public TResult Result => GetResultOrThrow();
 
-        internal ControllerCallResult(
+        internal HttpCallResponse(
             HttpResponseMessage httpResponseMessage,
             string resultAsString,
             HttpStatusCode statusCode,
-            IRidgeSerializer serializer) : base(httpResponseMessage, resultAsString, statusCode)
+            IRequestResponseSerializer serializer)
+            : base(httpResponseMessage, resultAsString, statusCode)
         {
             _serializer = serializer;
         }

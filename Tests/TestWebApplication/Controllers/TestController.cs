@@ -147,6 +147,12 @@ namespace TestWebApplication.Controllers
             return new ActionResult<int>(fromHeader);
         }
 
+        [HttpGet("FromHeaderWithArray")]
+        public virtual async Task<ActionResult<(int header1, int header2)>> FromHeaderWithArray(
+            [FromHeader(Name = "header")] int[] fromHeader)
+        {
+            return new ActionResult<(int header1, int header2)>((fromHeader.First(), fromHeader.Skip(1).First()));
+        }
 
         [HttpGet("Foo/{asd}")]
         public virtual async Task<ActionResult<int>> Foo(
@@ -373,6 +379,7 @@ namespace TestWebApplication.Controllers
             await Task.Yield();
         }
 
+        [HttpGet("TestThisIsNowGood")]
         public virtual async Task TestThisIsNowGood()
         {
             await Task.Yield();

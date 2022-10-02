@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 
-namespace Ridge.Interceptor
+namespace Ridge.ActionInfo
 {
     /// <summary>
     ///     Contains information which will be used to call server endpoint.

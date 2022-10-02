@@ -5,7 +5,7 @@ namespace Ridge.Serialization
     /// <summary>
     ///     JsonNet implementation of serializer.
     /// </summary>
-    public class JsonNetSerializer : IRidgeSerializer
+    public class JsonNetSerializer : IRequestResponseSerializer
     {
         /// <inheritdoc />
         public TResult Deserialize<TResult>(

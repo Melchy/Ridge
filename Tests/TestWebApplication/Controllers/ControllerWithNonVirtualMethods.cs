@@ -8,7 +8,7 @@ namespace TestWebApplication.Controllers
     [GenerateStronglyTypedCallerForTesting]
     public class ControllerWithNonVirtualMethods : ControllerBase
     {
-        [HttpGet("XXXX")]
+        [HttpGet("ReturnTypeInNestedClass")]
         public virtual ClassInDifferentNamespace.Nested ReturnTypeInNestedClass(
             ClassInDifferentNamespace.Nested nested)
         {
@@ -16,7 +16,7 @@ namespace TestWebApplication.Controllers
         }
 
 
-        [HttpGet("XXXX")]
+        [HttpGet("ReturnTypeInDifferentNamespace")]
         public virtual ClassInDifferentNamespace ReturnTypeInDifferentNamespace(
             ClassInDifferentNamespace classInDifferentNamespace)
         {

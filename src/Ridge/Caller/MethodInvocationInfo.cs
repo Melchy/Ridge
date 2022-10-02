@@ -6,7 +6,7 @@ namespace Ridge.Interceptor
     /// <summary>
     ///     Represents invocation information about method.
     /// </summary>
-    public class InvocationInfo
+    public class MethodInvocationInfo
     {
         /// <summary>
         ///     Arguments of the invoked method.
@@ -18,7 +18,7 @@ namespace Ridge.Interceptor
         /// </summary>
         public MethodInfo MethodInfo { get; }
 
-        internal InvocationInfo(
+        internal MethodInvocationInfo(
             IEnumerable<object?> arguments,
             MethodInfo methodInfo)
         {

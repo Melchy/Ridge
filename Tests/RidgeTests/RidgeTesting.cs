@@ -2,17 +2,18 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
 using NUnit.Framework;
-using Ridge.CallResult.Controller;
-using Ridge.CallResult.Controller.Extensions;
+using Ridge.ActionInfo;
 using Ridge.Interceptor;
 using Ridge.LogWriter;
 using Ridge.Pipeline.Public;
+using Ridge.Response;
 using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using TestWebApplication;
 using TestWebApplication.Controllers;
@@ -27,7 +28,7 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var response = await application.TestControllerCaller.Call_ReturnSync();
-            response.IsSuccessStatusCode().Should().BeTrue();
+            response.IsSuccessStatusCode.Should().BeTrue();
         }
 
         [Test]
@@ -35,7 +36,7 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var response = await application.TestControllerCaller.Call_ReturnSyncWithResult();
-            response.IsSuccessStatusCode().Should().BeTrue();
+            response.IsSuccessStatusCode.Should().BeTrue();
             response.Result.Should().Be("ok");
         }
 
@@ -81,7 +82,7 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var result = await application.TestControllerCaller.Call_BadRequestAsync();
-            result.StatusCode().Should().Be(HttpStatusCode.BadRequest);
+            result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
         [Test]
@@ -89,17 +90,23 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var result = await application.ControllerInAreaCaller.Call_Index();
-            result.IsSuccessStatusCode().Should().BeTrue();
+            result.IsSuccessStatusCode.Should().BeTrue();
         }
 
         [Test]
         public async Task MethodOverloadingIsSupported()
         {
-            // TODO overload nefunguje
-            
             using var application = CreateApplication();
             var result = await application.TestControllerCaller.Call_OverloadedAction();
-            result.IsSuccessStatusCode().Should().BeTrue();
+            result.IsSuccessStatusCode.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task MethodOverloadingIsSupported2()
+        {
+            using var application = CreateApplication();
+            var result = await application.TestControllerCaller.Call_OverloadedAction(1);
+            result.IsSuccessStatusCode.Should().BeTrue();
         }
 
         [Test]
@@ -172,16 +179,12 @@ namespace RidgeTests
         }
 
         [Test]
-        public void FromHeaderWithComplexArgumentsIsNotSupported()
+        public async Task FromHeaderSupportsArrays()
         {
             using var application = CreateApplication();
-            Func<Task> sutCall = () => application.TestControllerCaller.Call_FromHeader(new TestController.ComplexArgument(
-                integer: 10,
-                str: "test",
-                dateTime: DateTime.Today,
-                innerObject: null!
-            ));
-            sutCall.Should().Throw<InvalidOperationException>();
+            var response = await application.TestControllerCaller.Call_FromHeaderWithArray(new[] {1, 2});
+            response.Result.header1.Should().Be(1);
+            response.Result.header2.Should().Be(2);
         }
 
         [Test]
@@ -276,7 +279,7 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             var result = await application.ControllerWithoutAttributeRoutingCaller.Call_HttpGetWithoutBody();
-            result.IsSuccessStatusCode().Should().BeTrue();
+            result.IsSuccessStatusCode.Should().BeTrue();
         }
 
         [Test]
@@ -322,33 +325,77 @@ namespace RidgeTests
         }
 
 
-        // TODO headers
-        // [Test]
-        // public async Task HeadersCanBeAlteredUsingBuilder()
-        // {
-        //     using var application = CreateApplication();
-        //     application.ControllerFactory.AddHeader("foo", "foo");
-        //     application.ControllerFactory.AddAuthorization(new AuthenticationHeaderValue("Bearer", "key"));
-        //     application.ControllerFactory.AddHeaders(new Dictionary<string, string?>()
-        //     {
-        //         ["header1"] = "header",
-        //         ["header2"] = "header2",
-        //     });
-        //
-        //     var result = await application.TestControllerCaller.Call_MethodReturningHeaders();
-        //
-        //     result.Result["foo"].First().Should().Be("foo");
-        //     result.Result["header1"].First().Should().Be("header");
-        //     result.Result["header2"].First().Should().Be("header2");
-        //     result.Result["Authorization"].First().Should().Be("Bearer key");
-        // }
+        [Test]
+        public async Task HeadersCanBeAlteredUsingBuilder()
+        {
+            using var application = CreateApplication();
 
+            var result = await application.TestControllerCaller.Call_MethodReturningHeaders(
+                headers: new List<(string, string?)>
+                {
+                    ("foo", "foo"),
+                    ("header1", "header1"),
+                    ("header2", "header2"),
+                },
+                authenticationHeaderValue: new AuthenticationHeaderValue("Bearer", "key"));
+
+            result.Result["foo"].First().Should().Be("foo");
+            result.Result["header1"].First().Should().Be("header1");
+            result.Result["header2"].First().Should().Be("header2");
+            result.Result["Authorization"].First().Should().Be("Bearer key");
+        }
+
+        [Test]
+        public async Task RequestCanBeAlteredUsingGlobalBuilder()
+        {
+            using var application = CreateApplication();
+
+            var testControllerCaller = new TestControllerCaller(
+                application.WebApplicationFactory.CreateClient(),
+                application.WebApplicationFactory.Services);
+
+            testControllerCaller.AddHeaders(
+                ("foo", "foo"),
+                ("header1", "header1"),
+                ("header2", "header2")
+            );
+
+            testControllerCaller.AddAuthenticationHeaderValue(new AuthenticationHeaderValue("Bearer", "key"));
+            var response = await testControllerCaller.Call_MethodReturningHeaders();
+            response.Result["foo"].First().Should().Be("foo");
+            response.Result["header1"].First().Should().Be("header1");
+            response.Result["header2"].First().Should().Be("header2");
+            response.Result["Authorization"].First().Should().Be("Bearer key");
+        }
+
+
+        [Test]
+        public async Task CallWithTwoSameFromHeaderAttributesValid()
+        {
+            using var application = CreateApplication();
+
+            var result = await application.TestControllerCaller.Call_MethodReturningHeaders(
+                headers: new List<(string, string?)>
+                {
+                    ("foo", "foo"),
+                    ("header1", "header1"),
+                    ("header2", "header2"),
+                },
+                authenticationHeaderValue: new AuthenticationHeaderValue("Bearer", "key"));
+
+            result.Result["foo"].First().Should().Be("foo");
+            result.Result["header1"].First().Should().Be("header1");
+            result.Result["header2"].First().Should().Be("header2");
+            result.Result["Authorization"].First().Should().Be("Bearer key");
+        }
+        
+        
         [Test]
         public async Task HttpPostWithoutBody()
         {
             using var application = CreateApplication();
             var result = await application.TestControllerCaller.Call_HttpPostWithoutBody();
-            result.IsSuccessStatusCode().Should().BeTrue();
+            result.IsSuccessStatusCode.Should().BeTrue();
         }
 
         [Test]
@@ -379,16 +426,15 @@ namespace RidgeTests
         public async Task WhenActionReturnsIncorrectTypeDeserializationFails()
         {
             using var application = CreateApplication();
-            ControllerCallResult<int> response = await application.TestControllerCaller.Call_MethodReturningBadRequestWithTypedResult();
-            response.IsClientErrorStatusCode().Should().BeTrue();
+            HttpCallResponse<int> callResponse = await application.TestControllerCaller.Call_MethodReturningBadRequestWithTypedResult();
+            callResponse.IsClientErrorStatusCode.Should().BeTrue();
             Action sutCall = () =>
             {
-                _ = response.Result;
+                _ = callResponse.Result;
             };
             sutCall.Should().Throw<InvalidOperationException>();
         }
 
-        //TODO custom pipeline transformation
         [Test]
         public async Task ModelBinderIsSupported()
         {
@@ -400,10 +446,7 @@ namespace RidgeTests
                 });
             result.Result.Should().AllBeEquivalentTo(1);
         }
-        // TODO globalni nastaveni headeru, autorizace, actionTranformerů a httpRequestPipelineParts
         
-
-        //TODO custom pipeline transformation
         [Test]
         public async Task PreModelBinderTest()
         {
@@ -415,6 +458,15 @@ namespace RidgeTests
                     new TestObjectActionInfoTransformer(),
                 });
             result.Result.Should().BeEquivalentTo("cz");
+        }
+
+        [Test]
+        public async Task CallsWithHttpResponseMessagesAreSupported()
+        {
+            using var application = CreateApplication();
+            var response = await application.ControllerWithSpecialGenerationSettingsCaller.Call_SimpleGet();
+            var result = await response.Content.ReadAsStringAsync();
+            result.Should().Be("return");
         }
 
         public static Application CreateApplication()
@@ -440,7 +492,7 @@ namespace RidgeTests
                 Func<Task<HttpResponseMessage>> next,
                 HttpRequestMessage httpRequestMessage,
                 IReadOnlyActionInfo actionInfo,
-                InvocationInfo invocationInfo)
+                MethodInvocationInfo methodInvocationInfo)
             {
                 httpRequestMessage.RequestUri = new Uri(
                     QueryHelpers.AddQueryString(httpRequestMessage.RequestUri!.ToString(), "properties", $"{string.Join(",", _data)}"),
@@ -453,9 +505,9 @@ namespace RidgeTests
         {
             public Task TransformAsync(
                 IActionInfo actionInfo,
-                InvocationInfo invocationInfo)
+                MethodInvocationInfo methodInvocationInfo)
             {
-                var bindedObject = invocationInfo.Arguments.FirstOrDefault(x => x is TestController.CountryCodeBinded);
+                var bindedObject = methodInvocationInfo.Arguments.FirstOrDefault(x => x is TestController.CountryCodeBinded);
                 if (bindedObject == null)
                 {
                     return Task.CompletedTask;
@@ -473,6 +525,8 @@ namespace RidgeTests
         public TestControllerCaller TestControllerCaller { get; }
         public ControllerInAreaCaller ControllerInAreaCaller { get; set; }
         public ControllerWithoutAttributeRoutingCaller ControllerWithoutAttributeRoutingCaller { get; set; }
+
+        public ControllerWithSpecialGenerationSettingsCaller ControllerWithSpecialGenerationSettingsCaller { get; set; }
         
         public Application(
             WebApplicationFactory<Startup> webApplicationFactory)
@@ -489,7 +543,11 @@ namespace RidgeTests
             ControllerWithoutAttributeRoutingCaller = new ControllerWithoutAttributeRoutingCaller(
                 webApplicationFactory.CreateClient(),
                 webApplicationFactory.Services,
-                new NunitProgressLogWriter()); 
+                new NunitProgressLogWriter());
+            ControllerWithSpecialGenerationSettingsCaller = new ControllerWithSpecialGenerationSettingsCaller(
+                webApplicationFactory.CreateClient(),
+                webApplicationFactory.Services,
+                new NunitProgressLogWriter());
         }
 
         public void Dispose()

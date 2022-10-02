@@ -6,7 +6,6 @@ using System.Text;
 
 namespace RidgeSourceGenerator;
 
-//TODO interceptory se nastavuji pro celou tridu ale bude potreba to nastavovat pro jednotlive metody. Nejak.
 [Generator]
 public class ControllerGenerator : IIncrementalGenerator
 {
@@ -27,7 +26,7 @@ public class ControllerGenerator : IIncrementalGenerator
 
         IncrementalValueProvider<(Compilation, ImmutableArray<ClassDeclarationSyntax>)> compilationAndClasses
             = context.CompilationProvider.Combine(controllerDeclarations.Collect());
-
+        
         context.RegisterSourceOutput(compilationAndClasses,
             static (
                 spc,
@@ -44,6 +43,12 @@ public class ControllerGenerator : IIncrementalGenerator
 
         var name = ExtractName(attribute.Name);
 
+        return IsCorrectAttribute(name);
+    }
+
+    private static bool IsCorrectAttribute(
+        string? name)
+    {
         if (name is "GenerateStronglyTypedCallerForTesting" or "GenerateStronglyTypedCallerForTestingAttribute")
         {
             return true;
@@ -126,8 +131,10 @@ public class ControllerGenerator : IIncrementalGenerator
                 continue;
             }
 
+            var generatorAttribute = controllerSymbol.GetAttributes().FirstOrDefault(x => IsCorrectAttribute(x.AttributeClass?.Name));
+            var mainAttributeSettings = generatorAttribute?.NamedArguments ?? ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty;
             string name = controllerSymbol.Name;
-            string nameSpace = controllerSymbol.ContainingNamespace.IsGlobalNamespace ? string.Empty : controllerSymbol.ContainingNamespace.ToString();
+            string classNamespace = controllerSymbol.ContainingNamespace.IsGlobalNamespace ? string.Empty : controllerSymbol.ContainingNamespace.ToString();
 
             var publicMethods = new List<IMethodSymbol>();
 
@@ -167,8 +174,9 @@ public class ControllerGenerator : IIncrementalGenerator
             controllersToGenerates.Add(new ControllerToGenerate(
                 name: name,
                 fullyQualifiedName: fullyQualifiedName,
-                @namespace: nameSpace,
-                publicMethods: publicMethods));
+                @namespace: classNamespace,
+                publicMethods: publicMethods,
+                mainAttributeSettings: mainAttributeSettings));
         }
 
         return controllersToGenerates;

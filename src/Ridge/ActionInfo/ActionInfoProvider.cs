@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Ridge.Interceptor;
 using Ridge.Transformers;
 using System;
 using System.Collections.Generic;
@@ -9,33 +10,33 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Ridge.Interceptor.ActionInfo
+namespace Ridge.ActionInfo
 {
-    internal class ControllerInfoProvider
+    internal class ActionInfoProvider
     {
         private readonly LinkGenerator _linkGenerator;
         private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
 
-        public ControllerInfoProvider(
+        public ActionInfoProvider(
             IServiceProvider serviceProvider)
         {
             _linkGenerator = serviceProvider.GetService<LinkGenerator>();
             _actionDescriptorCollectionProvider = serviceProvider.GetService<IActionDescriptorCollectionProvider>();
         }
 
-        public async Task<(string url, Dtos.ActionInfo actionArgumentsInfo)> GetInfo(
+        public async Task<(string url, ActionInfo actionArgumentsInfo)> GetInfo(
             IEnumerable<object?> arguments,
             MethodInfo methodInfo,
             ActionInfoTransformersCaller actionInfoTransformersCaller)
         {
-            var methodActionInfo = Dtos.ActionInfo.CreateActionInfo(arguments, methodInfo);
+            var methodActionInfo = ActionInfo.CreateActionInfo(arguments, methodInfo);
             var actionDescriptor = GetActionDescriptor(methodInfo);
             var httpMethodAsString = GetHttpMethod(actionDescriptor);
 
             var routeDescription = actionDescriptor.RouteValues.ToDictionary(x => x.Key, x => (object?)x.Value);
             methodActionInfo.RouteParams = GeneralHelpers.MergeDictionaries(routeDescription, methodActionInfo.RouteParams);
             methodActionInfo.HttpMethod = httpMethodAsString;
-            await actionInfoTransformersCaller.Call(methodActionInfo, new InvocationInfo(arguments, methodInfo));
+            await actionInfoTransformersCaller.Call(methodActionInfo, new MethodInvocationInfo(arguments, methodInfo));
             var url = CreateUri(methodActionInfo.RouteParams);
             return (url, methodActionInfo);
         }
@@ -44,8 +45,8 @@ namespace Ridge.Interceptor.ActionInfo
             MethodInfo methodInfo)
         {
             var actions = _actionDescriptorCollectionProvider.ActionDescriptors.Items
-                .Where(x => x is ControllerActionDescriptor)
-                .Cast<ControllerActionDescriptor>();
+               .Where(x => x is ControllerActionDescriptor)
+               .Cast<ControllerActionDescriptor>();
 
             var actionDescriptor = actions.FirstOrDefault(x => x.MethodInfo == methodInfo.GetBaseDefinition());
             if (actionDescriptor == null)

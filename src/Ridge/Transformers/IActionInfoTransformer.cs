@@ -1,4 +1,5 @@
-﻿using Ridge.Interceptor;
+﻿using Ridge.ActionInfo;
+using Ridge.Interceptor;
 using System.Threading.Tasks;
 
 namespace Ridge.Transformers
@@ -12,10 +13,10 @@ namespace Ridge.Transformers
         ///     This method is called before http request is created.
         /// </summary>
         /// <param name="actionInfo">Information about action which should be transformed by your transformer.</param>
-        /// <param name="invocationInfo">Information about method which was called.</param>
+        /// <param name="methodInvocationInfo">Information about method which was called.</param>
         /// <returns></returns>
         public Task TransformAsync(
             IActionInfo actionInfo,
-            InvocationInfo invocationInfo);
+            MethodInvocationInfo methodInvocationInfo);
     }
 }

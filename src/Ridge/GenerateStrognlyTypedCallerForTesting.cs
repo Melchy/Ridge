@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Ridge.Response;
+using System;
+using System.Net.Http;
 
 namespace Ridge;
 
@@ -8,4 +10,10 @@ namespace Ridge;
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class GenerateStronglyTypedCallerForTesting : Attribute
 {
+    /// <summary>
+    ///     When this value is true then the generated callers return <see cref="HttpResponseMessage" />.
+    ///     When false then the generated classes returns <see cref="HttpCallResponse{TResult}" /> or
+    ///     <see cref="HttpCallResponse" />.
+    /// </summary>
+    public bool UseHttpResponseMessageAsReturnType { get; set; }
 }

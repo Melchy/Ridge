@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 
-namespace Ridge.Interceptor.ActionInfo.Dtos
+namespace Ridge.ActionInfo
 {
     internal class ActionInfo : IActionInfo, IReadOnlyActionInfo
     {
@@ -86,15 +86,22 @@ namespace Ridge.Interceptor.ActionInfo.Dtos
                 var parameterNameInRequest = GetAttributeNamePropertyOrParameterName(attribute.parameterReflection);
                 if (attribute.value == null)
                 {
-                    // TODO udelat testy na headery. Co se stane kdyz mam vice FromHeader attributu se stejnym klicem.
-                    // co se stane kdyz mam header ktery neni string??
                     headers.Add(parameterNameInRequest, (string?)null);
                     continue;
                 }
 
-                if (GeneralHelpers.IsSimpleType(attribute.value.GetType()))
+                var parameterType = attribute.value.GetType();
+                if (GeneralHelpers.IsSimpleType(parameterType))
                 {
                     headers.Add(parameterNameInRequest, attribute.value.ToString());
+                }
+                else if (GeneralHelpers.IsOrImplements(parameterType, typeof(IEnumerable)))
+                {
+                    var enumerable = (IEnumerable)attribute.value;
+                    foreach (var valuesOfHeader in enumerable)
+                    {
+                        headers.Add(parameterNameInRequest, valuesOfHeader.ToString());
+                    }
                 }
                 else
                 {
