@@ -16,33 +16,27 @@ public static class SourceGenerationHelper
 //------------------------------------------------------------------------------
 ";
 
-    private static int _counter;
-
     public static string GenerateExtensionClass(
         StringBuilder sb,
         ControllerToGenerate controllerToGenerate)
     {
-        sb.Append($"// Counter: {Interlocked.Increment(ref _counter)}");
-
         var className = $"{controllerToGenerate.Name}Caller";
         sb.Append(Header);
         sb.Append(@"
 #nullable enable
 
-using Ridge.CallResult.Controller;
-using Ridge.Interceptor;
-using Ridge.Interceptor.ActionInfo;
+using Ridge.Caller;
 using Ridge.LogWriter;
 using Ridge.Pipeline.Public;
 using Ridge.Serialization;
 using Ridge.Transformers;
+using Ridge.Response;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
-
 ");
         if (!string.IsNullOrEmpty(controllerToGenerate.Namespace))
         {
@@ -61,7 +55,7 @@ public class ");
     private readonly HttpClient _httpClient;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogWriter? _logWriter;
-    private readonly IRidgeSerializer? _ridgeSerializer;
+    private readonly IRequestResponseSerializer? _ridgeSerializer;
     private readonly RequestBuilder _requestBuilder = new();
 
     /// <summary>
@@ -76,7 +70,7 @@ public class ");
     /// <param name=""ridgeSerializer"">
     ///     Serializer used to serialize and deserialize requests.
     ///     Serializer is by default chosen based on asp.net settings. If you need custom serializer implement
-    ///     <see cref=""IRidgeSerializer"" />.
+    ///     <see cref=""IRequestResponseSerializer"" />.
      /// </param>
     public ");
         sb.Append(className);
@@ -84,7 +78,7 @@ public class ");
         HttpClient httpClient,
         IServiceProvider serviceProvider,
         ILogWriter? logWriter = null,
-        IRidgeSerializer? ridgeSerializer = null)
+        IRequestResponseSerializer? ridgeSerializer = null)
     {
         _httpClient = httpClient;
         _serviceProvider = serviceProvider;
@@ -97,7 +91,7 @@ public class ");
     /// </summary>
     /// <param name=""httpRequestPipelineParts""></param>
     public void AddHttpRequestPipelineParts(
-        IEnumerable<IHttpRequestPipelinePart> httpRequestPipelineParts)
+        params IHttpRequestPipelinePart[] httpRequestPipelineParts)
     {
         _requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
     }
@@ -106,8 +100,8 @@ public class ");
     ///     Adds <see cref=""IActionInfoTransformer""/> which can transform request before url is constructed.
     /// </summary>
     /// <param name=""actionInfoTransformers""></param>
-    public void AddActionInfoTransformer(
-        IEnumerable<IActionInfoTransformer> actionInfoTransformers)
+    public void AddActionInfoTransformers(
+        params IActionInfoTransformer[] actionInfoTransformers)
     {
         _requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
     }
@@ -116,7 +110,7 @@ public class ");
     ///     Adds multiple headers using <see cref=""IActionInfoTransformer""/>.
     /// </summary>
     /// <param name=""headers""></param>
-    public void AddHeaders(IEnumerable<KeyValuePair<string, string?>> headers)
+    public void AddHeaders(params (string Key, string? Value)[] headers)
     {
         _requestBuilder.AddHeaders(headers);
     }
@@ -157,17 +151,24 @@ public class ");
                 continue;
             }
 
-            returnType = GetActualReturnType(fullReturnType);
-
             sb.Append(@"    public async ");
 
-            if (returnType == null)
+            if (controllerToGenerate.UseHttpResponseMessageAsReturnType)
             {
-                sb.Append("Task<ControllerCallResult>");
+                sb.Append("Task<HttpResponseMessage>");
             }
             else
             {
-                sb.Append($"Task<ControllerCallResult<{returnType}>>");
+                returnType = GetActualReturnType(fullReturnType);
+
+                if (returnType == null)
+                {
+                    sb.Append("Task<HttpCallResponse>");
+                }
+                else
+                {
+                    sb.Append($"Task<HttpCallResponse<{returnType}>>");
+                }
             }
 
             sb.Append(" ");
@@ -185,7 +186,7 @@ public class ");
                 sb.Append(",");
             }
 
-            sb.AppendLine(@"IEnumerable<KeyValuePair<string, string?>>? headers = null,
+            sb.AppendLine(@"IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
             IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
             IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
@@ -216,12 +217,12 @@ public class ");
 
 
             sb.AppendLine(@"
-        var requestBuilder = new RequestBuilder();
+        var requestBuilder = _requestBuilder.CreateNewBuilderByCopyingExisting();
         requestBuilder.AddHeaders(headers);
         requestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
         requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
         requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
-        var caller = new ControllerCaller(requestBuilder,
+        var caller = new ActionCaller(requestBuilder,
             _logWriter,
             _httpClient,
             _serviceProvider,
@@ -249,15 +250,22 @@ public class ");
         }
         ");
 
-            if (returnType == null)
+            if (controllerToGenerate.UseHttpResponseMessageAsReturnType)
             {
-                sb.AppendLine(@"        return await caller.CallAction(arguments, methodInfo);");
+                sb.AppendLine(@"        return await caller.CallActionWithHttpResponseMessageResult(arguments, methodInfo);");
             }
             else
             {
-                sb.AppendLine($@"        return await caller.CallAction<{returnType}>(arguments, methodInfo);");
+                if (returnType == null)
+                {
+                    sb.AppendLine(@"        return await caller.CallAction(arguments, methodInfo);");
+                }
+                else
+                {
+                    sb.AppendLine($@"        return await caller.CallAction<{returnType}>(arguments, methodInfo);");
+                }
             }
-
+            
             sb.AppendLine(@"    }");
             sb.AppendLine();
         }
@@ -273,7 +281,7 @@ public class ");
         return sb.ToString();
     }
 
-    // TODO co kdyz dedim z IActionResult??
+    // TODO komentare k vygenerovanemu kodu
     private static string? GetActualReturnType(
         INamedTypeSymbol returnType)
     {

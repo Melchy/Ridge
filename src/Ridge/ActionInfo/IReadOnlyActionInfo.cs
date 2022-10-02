@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Ridge.Interceptor
+namespace Ridge.ActionInfo
 {
     /// <summary>
     ///     Contains information which were used to generate request url.

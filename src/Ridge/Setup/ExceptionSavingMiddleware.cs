@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Ridge.CallData;
 using System;
 using System.Threading.Tasks;
 
@@ -19,7 +18,7 @@ namespace Ridge.Setup
         public async Task Invoke(
             HttpContext context)
         {
-            if (!CallDataDictionary.IsTestCall(context))
+            if (!ExceptionManager.ExceptionManager.IsTestCall(context))
             {
                 await _next(context);
                 return;
@@ -31,7 +30,7 @@ namespace Ridge.Setup
             }
             catch (Exception ex)
             {
-                CallDataDictionary.InsertException(context, ex);
+                ExceptionManager.ExceptionManager.InsertException(context, ex);
                 throw;
             }
         }

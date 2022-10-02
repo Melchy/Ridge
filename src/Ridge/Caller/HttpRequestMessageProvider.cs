@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Ridge.Interceptor
 {
-    internal static class HttpRequestFactory
+    internal static class HttpRequestProvider
     {
         public static HttpRequestMessage Create(
             string httpMethod,
@@ -16,7 +16,7 @@ namespace Ridge.Interceptor
             Guid callId,
             string contentType,
             HttpRequestHeaders headers,
-            IRidgeSerializer serializer)
+            IRequestResponseSerializer serializer)
         {
             var httpMethodObject = new HttpMethod(httpMethod);
             var request = new HttpRequestMessage
@@ -45,7 +45,7 @@ namespace Ridge.Interceptor
         private static ByteArrayContent? CreateContent(
             string contentType,
             object? content,
-            IRidgeSerializer serializer)
+            IRequestResponseSerializer serializer)
         {
             if (contentType == "application/json")
             {

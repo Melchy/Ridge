@@ -1,4 +1,5 @@
-﻿using Ridge.Interceptor;
+﻿using Ridge.ActionInfo;
+using Ridge.Interceptor;
 using System.Threading.Tasks;
 
 namespace Ridge.Transformers.DefaultTransformers
@@ -28,10 +29,10 @@ namespace Ridge.Transformers.DefaultTransformers
         ///     Adds header to invocation.
         /// </summary>
         /// <param name="actionInfo"></param>
-        /// <param name="invocationInfo"></param>
+        /// <param name="methodInvocationInfo"></param>
         public async Task TransformAsync(
             IActionInfo actionInfo,
-            InvocationInfo invocationInfo)
+            MethodInvocationInfo methodInvocationInfo)
         {
             actionInfo.Headers.Add(_key, _value);
         }

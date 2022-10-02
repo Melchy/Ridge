@@ -30,13 +30,9 @@
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
     </ItemGroup>
     <ItemGroup>
-        <AdditionalFiles Include="BannedSymbols.txt"/>
-    </ItemGroup>
-    <ItemGroup>
         <PackageReference Include="Castle.Core" Version="4.4.1"/>
         <PackageReference Include="Castle.Core.AsyncInterceptor" Version="2.0.0"/>
         <PackageReference Include="MediatR" Version="4.0.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2"/>
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
         <PackageReference Include="NUnit" Version="3.6.0"/>
         <PackageReference Include="System.Text.Json" Version="4.6.0"/>
@@ -44,8 +40,5 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="..\..\ridge.png" Pack="true" PackagePath=""/>
-    </ItemGroup>
-    <ItemGroup>
-        <Folder Include="Interceptor\InterceptorFactory"/>
     </ItemGroup>
 </Project>

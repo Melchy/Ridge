@@ -1,4 +1,5 @@
-﻿using Ridge.Interceptor;
+﻿using Ridge.ActionInfo;
+using Ridge.Interceptor;
 using Ridge.LogWriter;
 using Ridge.Pipeline.Public;
 using System;
@@ -24,7 +25,7 @@ namespace Ridge.Pipeline.Infrastructure
             Func<Task<HttpResponseMessage>> next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyActionInfo actionInfo,
-            InvocationInfo invocationInfo)
+            MethodInvocationInfo methodInvocationInfo)
         {
             var requestBody = httpRequestMessage.Content;
             var requestBodyAsString = requestBody == null ? null : await requestBody.ReadAsStringAsync();

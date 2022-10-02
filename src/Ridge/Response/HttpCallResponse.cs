@@ -1,18 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Ridge.CallResult.Controller.Extensions;
-using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 
-namespace Ridge.CallResult.Controller
+namespace Ridge.Response
 {
     /// <summary>
     ///     This class represents response from controller.
     ///     Be aware that this is not real ActionResult.
     ///     ControllerCallResult inherits ActionResult and IActionResult only to satisfy compiler.
     /// </summary>
-    public class ControllerCallResult : ActionResult, IActionResult
+    public class HttpCallResponse
     {
         /// <summary>
         ///     Response returned from server.
@@ -50,7 +46,7 @@ namespace Ridge.CallResult.Controller
         /// </summary>
         public bool IsServerErrorStatusCode => (int)StatusCode >= 500 && (int)StatusCode <= 599;
 
-        internal ControllerCallResult(
+        internal HttpCallResponse(
             HttpResponseMessage httpResponseMessage,
             string resultAsString,
             HttpStatusCode statusCode)
@@ -58,31 +54,6 @@ namespace Ridge.CallResult.Controller
             HttpResponseMessage = httpResponseMessage;
             ResultAsString = resultAsString;
             StatusCode = statusCode;
-        }
-
-        /// <summary>
-        ///     Do not call this method. This method is implemented only to satisfy compiler.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <exception cref="InvalidOperationException"></exception>
-        public override void ExecuteResult(
-            ActionContext context)
-        {
-            throw new InvalidOperationException($"This method should not be used in tests. Instead use extension methods '{nameof(ActionResultTExtensions.Unwrap)}'," +
-                                                $" '{nameof(ActionResultTExtensions.HttpResponseMessage)}', '{nameof(ActionResultTExtensions.ResultAsString)}' and others. See readme.");
-        }
-
-        /// <summary>
-        ///     Do not call this method. This method is implemented only to satisfy compiler.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        public override Task ExecuteResultAsync(
-            ActionContext context)
-        {
-            throw new InvalidOperationException($"This method should not be used in tests. Instead use extension methods: '{nameof(ActionResultTExtensions.Unwrap)}'," +
-                                                $" '{nameof(ActionResultTExtensions.HttpResponseMessage)}', '{nameof(ActionResultTExtensions.ResultAsString)}' and others. See readme.");
         }
     }
 }

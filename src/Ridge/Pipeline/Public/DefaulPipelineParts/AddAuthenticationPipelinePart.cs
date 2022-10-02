@@ -1,4 +1,5 @@
-﻿using Ridge.Interceptor;
+﻿using Ridge.ActionInfo;
+using Ridge.Interceptor;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -21,7 +22,7 @@ namespace Ridge.Pipeline.Public.DefaulPipelineParts
             Func<Task<HttpResponseMessage>> next,
             HttpRequestMessage httpRequestMessage,
             IReadOnlyActionInfo actionInfo,
-            InvocationInfo invocationInfo)
+            MethodInvocationInfo methodInvocationInfo)
         {
             httpRequestMessage.Headers.Authorization = _authenticationHeaderValue;
             return await next();

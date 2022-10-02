@@ -5,7 +5,7 @@ namespace Ridge.Serialization
     /// <summary>
     ///     SystemJson implementation of serializer.
     /// </summary>
-    public class SystemJsonSerializer : IRidgeSerializer
+    public class SystemJsonSerializer : IRequestResponseSerializer
     {
         /// <inheritdoc />
         public TResult Deserialize<TResult>(

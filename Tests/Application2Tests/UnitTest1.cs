@@ -1,93 +1,63 @@
-using Ridge.Interceptor;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
+using NUnit.Framework;
 using Ridge.LogWriter;
-using Ridge.Pipeline.Public;
-using Ridge.Serialization;
-using Ridge.Transformers;
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using TestWebAplication2;
+using TestWebAplication2.Controllers;
 
 namespace Application2Tests
 {
     public class Tests
     {
-        //TODO fix
-        // [Test]
-        // public async Task ArgumentsWithoutAttributesAreSupported()
-        // {
-        //     using var application = CreateApplication();
-        //     var testController = application.ControllerFactory.CreateController<TestController>();
-        //     var complexObject = new ComplexObject()
-        //     {
-        //         Str = "foo",
-        //         NestedComplexObject = new NestedComplexObject()
-        //         {
-        //             Integer = 1,
-        //             Str = "br",
-        //         },
-        //     };
-        //     var response = await testController.ArgumentsWithoutAttributes(complexObject,
-        //         1,
-        //         2);
-        //     response.GetResult().ComplexObject.Should().BeEquivalentTo(complexObject);
-        //     response.GetResult().FromQuery.Should().Be(2);
-        //     response.GetResult().FromRoute.Should().Be(1);
-        // }
-    }
-
-
-    public class Foo
-    {
-        public RequestBuilder _requestBuilder { get; set; } = new();
-
-        public Foo(
-            HttpClient httpClient,
-            IServiceProvider serviceProvider,
-            ILogWriter? logWriter = null,
-            IRidgeSerializer? ridgeSerializer = null)
+        [Test]
+        public async Task ArgumentsWithoutAttributesAreSupported()
         {
-
+            using var application = CreateApplication();
+            var complexObject = new ComplexObject()
+            {
+                Str = "foo",
+                NestedComplexObject = new NestedComplexObject()
+                {
+                    Integer = 1,
+                    Str = "br",
+                },
+            };
+            var response = await application.TestControllerCaller.Call_ArgumentsWithoutAttributes(complexObject,
+                1,
+                2);
+            response.Result.ComplexObject.Should().BeEquivalentTo(complexObject);
+            response.Result.FromQuery.Should().Be(2);
+            response.Result.FromRoute.Should().Be(1);
         }
 
-        /// <summary>
-        ///     Adds <see cref="" IHttpRequestPipelinePart"" /> which can transform request after url is constructed.
-        /// </summary>
-        /// <param name="" httpRequestPipelineParts""></param>
-        public void AddHttpRequestPipelineParts(
-            IEnumerable<IHttpRequestPipelinePart> httpRequestPipelineParts)
+        internal static Application CreateApplication()
         {
-            _requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
+            var webAppFactory = new WebApplicationFactory<Startup>();
+            return new Application(webAppFactory);
         }
 
-        /// <summary>
-        ///     Adds <see cref="" IActionInfoTransformer"" /> which can transform request before url is constructed.
-        /// </summary>
-        /// <param name="" actionInfoTransformers""></param>
-        public void AddActionInfoTransformer(
-            IEnumerable<IActionInfoTransformer> actionInfoTransformers)
+        internal sealed class Application : IDisposable
         {
-            _requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
-        }
+            public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
+            public TestControllerCaller TestControllerCaller { get; set; }
 
-        /// <summary>
-        ///     Adds multiple headers using <see cref="" IActionInfoTransformer"" />.
-        /// </summary>
-        /// <param name="" headers""></param>
-        public void AddHeaders(
-            IEnumerable<KeyValuePair<string, string?>> headers)
-        {
-            _requestBuilder.AddHeaders(headers);
-        }
+            public Application(
+                WebApplicationFactory<Startup> webApplicationFactory)
+            {
+                WebApplicationFactory = webApplicationFactory;
+                TestControllerCaller = new TestControllerCaller(
+                    WebApplicationFactory.CreateClient(),
+                    WebApplicationFactory.Services,
+                    new NunitProgressLogWriter());
+            }
 
-        /// <summary>
-        ///     Adds pipeline part which sets Authorization.
-        /// </summary>
-        /// <param name="" authenticationHeaderValue""></param>
-        public void AddAuthenticationHeaderValue(
-            AuthenticationHeaderValue authenticationHeaderValue)
-        {
-            _requestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
+            public void Dispose()
+            {
+                WebApplicationFactory?.Dispose();
+                GC.SuppressFinalize(this);
+            }
         }
     }
 }

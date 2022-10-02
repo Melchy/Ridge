@@ -9,7 +9,6 @@ namespace RidgeSourceGeneratorTest;
 public class Tests
 {
     // TODO rename test
-    // TODO fix formatovani vygenerovaneho kodu
     [Test]
     public Task Test1()
     {
@@ -18,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace TestNamespace.Controller;
-[Ridge.GenerateStronglyTypedCallerForTesting]
+[Ridge.GenerateStronglyTypedCallerForTesting()]
 public class Test
 {
     public Test(){}

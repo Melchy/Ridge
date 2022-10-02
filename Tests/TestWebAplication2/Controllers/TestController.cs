@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Ridge;
 using System.Threading.Tasks;
 
 namespace TestWebAplication2.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [GenerateStronglyTypedCallerForTesting]
     public class TestController : ControllerBase
     {
         [HttpGet("ArgumentsWithoutAttributes/{fromRoute}")]
