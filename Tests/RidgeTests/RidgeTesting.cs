@@ -469,6 +469,14 @@ namespace RidgeTests
             result.Should().Be("return");
         }
 
+        [Test]
+        public async Task CallsWithTypeTransformation()
+        {
+            using var application = CreateApplication();
+            var task = application.ControllerWithSpecialGenerationSettingsCaller.Call_TypeTransformation("transformed");
+        }
+
+
         public static Application CreateApplication()
         {
             var webAppFactory = new WebApplicationFactory<Startup>();

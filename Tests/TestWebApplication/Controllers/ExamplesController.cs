@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers.Examples
 {
-    [GenerateStronglyTypedCallerForTesting]
+    [GenerateCallerForTesting]
     public class ExamplesController : Controller
     {
         // Example controller

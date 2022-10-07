@@ -61,8 +61,8 @@ public class ");
     /// <summary>
     ///     Create controller factory.
     /// </summary>
-    /// <param name=""httpClient""></param>
-    /// <param name=""serviceProvider"">Service provider present in WebApplicationFactory.</param>
+    /// <param name=""httpClient"">HttpClient used to call the server.</param>
+    /// <param name=""serviceProvider"">ServiceProvider used to gather information about the server.</param>
     /// <param name=""logWriter"">
     ///     Used to log requests and responses from server.
     ///     Use <see cref=""XunitLogWriter"" /> or <see cref=""NunitLogWriter"" /> or <see cref=""NunitProgressLogWriter""/> or implement custom <see cref=""ILogWriter"" />
@@ -87,9 +87,9 @@ public class ");
     }
 
     /// <summary>
-    ///     Adds <see cref=""IHttpRequestPipelinePart""/> which can transform request after url is constructed.
+    ///     Add <see cref=""IHttpRequestPipelinePart""/> which will be used to transform <see cref=""HttpRequestMessage""/>s.
     /// </summary>
-    /// <param name=""httpRequestPipelineParts""></param>
+    /// <param name=""httpRequestPipelineParts""><see cref=""IHttpRequestPipelinePart""/> to add.</param>
     public void AddHttpRequestPipelineParts(
         params IHttpRequestPipelinePart[] httpRequestPipelineParts)
     {
@@ -97,9 +97,9 @@ public class ");
     }
 
     /// <summary>
-    ///     Adds <see cref=""IActionInfoTransformer""/> which can transform request before url is constructed.
+    ///     Adds <see cref=""IActionInfoTransformer""/> which will be later used to transform <see cref=""IActionInfo""/>s.
     /// </summary>
-    /// <param name=""actionInfoTransformers""></param>
+    /// <param name=""actionInfoTransformers""><see cref=""IActionInfoTransformer""/>  to add.</param>
     public void AddActionInfoTransformers(
         params IActionInfoTransformer[] actionInfoTransformers)
     {
@@ -107,18 +107,20 @@ public class ");
     }
 
     /// <summary>
-    ///     Adds multiple headers using <see cref=""IActionInfoTransformer""/>.
+    ///     Adds headers to the requests. This method actually adds <see cref=""IActionInfoTransformer""/>
+    ///     which then adds the header to requests.
     /// </summary>
-    /// <param name=""headers""></param>
+    /// <param name=""headers"">Headers to add.</param>
     public void AddHeaders(params (string Key, string? Value)[] headers)
     {
         _requestBuilder.AddHeaders(headers);
     }
 
     /// <summary>
-    ///     Adds pipeline part which sets Authorization.
+    ///     Adds <see cref=""AuthenticationHeaderValue""/> to the requests. This method actually adds <see cref=""IActionInfoTransformer""/>
+    ///     which then adds the header to requests.
     /// </summary>
-    /// <param name=""authenticationHeaderValue""></param>
+    /// <param name=""authenticationHeaderValue""><see cref=""AuthenticationHeaderValue""/> to add.</param>
     public void AddAuthenticationHeaderValue(
         AuthenticationHeaderValue authenticationHeaderValue)
     {
@@ -151,6 +153,14 @@ public class ");
                 continue;
             }
 
+            sb.Append(@"
+    /// <summary>
+    ///     Calls <see cref=""");
+            sb.Append(controllerToGenerate.FullyQualifiedName);
+            sb.Append(".");
+            sb.Append(publicMethod.Name);
+            sb.AppendLine(@""" />.
+    /// </summary>");
             sb.Append(@"    public async ");
 
             if (controllerToGenerate.UseHttpResponseMessageAsReturnType)
@@ -175,12 +185,33 @@ public class ");
             sb.Append("Call_");
             sb.Append(publicMethod.Name);
             sb.Append("(");
+
+            var nonRemovedArguments = new List<IParameterSymbol>();
             foreach (var publicMethodParameter in publicMethod.Parameters)
             {
                 sb.Append(@"
             ");
 
-                sb.Append(publicMethodParameter.Type);
+                var typeMustBeTransformed =
+                    controllerToGenerate.TypeTransformations.TryGetValue(
+                        publicMethodParameter.Type.Name,
+                        out var result);
+
+                if (typeMustBeTransformed)
+                {
+                    if (result == "Void")
+                    {
+                        continue;
+                    }
+
+                    sb.Append(result);
+                }
+                else
+                {
+                    sb.Append(publicMethodParameter.Type);
+                }
+
+                nonRemovedArguments.Add(publicMethodParameter);
                 sb.Append(" ");
                 sb.Append(publicMethodParameter.Name);
                 sb.Append(",");
@@ -206,7 +237,7 @@ public class ");
 
             sb.AppendLine(@"        var arguments = new List<object?>()");
             sb.AppendLine(@"        {");
-            foreach (var publicMethodParameter in publicMethod.Parameters)
+            foreach (var publicMethodParameter in nonRemovedArguments)
             {
                 sb.Append(@"            ");
                 sb.Append(publicMethodParameter.Name);
@@ -281,7 +312,6 @@ public class ");
         return sb.ToString();
     }
 
-    // TODO komentare k vygenerovanemu kodu
     private static string? GetActualReturnType(
         INamedTypeSymbol returnType)
     {

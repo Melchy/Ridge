@@ -24,7 +24,7 @@ public class RequestBuilder
     ///     Create webCaller which calls all the <see cref="IHttpRequestPipelinePart" />
     ///     and then server.
     /// </summary>
-    /// <param name="httpClient">Client used to call server.</param>
+    /// <param name="httpClient">Client used to call server. </param>
     /// <param name="logger">Logger to log generated request and response.</param>
     /// <returns>
     ///     <see cref="WebCaller" />
