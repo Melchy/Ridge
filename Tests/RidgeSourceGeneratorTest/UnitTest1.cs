@@ -6,18 +6,17 @@ using RidgeSourceGenerator;
 
 namespace RidgeSourceGeneratorTest;
 
-public class Tests
+public class SourceGeneratorInProcessTests
 {
-    // TODO rename test
     [Test]
-    public Task Test1()
+    public Task TestSourceGeneratorInProcess()
     {
         var source = @"
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace TestNamespace.Controller;
-[Ridge.GenerateStronglyTypedCallerForTesting()]
+[Ridge.GenerateCallerForTesting()]
 public class Test
 {
     public Test(){}
@@ -71,10 +70,10 @@ public static class TestHelper
         var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location) ?? throw new InvalidOperationException("dll not found");
 
         /* 
-            * Adding some necessary .NET assemblies
-            * These assemblies couldn't be loaded correctly via the same construction as above,
-            * in specific the System.Runtime.
-            */
+        * Adding some necessary .NET assemblies
+        * These assemblies couldn't be loaded correctly via the same construction as above,
+        * in specific the System.Runtime.
+        */
         references.Add(MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "mscorlib.dll")));
         references.Add(MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.dll")));
         references.Add(MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Core.dll")));

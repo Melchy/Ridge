@@ -6,7 +6,7 @@ namespace TestWebAplication2.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [GenerateStronglyTypedCallerForTesting]
+    [GenerateCallerForTesting]
     public class TestController : ControllerBase
     {
         [HttpGet("ArgumentsWithoutAttributes/{fromRoute}")]

@@ -9,7 +9,7 @@ namespace RidgeSourceGenerator;
 [Generator]
 public class ControllerGenerator : IIncrementalGenerator
 {
-    private const string RidgeAttribute = "Ridge.GenerateStronglyTypedCallerForTesting";
+    private const string RidgeAttribute = "Ridge.GenerateCallerForTesting";
 
     public void Initialize(
         IncrementalGeneratorInitializationContext context)
@@ -43,13 +43,13 @@ public class ControllerGenerator : IIncrementalGenerator
 
         var name = ExtractName(attribute.Name);
 
-        return IsCorrectAttribute(name);
+        return IsMainCorrectAttribute(name);
     }
 
-    private static bool IsCorrectAttribute(
+    private static bool IsMainCorrectAttribute(
         string? name)
     {
-        if (name is "GenerateStronglyTypedCallerForTesting" or "GenerateStronglyTypedCallerForTestingAttribute")
+        if (name is "GenerateCallerForTesting" or "GenerateCallerForTestingAttribute")
         {
             return true;
         }
@@ -131,8 +131,13 @@ public class ControllerGenerator : IIncrementalGenerator
                 continue;
             }
 
-            var generatorAttribute = controllerSymbol.GetAttributes().FirstOrDefault(x => IsCorrectAttribute(x.AttributeClass?.Name));
+            var attributes = controllerSymbol.GetAttributes();
+            var generatorAttribute = attributes.FirstOrDefault(x => IsMainCorrectAttribute(x.AttributeClass?.Name));
             var mainAttributeSettings = generatorAttribute?.NamedArguments ?? ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty;
+
+            var typeTransformerAttributes = attributes
+               .Where(x => x.AttributeClass?.Name is "TransformTypeInCaller" or "TransformTypeInCallerAttribute");
+
             string name = controllerSymbol.Name;
             string classNamespace = controllerSymbol.ContainingNamespace.IsGlobalNamespace ? string.Empty : controllerSymbol.ContainingNamespace.ToString();
 
@@ -176,7 +181,8 @@ public class ControllerGenerator : IIncrementalGenerator
                 fullyQualifiedName: fullyQualifiedName,
                 @namespace: classNamespace,
                 publicMethods: publicMethods,
-                mainAttributeSettings: mainAttributeSettings));
+                mainAttributeSettings: mainAttributeSettings,
+                typeTransformerAttributes: typeTransformerAttributes));
         }
 
         return controllersToGenerates;
