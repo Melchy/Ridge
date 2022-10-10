@@ -3,15 +3,13 @@
 namespace Ridge;
 
 //TODO adding new parameters
-//TODO rename parameter
-//TODO set if parameter is optional
 
 /// <summary>
 ///     Transforms types of parameters in actions from one type to another.
 ///     If you want to remove parameter from action use typeof(void).
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class TransformTypeInCaller : Attribute
+public sealed class TransformParameterInCaller : Attribute
 {
     /// <summary>
     /// </summary>
@@ -20,7 +18,7 @@ public sealed class TransformTypeInCaller : Attribute
     ///     Type to which will <see cref="FromType" /> be transformed. If you want to remove parameter from
     ///     action use typeof(void).
     /// </param>
-    public TransformTypeInCaller(
+    public TransformParameterInCaller(
         Type fromType,
         Type toType)
     {
@@ -38,4 +36,14 @@ public sealed class TransformTypeInCaller : Attribute
     ///     <exception cref="FromType"> type be transformed to. If you want to remove parameter from action use typeof(void).</exception>
     /// </summary>
     public Type ToType { get; }
+
+    /// <summary>
+    ///     Set to true if the parameter should be optional.
+    /// </summary>
+    public bool Optional { get; set; }
+
+    /// <summary>
+    ///     Set this property to change the parameter name.
+    /// </summary>
+    public string? GeneratedParameterName { get; set; }
 }

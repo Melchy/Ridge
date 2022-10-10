@@ -186,34 +186,59 @@ public class ");
             sb.Append(publicMethod.Name);
             sb.Append("(");
 
-            var nonRemovedArguments = new List<IParameterSymbol>();
+            var nonRemovedArgumentNames = new List<string>();
             foreach (var publicMethodParameter in publicMethod.Parameters)
             {
                 sb.Append(@"
             ");
 
                 var typeMustBeTransformed =
-                    controllerToGenerate.TypeTransformations.TryGetValue(
+                    controllerToGenerate.ParameterTransformations.TryGetValue(
                         publicMethodParameter.Type.Name,
                         out var result);
 
                 if (typeMustBeTransformed)
                 {
-                    if (result == "Void")
+                    if (result.ToType == "Void")
                     {
                         continue;
                     }
 
-                    sb.Append(result);
+                    if (result.Optional)
+                    {
+                        var typeWithNullable = result.ToType.TrimEnd('?');
+                        sb.Append(typeWithNullable);
+                        sb.Append("?");
+                    }
+                    else
+                    {
+                        sb.Append(result.ToType);
+                    }
+
+                    sb.Append(" ");
+                    if (result.NewName != null)
+                    {
+                        sb.Append(result.NewName);
+                    }
+                    else
+                    {
+                        sb.Append(publicMethodParameter.Name);
+                    }
+
+                    //TODO co kdy optional parameter neni posledni??
+                    if (result.Optional)
+                    {
+                        sb.Append("= default");
+                    }
                 }
                 else
                 {
                     sb.Append(publicMethodParameter.Type);
+                    sb.Append(" ");
+                    sb.Append(publicMethodParameter.Name);
                 }
 
-                nonRemovedArguments.Add(publicMethodParameter);
-                sb.Append(" ");
-                sb.Append(publicMethodParameter.Name);
+                nonRemovedArgumentNames.Add(result.NewName ?? publicMethodParameter.Name);
                 sb.Append(",");
             }
 
@@ -237,10 +262,10 @@ public class ");
 
             sb.AppendLine(@"        var arguments = new List<object?>()");
             sb.AppendLine(@"        {");
-            foreach (var publicMethodParameter in nonRemovedArguments)
+            foreach (var parameterName in nonRemovedArgumentNames)
             {
                 sb.Append(@"            ");
-                sb.Append(publicMethodParameter.Name);
+                sb.Append(parameterName);
                 sb.AppendLine(",");
             }
 
