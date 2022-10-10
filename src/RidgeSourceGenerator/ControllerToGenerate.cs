@@ -11,7 +11,7 @@ public class ControllerToGenerate
     public readonly string Namespace;
 
     public bool UseHttpResponseMessageAsReturnType;
-    public IDictionary<string, string> TypeTransformations;
+    public IDictionary<string, ParameterTransformation> ParameterTransformations;
 
     public ControllerToGenerate(
         string name,
@@ -26,23 +26,25 @@ public class ControllerToGenerate
         FullyQualifiedName = fullyQualifiedName;
         Namespace = @namespace;
         UseHttpResponseMessageAsReturnType = GetUseHttpResponseMessageAsReturnType(mainAttributeSettings);
-        TypeTransformations = GetTypeTransformations(typeTransformerAttributes);
+        ParameterTransformations = GetTypeTransformations(typeTransformerAttributes);
     }
 
-    private IDictionary<string, string> GetTypeTransformations(
+    private IDictionary<string, ParameterTransformation> GetTypeTransformations(
         IEnumerable<AttributeData> typeTransformerAttributes)
     {
-        var result = new Dictionary<string, string>();
+        var result = new Dictionary<string, ParameterTransformation>();
         foreach (var typeTransformerAttribute in typeTransformerAttributes)
         {
             var fromType = (ISymbol?)typeTransformerAttribute.ConstructorArguments[0].Value;
             var toType = (ISymbol?)typeTransformerAttribute.ConstructorArguments[1].Value;
+            var newName = typeTransformerAttribute.NamedArguments.FirstOrDefault(x => x.Key == "GeneratedParameterName").Value.Value as string;
+            var optional = typeTransformerAttribute.NamedArguments.FirstOrDefault(x => x.Key == "Optional").Value.Value as bool? ?? false;
             if (fromType == null || toType == null)
             {
                 continue;
             }
 
-            result[fromType.Name] = toType.Name;
+            result[fromType.Name] = new ParameterTransformation(toType.Name, newName, optional);
         }
 
         return result;
@@ -55,5 +57,22 @@ public class ControllerToGenerate
                 x.Key == "UseHttpResponseMessageAsReturnType")
            .Value.Value as bool?;
         return result ?? false;
+    }
+}
+
+public readonly struct ParameterTransformation
+{
+    public readonly string ToType;
+    public readonly string? NewName;
+    public readonly bool Optional;
+
+    public ParameterTransformation(
+        string toType,
+        string? newName,
+        bool optional)
+    {
+        Optional = optional;
+        NewName = newName;
+        ToType = toType;
     }
 }

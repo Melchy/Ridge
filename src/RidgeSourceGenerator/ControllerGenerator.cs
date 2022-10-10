@@ -136,7 +136,7 @@ public class ControllerGenerator : IIncrementalGenerator
             var mainAttributeSettings = generatorAttribute?.NamedArguments ?? ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty;
 
             var typeTransformerAttributes = attributes
-               .Where(x => x.AttributeClass?.Name is "TransformTypeInCaller" or "TransformTypeInCallerAttribute");
+               .Where(x => x.AttributeClass?.Name is "TransformParameterInCaller" or "TransformParameterInCallerAttribute");
 
             string name = controllerSymbol.Name;
             string classNamespace = controllerSymbol.ContainingNamespace.IsGlobalNamespace ? string.Empty : controllerSymbol.ContainingNamespace.ToString();

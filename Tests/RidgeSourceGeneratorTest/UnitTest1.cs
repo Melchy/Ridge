@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 
 namespace TestNamespace.Controller;
 [Ridge.GenerateCallerForTesting()]
+[Ridge.TransformParameterInCaller(fromType: typeof(int), toType: typeof(string))]
 public class Test
 {
     public Test(){}

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 namespace TestWebApplication.Controllers;
 
 [GenerateCallerForTesting(UseHttpResponseMessageAsReturnType = true)]
-[TransformTypeInCaller(fromType: typeof(TestController.ComplexArgument), toType: typeof(void))]
-[TransformTypeInCaller(fromType: typeof(ILogger), toType: typeof(void))]
-[TransformTypeInCaller(fromType: typeof(int), toType: typeof(string))]
+[TransformParameterInCaller(fromType: typeof(TestController.ComplexArgument), toType: typeof(void))]
+[TransformParameterInCaller(fromType: typeof(ILogger), toType: typeof(void))]
+[TransformParameterInCaller(fromType: typeof(int), toType: typeof(string), Optional = true, GeneratedParameterName = "renamed")]
 public class ControllerWithSpecialGenerationSettings : ControllerBase
 {
     public async Task<ActionResult<string>> SimpleGet()
