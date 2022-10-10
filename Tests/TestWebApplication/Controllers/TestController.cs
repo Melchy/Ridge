@@ -431,6 +431,13 @@ namespace TestWebApplication.Controllers
         {
             return "ok";
         }
+
+        [HttpPatch("PatchWithBody")]
+        public virtual async Task<ActionResult<ComplexObject>> PatchWithBody(
+            [FromBody] ComplexObject complexObject)
+        {
+            return complexObject;
+        }
     }
 
     public class SpecialComplexObject

@@ -503,6 +503,15 @@ namespace RidgeTests
             actionResult.Should().Throw<InvalidOperationException>();
         }
 
+        [Test]
+        public async Task HttpPatchWithBody()
+        {
+            using var application = CreateApplication();
+            var testController = application.ControllerFactory.CreateController<TestController>();
+            var response = await testController.PatchWithBody(new ComplexObject() {Str = "test"});
+            response.GetResult().Str.Should().Be("test");
+        }
+
         public static Application CreateApplication()
         {
             var webAppFactory = new WebApplicationFactory<Startup>();

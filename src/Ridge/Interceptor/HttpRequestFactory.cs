@@ -26,7 +26,8 @@ namespace Ridge.Interceptor
             if (httpMethodObject == HttpMethod.Post ||
                 httpMethodObject == HttpMethod.Get ||
                 httpMethodObject == HttpMethod.Delete ||
-                httpMethodObject == HttpMethod.Put)
+                httpMethodObject == HttpMethod.Put ||
+                httpMethodObject.Method == "PATCH") // HttpMethod.Patch is not present in .net standard 2.0 https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpmethod.patch?view=net-6.0
             {
                 request.Content = CreateContent(contentType, contentData, serializer);
             }
