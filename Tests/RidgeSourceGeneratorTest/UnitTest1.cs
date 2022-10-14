@@ -17,27 +17,35 @@ using System.Threading.Tasks;
 
 namespace TestNamespace.Controller;
 [Ridge.GenerateCallerForTesting()]
-[Ridge.TransformParameterInCaller(fromType: typeof(int), toType: typeof(string))]
+[Ridge.TransformParameterInCaller(fromType: typeof(int), toType: typeof(string), GeneratedParameterName = ""renamed"")]
 public class Test
 {
     public Test(){}
     public Task<string> Foo(Task<string> a, bool b){ var c = 1; return Task.FromResult(""asd"");}
     public Task<string> Foo1(){ var a = 1; return Task.FromResult(""asd"");}
-    public Task<string> Foo2(int b = 1){ var a = 1; return Task.FromResult(""asd"");}
+    public Task<string> Foo2(int b = 1, int c = 2){ var a = 1; return Task.FromResult(""asd"");}
     public Task<IActionResult> Foo3(){return Task.FromResult(""asd"");}
     public Task<ActionResult<int>> Foo4(){return Task.FromResult(1);}
     public Foo<int> Foo5(){return new Foo<int>();}
-    public Task<Foo<int>> Foo6(){return Task.FromResult(new Foo<int>());}
+    public Task<Foo<int>> Foo6([FromServices] object a){return Task.FromResult(new Foo<int>());}
     public IActionResult Foo7(){return 1;}
     public ActionResult<int> Foo8(){return 1;}
     public void Foo9(){}
     public void Foo20(params int[] b){ var a = 1;}
+    public void Foo20(FooEnum b = FooEnum.a){ var a = b;}
 }
 public class Foo<Ttype>
     {
         
     }
+
+public enum FooEnum
+    {
+        a = 0,
+    }
 ";
+    
+        
         return TestHelper.Verify(source);
     }
 }

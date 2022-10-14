@@ -60,11 +60,12 @@ public class ControllerToGenerate
     }
 }
 
-public readonly struct ParameterTransformation
+public class ParameterTransformation
 {
     public readonly string ToType;
     public readonly string? NewName;
     public readonly bool Optional;
+    public int NumberOfUsagesOfThisName = 0;
 
     public ParameterTransformation(
         string toType,

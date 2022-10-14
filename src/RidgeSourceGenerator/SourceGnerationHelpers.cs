@@ -187,60 +187,14 @@ public class ");
             sb.Append("(");
 
             var nonRemovedArgumentNames = new List<string>();
+
+            var stringBuilderForOptionalParameters = new StringBuilder();
             foreach (var publicMethodParameter in publicMethod.Parameters)
             {
-                sb.Append(@"
-            ");
-
-                var typeMustBeTransformed =
-                    controllerToGenerate.ParameterTransformations.TryGetValue(
-                        publicMethodParameter.Type.Name,
-                        out var result);
-
-                if (typeMustBeTransformed)
-                {
-                    if (result.ToType == "Void")
-                    {
-                        continue;
-                    }
-
-                    if (result.Optional)
-                    {
-                        var typeWithNullable = result.ToType.TrimEnd('?');
-                        sb.Append(typeWithNullable);
-                        sb.Append("?");
-                    }
-                    else
-                    {
-                        sb.Append(result.ToType);
-                    }
-
-                    sb.Append(" ");
-                    if (result.NewName != null)
-                    {
-                        sb.Append(result.NewName);
-                    }
-                    else
-                    {
-                        sb.Append(publicMethodParameter.Name);
-                    }
-
-                    //TODO co kdy optional parameter neni posledni??
-                    if (result.Optional)
-                    {
-                        sb.Append("= default");
-                    }
-                }
-                else
-                {
-                    sb.Append(publicMethodParameter.Type);
-                    sb.Append(" ");
-                    sb.Append(publicMethodParameter.Name);
-                }
-
-                nonRemovedArgumentNames.Add(result.NewName ?? publicMethodParameter.Name);
-                sb.Append(",");
+                ProcessParameter(sb, stringBuilderForOptionalParameters, controllerToGenerate, publicMethodParameter, nonRemovedArgumentNames);
             }
+
+            sb.Append(stringBuilderForOptionalParameters);
 
             sb.AppendLine(@"IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
@@ -335,6 +289,133 @@ public class ");
 
 
         return sb.ToString();
+    }
+
+    private static void ProcessParameter(
+        StringBuilder sb,
+        StringBuilder stringBuilderForOptionalParameters,
+        ControllerToGenerate controllerToGenerate,
+        IParameterSymbol publicMethodParameter,
+        List<string> nonRemovedArgumentNames)
+    {
+        var fromServicesAttribute = publicMethodParameter.GetAttributes().FirstOrDefault(x => x.AttributeClass?.Name == "FromServicesAttribute");
+        StringBuilder builderToUseForCurrentParameter;
+        if (fromServicesAttribute != null)
+        {
+            return;
+        }
+
+        string resultName;
+        var typeMustBeTransformed =
+            controllerToGenerate.ParameterTransformations.TryGetValue(
+                publicMethodParameter.Type.Name,
+                out var result);
+
+        if (typeMustBeTransformed)
+        {
+            if (result.ToType == "Void")
+            {
+                return;
+            }
+
+            if (result.Optional)
+            {
+                builderToUseForCurrentParameter = stringBuilderForOptionalParameters;
+            }
+            else
+            {
+                builderToUseForCurrentParameter = sb;
+            }
+
+            builderToUseForCurrentParameter.Append(@"
+            ");
+
+
+            if (result.Optional)
+            {
+                var typeWithNullable = result.ToType.TrimEnd('?');
+                builderToUseForCurrentParameter.Append(typeWithNullable);
+                builderToUseForCurrentParameter.Append("?");
+            }
+            else
+            {
+                builderToUseForCurrentParameter.Append(result.ToType);
+            }
+
+            builderToUseForCurrentParameter.Append(" ");
+            if (result.NewName != null)
+            {
+                builderToUseForCurrentParameter.Append(result.NewName);
+                if (result.NumberOfUsagesOfThisName == 0)
+                {
+                    resultName = result.NewName;
+                }
+                else
+                {
+                    resultName = $"{result.NewName}{result.NumberOfUsagesOfThisName}";
+                    builderToUseForCurrentParameter.Append(result.NumberOfUsagesOfThisName);
+                }
+
+                result.NumberOfUsagesOfThisName++;
+            }
+            else
+            {
+                builderToUseForCurrentParameter.Append(publicMethodParameter.Name);
+                resultName = publicMethodParameter.Name;
+            }
+
+            if (result.Optional)
+            {
+                builderToUseForCurrentParameter.Append(" = default");
+            }
+        }
+        else
+        {
+            if (publicMethodParameter.IsOptional)
+            {
+                builderToUseForCurrentParameter = stringBuilderForOptionalParameters;
+            }
+            else
+            {
+                builderToUseForCurrentParameter = sb;
+            }
+
+            builderToUseForCurrentParameter.Append(@"
+            ");
+
+            resultName = publicMethodParameter.Name;
+            builderToUseForCurrentParameter.Append(publicMethodParameter.Type);
+            builderToUseForCurrentParameter.Append(" ");
+            builderToUseForCurrentParameter.Append(publicMethodParameter.Name);
+
+            if (publicMethodParameter.HasExplicitDefaultValue)
+            {
+                builderToUseForCurrentParameter.Append("= ");
+                if (publicMethodParameter.ExplicitDefaultValue == null)
+                {
+                    builderToUseForCurrentParameter.Append("default");
+                }
+                else if (publicMethodParameter.ExplicitDefaultValue is string)
+                {
+                    builderToUseForCurrentParameter.Append("\"");
+                    builderToUseForCurrentParameter.Append(publicMethodParameter.ExplicitDefaultValue);
+                    builderToUseForCurrentParameter.Append("\"");
+                }
+                else if (publicMethodParameter.ExplicitDefaultValue is char)
+                {
+                    builderToUseForCurrentParameter.Append("\'");
+                    builderToUseForCurrentParameter.Append(publicMethodParameter.ExplicitDefaultValue);
+                    builderToUseForCurrentParameter.Append("\'");
+                }
+                else
+                {
+                    builderToUseForCurrentParameter.Append(publicMethodParameter.ExplicitDefaultValue);
+                }
+            }
+        }
+
+        nonRemovedArgumentNames.Add(resultName);
+        builderToUseForCurrentParameter.Append(",");
     }
 
     private static string? GetActualReturnType(
