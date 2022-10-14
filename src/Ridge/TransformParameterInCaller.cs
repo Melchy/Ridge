@@ -3,6 +3,8 @@
 namespace Ridge;
 
 //TODO adding new parameters
+// TODO optimalizace
+
 
 /// <summary>
 ///     Transforms types of parameters in actions from one type to another.
@@ -33,12 +35,12 @@ public sealed class TransformParameterInCaller : Attribute
 
     /// <summary>
     ///     Type to which will
-    ///     <exception cref="FromType"> type be transformed to. If you want to remove parameter from action use typeof(void).</exception>
+    ///     <see cref="FromType" /> type be transformed to. If you want to remove parameter from action use typeof(void).
     /// </summary>
     public Type ToType { get; }
 
     /// <summary>
-    ///     Set to true if the parameter should be optional.
+    ///     Set to true if the parameter should be optional. Remember that optional parameter can not be followed by non optional parameter.
     /// </summary>
     public bool Optional { get; set; }
 

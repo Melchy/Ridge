@@ -476,6 +476,18 @@ namespace RidgeTests
             var task = application.ControllerWithSpecialGenerationSettingsCaller.Call_TypeTransformation("transformed");
         }
 
+        [Test]
+        public async Task CallActionWithOptionalParameter()
+        {
+            using var application = CreateApplication();
+            var task = application.ControllerWithSpecialGenerationSettingsCaller
+               .Call_ActionWithOptionalParameter("test",
+                    "test",
+                    new[]
+                    {
+                        "test",
+                    });
+        }
 
         public static Application CreateApplication()
         {
