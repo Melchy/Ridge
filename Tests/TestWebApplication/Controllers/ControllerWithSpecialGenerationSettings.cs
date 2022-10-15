@@ -13,7 +13,7 @@ namespace TestWebApplication.Controllers;
 public class ControllerWithSpecialGenerationSettings : ControllerBase
 {
     public const int DefaultValue = 1;
-
+    
     [HttpGet]
     public async Task<ActionResult<string>> SimpleGet()
     {
@@ -56,3 +56,7 @@ public enum TestEnum
 {
     Value = 0,
 }
+
+
+
+

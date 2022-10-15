@@ -3,9 +3,10 @@ using System.Collections.Immutable;
 
 namespace RidgeSourceGenerator;
 
-public class ControllerToGenerate
+public class ControllerToGenerate : IEquatable<ControllerToGenerate>
 {
     public readonly List<IMethodSymbol> PublicMethods;
+    private readonly int _cachedHashCode;
     public readonly string Name;
     public readonly string FullyQualifiedName;
     public readonly string Namespace;
@@ -19,9 +20,11 @@ public class ControllerToGenerate
         string @namespace,
         List<IMethodSymbol> publicMethods,
         ImmutableArray<KeyValuePair<string, TypedConstant>> mainAttributeSettings,
-        IEnumerable<AttributeData> typeTransformerAttributes)
+        IEnumerable<AttributeData> typeTransformerAttributes,
+        int cachedHashCode)
     {
         PublicMethods = publicMethods;
+        _cachedHashCode = cachedHashCode;
         Name = name;
         FullyQualifiedName = fullyQualifiedName;
         Namespace = @namespace;
@@ -57,6 +60,48 @@ public class ControllerToGenerate
                 x.Key == "UseHttpResponseMessageAsReturnType")
            .Value.Value as bool?;
         return result ?? false;
+    }
+
+    public bool Equals(
+        ControllerToGenerate? other)
+    {
+        if (ReferenceEquals(null, other))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return _cachedHashCode == other.GetHashCode();
+    }
+
+    public override bool Equals(
+        object? obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((ControllerToGenerate)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return _cachedHashCode;
     }
 }
 

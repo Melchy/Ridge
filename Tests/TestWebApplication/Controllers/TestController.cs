@@ -312,6 +312,7 @@ namespace TestWebApplication.Controllers
             return countryCodeBinded.CountryCode;
         }
 
+
         public class CountryCodeBinded
         {
             public string CountryCode { get; set; } = null!;
