@@ -18,9 +18,11 @@ public static class SourceGenerationHelper
 
     public static string GenerateExtensionClass(
         StringBuilder sb,
-        ControllerToGenerate controllerToGenerate)
+        ControllerToGenerate controllerToGenerate,
+        CancellationToken cancellationToken)
     {
         var className = $"{controllerToGenerate.Name}Caller";
+        
         sb.Append(Header);
         sb.Append(@"
 #nullable enable
@@ -44,6 +46,8 @@ using System.Threading.Tasks;
             sb.AppendLine("{");
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+        
         sb.Append(@"
 /// <summary>
 /// Class generated using source generator to make strongly typed calls in tests.
@@ -131,6 +135,8 @@ public class ");
 
         foreach (var publicMethod in controllerToGenerate.PublicMethods)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (publicMethod.IsGenericMethod)
             {
                 continue;
@@ -191,6 +197,7 @@ public class ");
             var stringBuilderForOptionalParameters = new StringBuilder();
             foreach (var publicMethodParameter in publicMethod.Parameters)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 ProcessParameter(sb, stringBuilderForOptionalParameters, controllerToGenerate, publicMethodParameter, nonRemovedArgumentNames);
             }
 
@@ -218,6 +225,7 @@ public class ");
             sb.AppendLine(@"        {");
             foreach (var parameterName in nonRemovedArgumentNames)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 sb.Append(@"            ");
                 sb.Append(parameterName);
                 sb.AppendLine(",");
@@ -244,6 +252,7 @@ public class ");
 
             foreach (var publicMethodParameter in publicMethod.Parameters)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 sb.Append(@"
             ");
                 sb.Append("typeof(");
@@ -287,7 +296,7 @@ public class ");
             sb.AppendLine("}");
         }
 
-
+        cancellationToken.ThrowIfCancellationRequested();
         return sb.ToString();
     }
 
