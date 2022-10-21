@@ -9,8 +9,6 @@ namespace RidgeSourceGenerator;
 [Generator]
 public class ControllerGenerator : IIncrementalGenerator
 {
-    private const string RidgeAttribute = "Ridge.GenerateCallerForTesting";
-
     public void Initialize(
         IncrementalGeneratorInitializationContext context)
     {
@@ -28,7 +26,24 @@ public class ControllerGenerator : IIncrementalGenerator
                 x,
                 _) => x.Distinct());
 
-        context.RegisterSourceOutput(controllerDeclarations,
+        var methodsToGenerate = controllerDeclarations.Where(x => x is not null)
+           .SelectMany((
+                    controllerToGenerate,
+                    ct) =>
+                controllerToGenerate!.PublicMethods.Select(methodSymbolAndHash =>
+                    new MethodToGenerate(methodSymbolAndHash.MethodSymbol,
+                        controllerToGenerate.UseHttpResponseMessageAsReturnType,
+                        controllerToGenerate.ParameterTransformations,
+                        controllerToGenerate.FullyQualifiedName,
+                        methodSymbolAndHash.MethodHash,
+                        controllerToGenerate.ParametersToAdd,
+                        ct)))
+           .Collect();
+
+        var controllersWithMethods = controllerDeclarations.Combine(methodsToGenerate);
+
+
+        context.RegisterSourceOutput(controllersWithMethods,
             static (
                 spc,
                 source) => Execute(source, spc));
@@ -50,7 +65,7 @@ public class ControllerGenerator : IIncrementalGenerator
     private static bool IsMainCorrectAttribute(
         string? name)
     {
-        if (name is "GenerateCallerForTesting" or "GenerateCallerForTestingAttribute")
+        if (name is "GenerateCaller" or "GenerateCallerAttribute")
         {
             return true;
         }
@@ -76,17 +91,24 @@ public class ControllerGenerator : IIncrementalGenerator
     }
 
     private static void Execute(
-        ControllerToGenerate? controllerToGenerate,
+        (ControllerToGenerate? ControllerToGenerate, ImmutableArray<MethodToGenerate> MethodsToGenerate) controllerAndMethods,
         SourceProductionContext context)
     {
-        if (controllerToGenerate == null)
+        if (controllerAndMethods.ControllerToGenerate == null)
         {
             return;
         }
+
+        var generatedMethods = controllerAndMethods.MethodsToGenerate
+           .Where(x => x?.ContainingControllerFullyQualifiedName == controllerAndMethods.ControllerToGenerate.FullyQualifiedName);
+        
         
         StringBuilder sb = new StringBuilder();
-        var result = SourceGenerationHelper.GenerateExtensionClass(sb, controllerToGenerate, context.CancellationToken);
-        context.AddSource(controllerToGenerate.Name + "_TestCaller.g.cs", SourceText.From(result, Encoding.UTF8));
+        var result = SourceGenerationHelper.GenerateExtensionClass(sb,
+            controllerAndMethods.ControllerToGenerate,
+            generatedMethods!,
+            context.CancellationToken);
+        context.AddSource(controllerAndMethods.ControllerToGenerate.Name + "_TestCaller.g.cs", SourceText.From(result, Encoding.UTF8));
     }
 
 
@@ -120,18 +142,28 @@ public class ControllerGenerator : IIncrementalGenerator
         var typeTransformerAttributes = attributes
            .Where(x => x.AttributeClass?.Name is "TransformParameterInCaller" or "TransformParameterInCallerAttribute");
 
+        var addParameterAttributes = attributes
+           .Where(x => x.AttributeClass?.Name is "AddParameterToCaller" or "AddParameterToCallerAttribute");
+
         cancellationToken.ThrowIfCancellationRequested();
 
         string name = controllerSymbol.Name;
         string classNamespace = controllerSymbol.ContainingNamespace.IsGlobalNamespace ? string.Empty : controllerSymbol.ContainingNamespace.ToString();
 
-        var publicMethods = new List<IMethodSymbol>();
+        var publicMethods = new List<(IMethodSymbol MethodSymbol, int MethodHash)>();
 
-        foreach (var member in controllerSymbol.GetMembers())
+        foreach (var methodDeclarationAndHash in methodClassAndAttributeSyntax.Methods)
         {
+            var potentialMethodSymbol = methodClassAndAttributeSyntax.SemanticModel.GetDeclaredSymbol(methodDeclarationAndHash.methodDeclarationSyntax);
+
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (member is not IMethodSymbol methodSymbol)
+            if (potentialMethodSymbol == null)
+            {
+                continue;
+            }
+
+            if (potentialMethodSymbol is not IMethodSymbol methodSymbol)
             {
                 continue;
             }
@@ -157,7 +189,7 @@ public class ControllerGenerator : IIncrementalGenerator
                 continue;
             }
 
-            publicMethods.Add(methodSymbol);
+            publicMethods.Add((methodSymbol, methodDeclarationAndHash.methodDeclarationHash));
         }
 
         string fullyQualifiedName = controllerSymbol.ToString();
@@ -169,6 +201,7 @@ public class ControllerGenerator : IIncrementalGenerator
             publicMethods: publicMethods,
             mainAttributeSettings: mainAttributeSettings,
             typeTransformerAttributes: typeTransformerAttributes,
+            addParameterAttributes: addParameterAttributes,
             cachedHashCode: methodClassAndAttributeSyntax.CachedHashCode);
     }
 
@@ -176,6 +209,7 @@ public class ControllerGenerator : IIncrementalGenerator
     {
         public SemanticModel SemanticModel;
         public ClassDeclarationSyntax? ClassDeclarationSyntax { get; set; }
+        public List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclarationHash)> Methods { get; set; } = new List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclaration)>();
         public readonly int CachedHashCode;
 
         public MethodClassAndAttributeSyntax(
@@ -199,14 +233,20 @@ public class ControllerGenerator : IIncrementalGenerator
                    .Select(x =>
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+                        string methodDeclaration;
                         var methodAsString = x.ToString();
                         var index = methodAsString.IndexOf("{");
                         if (index == -1)
                         {
-                            return "";
+                            methodDeclaration = methodAsString;
+                        }
+                        else
+                        {
+                            methodDeclaration = x.ToString().Substring(0, index);
                         }
 
-                        return x.ToString().Substring(0, index);
+                        Methods.Add((x, methodDeclaration.GetHashCode()));
+                        return methodDeclaration;
                     }) ?? Array.Empty<string>());
             cancellationToken.ThrowIfCancellationRequested();
             CachedHashCode = GetHashCode(attributesDeclaration, className, methodDeclarations);

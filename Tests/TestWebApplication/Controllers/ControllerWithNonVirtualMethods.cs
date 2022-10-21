@@ -5,7 +5,7 @@ using WeirdNamespace;
 namespace TestWebApplication.Controllers
 {
     [Route("[controller]")]
-    [GenerateCallerForTesting]
+    [GenerateCaller]
     public class ControllerWithNonVirtualMethods : ControllerBase
     {
         [HttpGet("ReturnTypeInNestedClass")]

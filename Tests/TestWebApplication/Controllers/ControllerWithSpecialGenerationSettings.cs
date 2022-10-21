@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
 
-[GenerateCallerForTesting(UseHttpResponseMessageAsReturnType = true)]
+[GenerateCaller(UseHttpResponseMessageAsReturnType = true)]
 [TransformParameterInCaller(fromType: typeof(TestController.ComplexArgument), toType: typeof(void))]
 [TransformParameterInCaller(fromType: typeof(ILogger), toType: typeof(void))]
 [TransformParameterInCaller(fromType: typeof(float), toType: typeof(string), Optional = true, GeneratedParameterName = "renamed")]
+[AddParameterToCaller(typeof(int?), "addedParameter", Optional = false)]
+[AddParameterToCaller(typeof(string), "addedOptionalParameter", Optional = true)]
+[AddParameterToCaller(typeof(Task<string>), "addedGenericOptionalParameter", Optional = true)]
+[AddParameterToCaller(typeof(object), "renamed", Optional = true)]
 public class ControllerWithSpecialGenerationSettings : ControllerBase
 {
     public const int DefaultValue = 1;

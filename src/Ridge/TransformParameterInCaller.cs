@@ -2,10 +2,6 @@
 
 namespace Ridge;
 
-//TODO adding new parameters
-// TODO optimalizace
-
-
 /// <summary>
 ///     Transforms types of parameters in actions from one type to another.
 ///     If you want to remove parameter from action use typeof(void).

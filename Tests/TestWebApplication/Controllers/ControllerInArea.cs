@@ -6,7 +6,7 @@ namespace TestWebApplication.Controllers
 {
     [Area("Area")]
     [Route("[controller]")]
-    [GenerateCallerForTesting]
+    [GenerateCaller]
     public class ControllerInArea : ControllerBase
     {
         [HttpGet("index")]

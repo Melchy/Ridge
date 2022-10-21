@@ -16,8 +16,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace TestNamespace.Controller;
-[Ridge.GenerateCallerForTesting()]
+[Ridge.AddParameterToCaller(typeof(int?), ""addedParameterOptional"", Optional = true)]
+[Ridge.AddParameterToCaller(typeof(int), ""addedParameter"", Optional = false)]
 [Ridge.TransformParameterInCaller(fromType: typeof(int), toType: typeof(string), GeneratedParameterName = ""renamed"")]
+[Ridge.GenerateCaller()]
 public class Test
 {
     public Test(){}
@@ -32,7 +34,6 @@ public class Test
     public ActionResult<int> Foo8(){return 1;}
     public void Foo9(){}
     public void Foo20(params int[] b){ var a = 1;}
-    public void Foo20(FooEnum b = FooEnum.a){ var a = b;}
 }
 public class Foo<Ttype>
     {
@@ -71,7 +72,7 @@ public static class TestHelper
         List<PortableExecutableReference> references = new List<PortableExecutableReference>()
         {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(GenerateTestClassForThisControllerAttribute).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(GenerateCaller).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(ActionResult).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(IActionResult).Assembly.Location),
         };

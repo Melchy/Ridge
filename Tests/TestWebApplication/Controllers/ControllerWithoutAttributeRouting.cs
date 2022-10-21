@@ -4,12 +4,18 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers
 {
-    [GenerateCallerForTesting]
+    [GenerateCaller]
     public class ControllerWithoutAttributeRouting : ControllerBase
     {
         public virtual async Task<ActionResult> HttpGetWithoutBody()
         {
             return await Task.FromResult(Ok());
+        }
+
+        public virtual async Task<ActionResult> Test(
+            object obje)
+        {
+            return Ok();
         }
     }
 }

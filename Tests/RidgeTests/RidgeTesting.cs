@@ -464,7 +464,7 @@ namespace RidgeTests
         public async Task CallsWithHttpResponseMessagesAreSupported()
         {
             using var application = CreateApplication();
-            var response = await application.ControllerWithSpecialGenerationSettingsCaller.Call_SimpleGet();
+            var response = await application.ControllerWithSpecialGenerationSettingsCaller.Call_SimpleGet(1);
             var result = await response.Content.ReadAsStringAsync();
             result.Should().Be("return");
         }
@@ -482,7 +482,7 @@ namespace RidgeTests
         public async Task CallsWithTypeTransformation()
         {
             using var application = CreateApplication();
-            var task = application.ControllerWithSpecialGenerationSettingsCaller.Call_TypeTransformation("transformed");
+            var task = application.ControllerWithSpecialGenerationSettingsCaller.Call_TypeTransformation(1, "transformed");
         }
 
         [Test]
@@ -495,7 +495,8 @@ namespace RidgeTests
                     new[]
                     {
                         "test",
-                    });
+                    },
+                    1);
         }
 
         public static Application CreateApplication()

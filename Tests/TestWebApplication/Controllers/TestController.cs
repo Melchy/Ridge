@@ -10,7 +10,7 @@ using TestWebApplication.Controllers.Examples;
 
 namespace TestWebApplication.Controllers
 {
-    [GenerateCallerForTesting]
+    [GenerateCaller]
     [Route("[controller]")]
     public class TestController : ControllerBase
     {
