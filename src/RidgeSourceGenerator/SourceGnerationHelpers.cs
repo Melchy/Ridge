@@ -49,7 +49,7 @@ using System.Threading.Tasks;
         
         sb.Append(@"
 /// <summary>
-/// Class generated using source generator to make strongly typed calls in tests.
+/// Strongly typed api client for tests.
 /// </summary>
 public class ");
         sb.Append(className);
