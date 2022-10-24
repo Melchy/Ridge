@@ -41,4 +41,15 @@
     <ItemGroup>
         <None Include="..\..\ridge.png" Pack="true" PackagePath=""/>
     </ItemGroup>
+    <ItemGroup>
+        <None Include="$(OutputPath)\RidgeSourceGenerator.dll" Pack="true"
+              PackagePath="analyzers/dotnet/cs" Visible="false"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\RidgeSourceGenerator\RidgeSourceGenerator.csproj">
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <IncludeAssets>RidgeSourceGenerator.dll</IncludeAssets>
+        </ProjectReference>
+    </ItemGroup>
 </Project>
+
