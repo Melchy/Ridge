@@ -1,15 +1,15 @@
+using ApplicationWithDefaultSerialization;
+using ApplicationWithDefaultSerialization.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
 using Ridge.LogWriter;
 using System;
 using System.Threading.Tasks;
-using TestWebAplication2;
-using TestWebAplication2.Controllers;
 
-namespace Application2Tests
+namespace RidgeTests
 {
-    public class Tests
+    public class TestApplicationWithDefaultSerialization
     {
         [Test]
         public async Task ArgumentsWithoutAttributesAreSupported()

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
-namespace TestWebAplication2
+namespace ApplicationWithDefaultSerialization
 {
     public class Startup
     {
@@ -24,7 +24,7 @@ namespace TestWebAplication2
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "TestWebAplication2", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "ApplicationWithDefaultSerialization", Version = "v1"});
             });
         }
 
@@ -37,7 +37,7 @@ namespace TestWebAplication2
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestWebAplication2 v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApplicationWithDefaultSerialization v1"));
             }
 
             app.UseHttpsRedirection();

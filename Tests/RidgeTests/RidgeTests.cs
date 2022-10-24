@@ -21,7 +21,7 @@ using TestWebApplication.Controllers.Examples;
 
 namespace RidgeTests
 {
-    public class RidgeTesting
+    public class RidgeTests
     {
         [Test]
         public async Task SyncCallWithoutResult()
@@ -44,8 +44,8 @@ namespace RidgeTests
         public async Task SyncCallThrowingNotWrappedException()
         {
             using var application = CreateApplication();
-            Func<Task> result = async () => await application.TestControllerCaller.Call_SyncThrow();
-            result.Should().Throw<InvalidOperationException>().WithMessage("Error");
+            var result = async () => await application.TestControllerCaller.Call_SyncThrow();
+            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage("Error");
         }
         
         [Test]
@@ -213,11 +213,11 @@ namespace RidgeTests
 
 
         [Test]
-        public void ArrayOfComplexArgumentsInFromQueryIsNotSupported()
+        public async Task ArrayOfComplexArgumentsInFromQueryIsNotSupported()
         {
             using var application = CreateApplication();
             Func<Task> sutCall = () => application.TestControllerCaller.Call_ArrayOfComplexArgumentsInFromQuery(new List<TestController.ComplexArgument>());
-            sutCall.Should().Throw<InvalidOperationException>().WithMessage("*complex type*");
+            await sutCall.Should().ThrowAsync<InvalidOperationException>().WithMessage("*complex type*");
         }
 
 
@@ -255,15 +255,15 @@ namespace RidgeTests
         {
             using var application = CreateApplication();
             Func<Task> sutCall = () => application.TestControllerCaller.Call_FromRouteFromQuerySameName("asd", "asd");
-            sutCall.Should().Throw<InvalidOperationException>().WithMessage("*FromRoute*").WithMessage("*FromQuery*");
+            await sutCall.Should().ThrowAsync<InvalidOperationException>().WithMessage("*FromRoute*").WithMessage("*FromQuery*");
         }
 
         [Test]
-        public void NullsCanNotBeInFromRouteArgument()
+        public async Task NullsCanNotBeInFromRouteArgument()
         {
             using var application = CreateApplication();
             Func<Task> sutCall = () => application.TestControllerCaller.Call_NullsTest(1, new TestController.ComplexArgument(), DateTime.Now, null);
-            sutCall.Should().Throw<InvalidOperationException>().WithMessage("*route*");
+            await sutCall.Should().ThrowAsync<InvalidOperationException>().WithMessage("*route*");
         }
 
         [Test]
@@ -407,19 +407,19 @@ namespace RidgeTests
         }
 
         [Test]
-        public void ExceptionsAreCorrectlyRethrown()
+        public async Task ExceptionsAreCorrectlyRethrown()
         {
             using var application = CreateApplication();
             Func<Task> sutCall = () => application.TestControllerCaller.Call_MethodThrowingInvalidOperationException();
-            sutCall.Should().Throw<InvalidOperationException>().WithMessage("Correct");
+            await sutCall.Should().ThrowAsync<InvalidOperationException>().WithMessage("Correct");
         }
 
         [Test]
-        public void When500IsReturnedNoExceptionIsThrown()
+        public async Task When500IsReturnedNoExceptionIsThrown()
         {
             using var application = CreateApplication();
             Func<Task> sutCall = () => application.TestControllerCaller.Call_MethodReturning500();
-            sutCall.Should().NotThrow();
+            await sutCall.Should().NotThrowAsync();
         }
 
         [Test]

@@ -36,19 +36,19 @@ namespace Ridge.ExceptionManager
             var callIdHeader = callIdHeaders.FirstOrDefault();
             if (callIdHeader == null || !callIdHeadersExist)
             {
-                throw new InvalidOperationException("RidgeCallId not found in header. Did you setup caller correctly?");
+                throw new InvalidOperationException("RidgeCallId not found in header. This header is used to save exceptions and was deleted.");
             }
 
             Data[callIdHeader] = exception;
         }
 
-        public static Exception? GetData(
+        public static Exception? GetException(
             string callId)
         {
             var callDataFound = Data.TryGetValue(callId, out var data);
             if (!callDataFound)
             {
-                throw new InvalidOperationException("RidgeCallId not found in dictionary. Did you setup caller correctly?");
+                throw new InvalidOperationException("RidgeCallId not found in header. This header is used to save exceptions and was deleted.");
             }
 
             return data;

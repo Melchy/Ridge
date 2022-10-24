@@ -2,7 +2,7 @@
 using Ridge;
 using System.Threading.Tasks;
 
-namespace TestWebAplication2.Controllers
+namespace ApplicationWithDefaultSerialization.Controllers
 {
     [ApiController]
     [Route("[controller]")]
