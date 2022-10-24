@@ -4,7 +4,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <!--    Hide deprecated .net version warning    -->
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
-        <TargetFrameworks>netstandard2.0;net6</TargetFrameworks>
+        <TargetFramework>net6</TargetFramework>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>

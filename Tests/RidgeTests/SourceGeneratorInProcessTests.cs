@@ -1,8 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
 using Ridge;
 using RidgeSourceGenerator;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using VerifyNUnit;
+using VerifyTests;
 
 namespace RidgeSourceGeneratorTest;
 

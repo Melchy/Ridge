@@ -47,7 +47,7 @@ internal class HttpResponseCallFactory : IHttpResponseCallFactory
     private static void CheckIfExceptionOccuredAndThrowIfItDid(
         string callId)
     {
-        Exception? exceptionWhichOccuredInApplication = ExceptionManager.ExceptionManager.GetData(callId);
+        Exception? exceptionWhichOccuredInApplication = ExceptionManager.ExceptionManager.GetException(callId);
         if (exceptionWhichOccuredInApplication != null)
         {
             ExceptionDispatchInfo.Capture(exceptionWhichOccuredInApplication).Throw();

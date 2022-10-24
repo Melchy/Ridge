@@ -15,12 +15,12 @@ namespace Ridge.Setup
         ///     Adds middleware which saves exceptions when application is called from test using ridge.
         ///     This middleware allows ridge to rethrow exceptions instead of returning 5xx code.
         /// </summary>
-        /// <param name="pageConventionCollection"></param>
+        /// <param name="applicationBuilder"></param>
         /// <returns></returns>
         public static IApplicationBuilder UseRidgeImprovedExceptions(
-            this IApplicationBuilder pageConventionCollection)
+            this IApplicationBuilder applicationBuilder)
         {
-            return pageConventionCollection.UseMiddleware<ExceptionSavingMiddleware>();
+            return applicationBuilder.UseMiddleware<ExceptionSavingMiddleware>();
         }
     }
 }

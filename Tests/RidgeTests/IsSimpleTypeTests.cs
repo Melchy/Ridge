@@ -56,12 +56,9 @@ namespace RidgeTests
             Assert.IsTrue(GeneralHelpers.IsSimpleType(typeof(DateTime?)));
             Assert.IsTrue(GeneralHelpers.IsSimpleType(typeof(DateTimeOffset?)));
             Assert.IsTrue(GeneralHelpers.IsSimpleType(typeof(TimeSpan?)));
-
-#if NET6_0_OR_GREATER
+            
             Assert.IsTrue(GeneralHelpers.IsSimpleType(typeof(DateOnly?)));
             Assert.IsTrue(GeneralHelpers.IsSimpleType(typeof(TimeOnly?)));
-#endif
-
 
             Assert.IsFalse(GeneralHelpers.IsSimpleType(typeof(TestStruct?)));
         }

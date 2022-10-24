@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace TestWebAplication2
+namespace ApplicationWithDefaultSerialization
 {
     public class Program
     {
