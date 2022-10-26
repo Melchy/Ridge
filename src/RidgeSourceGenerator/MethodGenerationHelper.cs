@@ -77,9 +77,6 @@ public static class MethodGenerationHelper
         sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
         sb.Append(".");
         sb.Append(publicMethod.Name);
-        sb.Append("(");
-        sb.Append(string.Join(",", publicMethod.Parameters.Select(x => x.Type.ToDisplayString())));
-        sb.Append(")");
         sb.AppendLine(@""" />.
     /// </summary>");
         sb.Append(@"    public async ");
