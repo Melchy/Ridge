@@ -77,6 +77,9 @@ public static class MethodGenerationHelper
         sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
         sb.Append(".");
         sb.Append(publicMethod.Name);
+        sb.Append("(");
+        sb.Append(string.Join(",", publicMethod.Parameters.Select(x => x.Type.ToDisplayString())));
+        sb.Append(")");
         sb.AppendLine(@""" />.
     /// </summary>");
         sb.Append(@"    public async ");
@@ -306,8 +309,8 @@ public static class MethodGenerationHelper
             }
             else
             {
-                builderToUseForCurrentParameter.Append(publicMethodParameter.Name);
-                resultName = publicMethodParameter.Name;
+                resultName = $"@{publicMethodParameter.Name}";
+                builderToUseForCurrentParameter.Append(resultName);
             }
 
             if (result.Optional)
@@ -329,10 +332,10 @@ public static class MethodGenerationHelper
             builderToUseForCurrentParameter.Append(@"
             ");
 
-            resultName = publicMethodParameter.Name;
+            resultName = $"@{publicMethodParameter.Name}";
             builderToUseForCurrentParameter.Append(publicMethodParameter.Type);
             builderToUseForCurrentParameter.Append(" ");
-            builderToUseForCurrentParameter.Append(publicMethodParameter.Name);
+            builderToUseForCurrentParameter.Append(resultName);
 
             if (publicMethodParameter.HasExplicitDefaultValue)
             {

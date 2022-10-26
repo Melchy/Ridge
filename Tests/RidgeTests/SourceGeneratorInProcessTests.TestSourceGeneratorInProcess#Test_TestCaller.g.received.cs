@@ -16,6 +16,7 @@ using Ridge.Pipeline.Public;
 using Ridge.Serialization;
 using Ridge.Transformers;
 using Ridge.Response;
+using Ridge.ActionInfo;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -108,8 +109,8 @@ public class TestCaller
     ///     Calls <see cref="TestNamespace.Controller.Test.Foo" />.
     /// </summary>
     public async Task<HttpCallResponse<string>> Call_Foo(
-            System.Threading.Tasks.Task<string> a,
-            bool b,
+            System.Threading.Tasks.Task<string> @a,
+            bool @b,
             int addedParameter,
 
             int? addedParameterOptional = default,
@@ -123,8 +124,8 @@ public class TestCaller
         var controllerType = typeof(TestNamespace.Controller.Test);
         var arguments = new List<object?>()
         {
-            a,
-            b,
+            @a,
+            @b,
         };
 
         var requestBuilder = _requestBuilder.CreateNewBuilderByCopyingExisting();
@@ -551,7 +552,7 @@ public class TestCaller
     ///     Calls <see cref="TestNamespace.Controller.Test.Foo20" />.
     /// </summary>
     public async Task<HttpCallResponse> Call_Foo20(
-            int[] b,
+            int[] @b,
             int addedParameter,
 
             int? addedParameterOptional = default,
@@ -565,7 +566,7 @@ public class TestCaller
         var controllerType = typeof(TestNamespace.Controller.Test);
         var arguments = new List<object?>()
         {
-            b,
+            @b,
         };
 
         var requestBuilder = _requestBuilder.CreateNewBuilderByCopyingExisting();
@@ -582,6 +583,52 @@ public class TestCaller
         var methodInfo = controllerType.GetMethod(methodName, new Type[] {
 
         typeof(int[]),
+        });
+
+        if (methodInfo == null)
+        {
+            throw new InvalidOperationException($"Method with name {methodName} not found in class {controllerType.FullName}.");
+        }
+    
+        return await caller.CallAction(arguments, methodInfo);
+    }
+
+
+    /// <summary>
+    ///     Calls <see cref="TestNamespace.Controller.Test.EventFpp" />.
+    /// </summary>
+    public async Task<HttpCallResponse> Call_EventFpp(
+            string @event,
+            int addedParameter,
+
+            int? addedParameterOptional = default,
+        IEnumerable<(string Key, string? Value)>? headers = null,
+            AuthenticationHeaderValue? authenticationHeaderValue = null,
+            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
+        )
+    {
+        var methodName = nameof(TestNamespace.Controller.Test.EventFpp);
+        var controllerType = typeof(TestNamespace.Controller.Test);
+        var arguments = new List<object?>()
+        {
+            @event,
+        };
+
+        var requestBuilder = _requestBuilder.CreateNewBuilderByCopyingExisting();
+        requestBuilder.AddHeaders(headers);
+        requestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
+        requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
+        requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
+        var caller = new ActionCaller(requestBuilder,
+            _logWriter,
+            _httpClient,
+            _serviceProvider,
+            _ridgeSerializer);
+
+        var methodInfo = controllerType.GetMethod(methodName, new Type[] {
+
+        typeof(string),
         });
 
         if (methodInfo == null)

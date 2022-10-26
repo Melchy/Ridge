@@ -30,6 +30,13 @@ namespace TestWebApplication.Controllers
             return Ok(foo);
         }
 
+        [HttpGet("ActionWithEventParamter")]
+        public void ActionWithEventParamter(
+            string @event)
+        {
+        }
+        
+
         [HttpPost("PostWithoutBody")]
         public virtual async Task<ActionResult> HttpPostWithoutBody()
         {

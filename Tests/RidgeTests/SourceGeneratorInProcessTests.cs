@@ -41,6 +41,7 @@ public class Test
     public ActionResult<int> Foo8(){return 1;}
     public void Foo9(){}
     public void Foo20(params int[] b){ var a = 1;}
+    public void EventFoo(string @event){}
 }
 public class Foo<Ttype>
     {
