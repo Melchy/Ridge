@@ -25,6 +25,7 @@ public static class SourceGenerationHelper
         sb.Append(Header);
         sb.Append(@"
 #nullable enable
+#pragma warning disable CS0419
 
 using Ridge.Caller;
 using Ridge.LogWriter;
@@ -145,6 +146,7 @@ public class ");
         }
 
         cancellationToken.ThrowIfCancellationRequested();
+        sb.AppendLine("#pragma warning restore CS0419");
         return sb.ToString();
     }
 }
