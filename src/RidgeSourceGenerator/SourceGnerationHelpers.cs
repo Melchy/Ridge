@@ -32,6 +32,7 @@ using Ridge.Pipeline.Public;
 using Ridge.Serialization;
 using Ridge.Transformers;
 using Ridge.Response;
+using Ridge.ActionInfo;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
