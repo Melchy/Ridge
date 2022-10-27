@@ -32,7 +32,7 @@ public class ControllerWithSpecialGenerationSettings : ControllerBase
     {
         return "return";
     }
-
+    
     [HttpGet]
     public async Task<ActionResult<int?>> ActionWithOptionalParameter(
         string test2,
