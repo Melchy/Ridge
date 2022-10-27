@@ -1,6 +1,6 @@
 ﻿using Ridge.ActionInfo;
 using Ridge.Interceptor;
-using Ridge.Pipeline;
+using Ridge.LogWriter;
 using Ridge.Pipeline.Public;
 using Ridge.Response;
 using Ridge.Serialization;
@@ -20,13 +20,6 @@ namespace Ridge.Caller;
 /// </summary>
 public class ActionCaller
 {
-    private readonly WebCaller _webCaller = null!;
-    private readonly ActionInfoProvider _actionInfoProvider = null!;
-    private readonly IHttpResponseCallFactory _httpResponseCallFactory = null!;
-    private readonly ActionInfoTransformersCaller _actionInfoTransformersCaller = null!;
-    private readonly IRequestResponseSerializer _serializer = null!;
-
-    
     /// <summary>
     /// Create <see cref="ActionCaller" />.
     /// </summary>
@@ -68,7 +61,9 @@ public class ActionCaller
             authenticationHeaderValue,
             actionInfoTransformers,
             httpRequestPipelineParts);
-        return await _httpResponseCallFactory.CreateControllerCallResult<TReturn>(result, callId.ToString());
+        var serializer = SerializerProvider.GetSerializer(controllerCaller.ServiceProvider, controllerCaller.RidgeSerializer);
+        var httpResponseCallFactory = new HttpResponseCallFactory(serializer);
+        return await httpResponseCallFactory.CreateControllerCallResult<TReturn>(result, callId.ToString());
     }
     
     /// <summary>
@@ -104,7 +99,9 @@ public class ActionCaller
             authenticationHeaderValue,
             actionInfoTransformers,
             httpRequestPipelineParts);
-        return await _httpResponseCallFactory.CreateControllerCallResult(result, callId.ToString());
+        var serializer = SerializerProvider.GetSerializer(controllerCaller.ServiceProvider, controllerCaller.RidgeSerializer);
+        var httpResponseCallFactory = new HttpResponseCallFactory(serializer);
+        return await httpResponseCallFactory.CreateControllerCallResult(result, callId.ToString());
     }
     
     
@@ -168,7 +165,11 @@ public class ActionCaller
             throw new InvalidOperationException($"Method with name {methodName} not found in class {controllerType.FullName}.");
         }
 
-        var (url, actionInfo) = await _actionInfoProvider.GetInfo(arguments.ToList(), methodInfo, _actionInfoTransformersCaller);
+        var serializer = SerializerProvider.GetSerializer(controllerCaller.ServiceProvider, controllerCaller.RidgeSerializer);
+        var webCaller = requestBuilder.BuildWebCaller(controllerCaller.HttpClient, controllerCaller.LogWriter ?? new NullLogWriter());
+        var actionInfoProvider = new ActionInfoProvider(controllerCaller.ServiceProvider);
+
+        var (url, actionInfo) = await actionInfoProvider.GetInfo(arguments.ToList(), methodInfo, requestBuilder.BuildActionInfoTransformerCaller());
         using var request = HttpRequestProvider.Create(
             actionInfo.HttpMethod,
             url,
@@ -176,10 +177,10 @@ public class ActionCaller
             callId,
             actionInfo.BodyFormat,
             actionInfo.Headers,
-            _serializer);
+            serializer);
         ExceptionManager.ExceptionManager.InsertEmptyDataToIndicateTestCall(callId);
 
-        var result = await _webCaller.Call(request, actionInfo, new MethodInvocationInfo(arguments, methodInfo));
+        var result = await webCaller.Call(request, actionInfo, new MethodInvocationInfo(arguments, methodInfo));
         return result;
     }
 }
