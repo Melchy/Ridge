@@ -143,6 +143,8 @@ public partial class ");
             sb.AppendLine("}");
         }
 
+        sb.Append("#nullable restore");
+
         cancellationToken.ThrowIfCancellationRequested();
         return sb.ToString();
     }

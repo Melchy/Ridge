@@ -78,6 +78,7 @@ public partial class ");
 
         cancellationToken.ThrowIfCancellationRequested();
         sb.AppendLine("#pragma warning restore CS0419");
+        sb.Append("#nullable restore");
         return sb.ToString();
     }
 }
