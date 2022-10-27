@@ -366,3 +366,4 @@ IEnumerable<(string Key, string? Value)>? headers = null,
 }
 }
 #pragma warning restore CS0419
+#nullable restore
