@@ -6,6 +6,9 @@ using System.Text;
 
 namespace RidgeSourceGenerator;
 
+
+
+
 [Generator]
 public class ControllerGenerator : IIncrementalGenerator
 {
@@ -42,7 +45,17 @@ public class ControllerGenerator : IIncrementalGenerator
 
         var controllersWithMethods = controllerDeclarations.Combine(methodsToGenerate);
 
+        IncrementalValuesProvider<(string? Name, string? Namespace)>
+            controllerNamesAndNamespaces = controllerDeclarations.Select((
+                x,
+                ctx) => (x?.Name, x?.Namespace));
 
+        context.RegisterSourceOutput(controllerNamesAndNamespaces,
+            static (
+                spc,
+                source) => GenerateClass(source,
+                spc));
+        
         context.RegisterSourceOutput(controllersWithMethods,
             static (
                 spc,
@@ -90,6 +103,24 @@ public class ControllerGenerator : IIncrementalGenerator
         return (AttributeSyntax)context.Node;
     }
 
+    private static void GenerateClass(
+        (string? Name, string? Namespace) controllerNameAndNamespace,
+        SourceProductionContext context)
+    {
+        if (controllerNameAndNamespace.Name == null)
+        {
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        var result = GeneralMethodsGenerationHelper.GenerateExtensionClass(sb,
+            controllerNameAndNamespace.Name,
+            controllerNameAndNamespace.Namespace,
+            context.CancellationToken);
+        context.AddSource(controllerNameAndNamespace.Name + "_Caller_GeneralMethods.g.cs", SourceText.From(result, Encoding.UTF8));
+    }
+    
+    
     private static void Execute(
         (ControllerToGenerate? ControllerToGenerate, ImmutableArray<MethodToGenerate> MethodsToGenerate) controllerAndMethods,
         SourceProductionContext context)
@@ -104,11 +135,11 @@ public class ControllerGenerator : IIncrementalGenerator
         
         
         StringBuilder sb = new StringBuilder();
-        var result = SourceGenerationHelper.GenerateExtensionClass(sb,
+        var result = ControllerGenerationHelper.GenerateExtensionClass(sb,
             controllerAndMethods.ControllerToGenerate,
             generatedMethods!,
             context.CancellationToken);
-        context.AddSource(controllerAndMethods.ControllerToGenerate.Name + "_TestCaller.g.cs", SourceText.From(result, Encoding.UTF8));
+        context.AddSource(controllerAndMethods.ControllerToGenerate.Name + "_Caller.g.cs", SourceText.From(result, Encoding.UTF8));
     }
 
 
@@ -203,109 +234,5 @@ public class ControllerGenerator : IIncrementalGenerator
             typeTransformerAttributes: typeTransformerAttributes,
             addParameterAttributes: addParameterAttributes,
             cachedHashCode: methodClassAndAttributeSyntax.CachedHashCode);
-    }
-
-    public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeSyntax>
-    {
-        public SemanticModel SemanticModel;
-        public ClassDeclarationSyntax? ClassDeclarationSyntax { get; set; }
-        public List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclarationHash)> Methods { get; set; } = new List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclaration)>();
-        public readonly int CachedHashCode;
-
-        public MethodClassAndAttributeSyntax(
-            AttributeSyntax attributeSyntax,
-            SemanticModel semanticModel,
-            CancellationToken cancellationToken)
-        {
-            SemanticModel = semanticModel;
-            ClassDeclarationSyntax = (ClassDeclarationSyntax?)attributeSyntax.Parent?.Parent;
-            if (ClassDeclarationSyntax == null)
-            {
-                return;
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            var attributesDeclaration = ClassDeclarationSyntax.AttributeLists.ToString();
-            var className = ClassDeclarationSyntax.Identifier.ToString();
-            var methodDeclarations = string.Join(";",
-                ClassDeclarationSyntax?.DescendantNodes()
-                   .OfType<MethodDeclarationSyntax>()
-                   .Select(x =>
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        string methodDeclaration;
-                        var methodAsString = x.ToString();
-                        var index = methodAsString.IndexOf("{");
-                        if (index == -1)
-                        {
-                            methodDeclaration = methodAsString;
-                        }
-                        else
-                        {
-                            methodDeclaration = x.ToString().Substring(0, index);
-                        }
-
-                        Methods.Add((x, methodDeclaration.GetHashCode()));
-                        return methodDeclaration;
-                    }) ?? Array.Empty<string>());
-            cancellationToken.ThrowIfCancellationRequested();
-            CachedHashCode = GetHashCode(attributesDeclaration, className, methodDeclarations);
-        }
-
-        public bool Equals(
-            MethodClassAndAttributeSyntax? other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return CachedHashCode == other.CachedHashCode;
-        }
-
-        public override bool Equals(
-            object? obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-
-            return Equals((MethodClassAndAttributeSyntax)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return CachedHashCode;
-        }
-
-        private int GetHashCode(
-            string attributesDeclaration,
-            string className,
-            string methodDeclarations)
-        {
-            unchecked
-            {
-                var hashCode = 397 ^ attributesDeclaration.GetHashCode();
-                hashCode = (hashCode * 397) ^ className.GetHashCode();
-                hashCode = (hashCode * 397) ^ methodDeclarations.GetHashCode();
-                return hashCode;
-            }
-        }
     }
 }

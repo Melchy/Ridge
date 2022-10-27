@@ -1,35 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 
 namespace RidgeSourceGenerator;
-
-public class ParameterNamePostfixTransformer
-{
-    private readonly Dictionary<string, int> _namesBuffer = new();
-
-    public ParameterNamePostfixTransformer(
-        IEnumerable<string> methodParameters)
-    {
-        foreach (var methodParameter in methodParameters)
-        {
-            _namesBuffer.Add(methodParameter, 0);
-        }
-    }
-
-    public string TransformName(
-        string name)
-    {
-        _namesBuffer.TryGetValue(name, out var numberOfUses);
-        _namesBuffer[name] = (numberOfUses + 1);
-        if (numberOfUses == 0)
-        {
-            return name;
-        }
-
-        return $"{name}{numberOfUses}";
-    }
-}
 
 public static class MethodGenerationHelper
 {
@@ -38,49 +10,163 @@ public static class MethodGenerationHelper
         CancellationToken cancellationToken)
     {
         StringBuilder sb = new StringBuilder();
-        ParameterNamePostfixTransformer parameterNamePostfixTransformer = null!;
 
-        // Small optimization. If there are no user parameterNames then we wont use ParameterNamePostfixTransformer 
-        if (methodToGenerate.ParameterTransformations.Count() + methodToGenerate.ParametersToAdd.Length > 0)
-        {
-            parameterNamePostfixTransformer = new ParameterNamePostfixTransformer(methodToGenerate.PublicMethod.Parameters.Select(x => x.Name));
-        }
 
         var publicMethod = methodToGenerate.PublicMethod;
-        cancellationToken.ThrowIfCancellationRequested();
-
         if (publicMethod.IsGenericMethod)
         {
             return "";
         }
 
-        var syntax = ((MethodDeclarationSyntax?)publicMethod
-           .DeclaringSyntaxReferences.FirstOrDefault()
-          ?.GetSyntax());
-
-        // action must be explicitly defined
-        if (syntax == null)
-        {
-            return "";
-        }
-
-        string? returnType = publicMethod.ReturnType.Name;
-
         if (publicMethod.ReturnType is not INamedTypeSymbol fullReturnType)
         {
             return "";
         }
+        
+        ParameterNamePostfixTransformer parameterNamePostfixTransformer = null!;
+        // Small optimization. If there are no user parameterNames then we wont use ParameterNamePostfixTransformer 
+        if (methodToGenerate.ParameterTransformations.Count() + methodToGenerate.ParametersToAdd.Length > 0)
+        {
+            parameterNamePostfixTransformer = new ParameterNamePostfixTransformer(methodToGenerate.PublicMethod.Parameters.Select(x => x.Name));
+        }
+        
+        cancellationToken.ThrowIfCancellationRequested();
+        string? returnType = publicMethod.ReturnType.Name;
 
-        sb.Append(@"
-    /// <summary>
-    ///     Calls <see cref=""");
+        GenerateMethodComment(methodToGenerate, sb, publicMethod);
+        sb.Append(@"    public async ");
+
+        returnType = AddReturnType(methodToGenerate, sb, returnType, fullReturnType);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        sb.Append(" ");
+        sb.Append("Call_");
+        sb.Append(publicMethod.Name);
+        sb.Append("(");
+
+        var stringBuilderForOptionalParameters = new StringBuilder();
+        var nonRemovedArgumentNames = AddUserParameters(methodToGenerate, cancellationToken, publicMethod, sb, parameterNamePostfixTransformer, stringBuilderForOptionalParameters);
+        sb.Append(stringBuilderForOptionalParameters);
+        AddRidgeParameters(sb);
+
+        cancellationToken.ThrowIfCancellationRequested();
+        
+        sb.AppendLine(@"    {");
+        AddMethodBody(methodToGenerate, cancellationToken, sb, publicMethod, nonRemovedArgumentNames, returnType);
+        sb.AppendLine(@"    }");
+        sb.AppendLine();
+
+        return sb.ToString();
+    }
+
+    private static void AddMethodBody(
+        MethodToGenerate methodToGenerate,
+        CancellationToken cancellationToken,
+        StringBuilder sb,
+        IMethodSymbol publicMethod,
+        List<string> nonRemovedArgumentNames,
+        string? returnType)
+    {
+        sb.Append(@"        var methodName = ");
+        sb.Append("nameof(");
         sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
         sb.Append(".");
         sb.Append(publicMethod.Name);
-        sb.AppendLine(@""" />.
-    /// </summary>");
-        sb.Append(@"    public async ");
+        sb.AppendLine(");");
 
+        sb.AppendLine(@"        var arguments = new List<object?>()");
+        sb.AppendLine(@"        {");
+        foreach (var parameterName in nonRemovedArgumentNames)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            sb.Append(@"            ");
+            sb.Append(parameterName);
+            sb.AppendLine(",");
+        }
+
+        sb.AppendLine(@"        };");
+
+
+        sb.Append(@"
+        var actionParameters = new Type[] {");
+        foreach (var publicMethodParameter in publicMethod.Parameters)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            sb.Append(@"
+        ");
+            sb.Append("typeof(");
+            sb.Append(publicMethodParameter.Type.ToDisplayString(NullableFlowState.None));
+            sb.Append("),");
+        }
+
+        sb.AppendLine(@"
+        };");
+
+        sb.AppendLine(@"
+        var caller = new ActionCaller();");
+        if (methodToGenerate.UseHttpResponseMessageAsReturnType)
+        {
+            sb.Append(@"        return await caller.CallActionWithHttpResponseMessageResult<");
+        }
+        else
+        {
+            if (returnType == null)
+            {
+                sb.Append(@"        return await caller.CallAction<");
+            }
+            else
+            {
+                sb.Append(@"        return await caller.CallAction<");
+                sb.Append(returnType);
+                sb.Append(",");
+            }
+        }
+
+        sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
+        sb.AppendLine(">(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);");
+    }
+
+    private static void AddRidgeParameters(
+        StringBuilder sb)
+    {
+        sb.AppendLine(@"IEnumerable<(string Key, string? Value)>? headers = null,
+            AuthenticationHeaderValue? authenticationHeaderValue = null,
+            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
+        )");
+    }
+
+    private static List<string> AddUserParameters(
+        MethodToGenerate methodToGenerate,
+        CancellationToken cancellationToken,
+        IMethodSymbol publicMethod,
+        StringBuilder sb,
+        ParameterNamePostfixTransformer parameterNamePostfixTransformer,
+        StringBuilder stringBuilderForOptionalParameters)
+    {
+        var nonRemovedArgumentNames = new List<string>();
+
+        foreach (var publicMethodParameter in publicMethod.Parameters)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ProcessParameter(sb, stringBuilderForOptionalParameters, methodToGenerate, publicMethodParameter, nonRemovedArgumentNames, parameterNamePostfixTransformer);
+        }
+
+        foreach (var addParameter in methodToGenerate.ParametersToAdd)
+        {
+            ProcessParameterAddedByUser(sb, stringBuilderForOptionalParameters, addParameter, parameterNamePostfixTransformer);
+        }
+
+        return nonRemovedArgumentNames;
+    }
+
+    private static string? AddReturnType(
+        MethodToGenerate methodToGenerate,
+        StringBuilder sb,
+        string? returnType,
+        INamedTypeSymbol fullReturnType)
+    {
         if (methodToGenerate.UseHttpResponseMessageAsReturnType)
         {
             sb.Append("Task<HttpResponseMessage>");
@@ -99,116 +185,22 @@ public static class MethodGenerationHelper
             }
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
+        return returnType;
+    }
 
-        sb.Append(" ");
-        sb.Append("Call_");
-        sb.Append(publicMethod.Name);
-        sb.Append("(");
-
-        var nonRemovedArgumentNames = new List<string>();
-
-        var stringBuilderForOptionalParameters = new StringBuilder();
-        foreach (var publicMethodParameter in publicMethod.Parameters)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ProcessParameter(sb, stringBuilderForOptionalParameters, methodToGenerate, publicMethodParameter, nonRemovedArgumentNames, parameterNamePostfixTransformer);
-        }
-
-        foreach (var addParameter in methodToGenerate.ParametersToAdd)
-        {
-            ProcessParameterAddedByUser(sb, stringBuilderForOptionalParameters, addParameter, parameterNamePostfixTransformer);
-        }
-
-        sb.Append(stringBuilderForOptionalParameters);
-
-        sb.AppendLine(@"        IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )");
-
-        sb.AppendLine(@"    {");
-        sb.Append(@"        var methodName = ");
-        sb.Append("nameof(");
+    private static void GenerateMethodComment(
+        MethodToGenerate methodToGenerate,
+        StringBuilder sb,
+        IMethodSymbol publicMethod)
+    {
+        sb.Append(@"
+    /// <summary>
+    ///     Calls <see cref=""");
         sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
         sb.Append(".");
         sb.Append(publicMethod.Name);
-        sb.AppendLine(");");
-
-        sb.Append(@"        var controllerType = typeof(");
-        sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
-        sb.AppendLine(");");
-
-        sb.AppendLine(@"        var arguments = new List<object?>()");
-        sb.AppendLine(@"        {");
-        foreach (var parameterName in nonRemovedArgumentNames)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            sb.Append(@"            ");
-            sb.Append(parameterName);
-            sb.AppendLine(",");
-        }
-
-        sb.AppendLine(@"        };");
-
-
-        sb.AppendLine(@"
-        var requestBuilder = _requestBuilder.CreateNewBuilderByCopyingExisting();
-        requestBuilder.AddHeaders(headers);
-        requestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
-        requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
-        requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
-        var caller = new ActionCaller(requestBuilder,
-            _logWriter,
-            _httpClient,
-            _serviceProvider,
-            _ridgeSerializer);");
-
-
-        sb.AppendLine(@"
-        var methodInfo = controllerType.GetMethod(methodName, new Type[] {");
-
-        foreach (var publicMethodParameter in publicMethod.Parameters)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            sb.Append(@"
-        ");
-            sb.Append("typeof(");
-            sb.Append(publicMethodParameter.Type.ToDisplayString(NullableFlowState.None));
-            sb.Append("),");
-        }
-
-        sb.AppendLine(@"
-        });");
-        sb.AppendLine(@"
-        if (methodInfo == null)
-        {
-            throw new InvalidOperationException($""Method with name {methodName} not found in class {controllerType.FullName}."");
-        }
-    ");
-
-        if (methodToGenerate.UseHttpResponseMessageAsReturnType)
-        {
-            sb.AppendLine(@"        return await caller.CallActionWithHttpResponseMessageResult(arguments, methodInfo);");
-        }
-        else
-        {
-            if (returnType == null)
-            {
-                sb.AppendLine(@"        return await caller.CallAction(arguments, methodInfo);");
-            }
-            else
-            {
-                sb.AppendLine($@"        return await caller.CallAction<{returnType}>(arguments, methodInfo);");
-            }
-        }
-
-        sb.AppendLine(@"    }");
-        sb.AppendLine();
-
-
-        return sb.ToString();
+        sb.AppendLine(@""" />.
+    /// </summary>");
     }
 
     private static void ProcessParameterAddedByUser(
@@ -443,127 +435,5 @@ public static class MethodGenerationHelper
         // Generic<XXX>
 
         return returnType.ToString();
-    }
-}
-
-public class MethodToGenerate : IEquatable<MethodToGenerate>
-{
-    public readonly AddParameter[] ParametersToAdd;
-    public readonly IMethodSymbol PublicMethod;
-    public bool UseHttpResponseMessageAsReturnType;
-    public IDictionary<string, ParameterTransformation> ParameterTransformations;
-    public readonly string ContainingControllerFullyQualifiedName;
-    public readonly int MethodHash;
-
-    private readonly Lazy<string> _generatedMethod;
-
-    public MethodToGenerate(
-        IMethodSymbol publicMethod,
-        bool useHttpResponseMessageAsReturnType,
-        IDictionary<string, ParameterTransformation> parameterTransformations,
-        string containingControllerFullyQualifiedName,
-        int methodHash,
-        AddParameter[] parametersToAdd,
-        CancellationToken cancellationToken)
-    {
-        ParametersToAdd = parametersToAdd;
-        PublicMethod = publicMethod;
-        UseHttpResponseMessageAsReturnType = useHttpResponseMessageAsReturnType;
-        ParameterTransformations = parameterTransformations;
-        ContainingControllerFullyQualifiedName = containingControllerFullyQualifiedName;
-        MethodHash = methodHash;
-        _generatedMethod = new Lazy<string>(() => MethodGenerationHelper.GenerateMethod(this, cancellationToken));
-    }
-
-    public string GenerateMethod(
-        CancellationToken cancellationToken)
-    {
-        return _generatedMethod.Value;
-    }
-
-    public bool Equals(
-        MethodToGenerate? other)
-    {
-        if (ReferenceEquals(null, other))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-
-        var everythingIsSame = ContainingControllerFullyQualifiedName == other.ContainingControllerFullyQualifiedName && MethodHash == other.MethodHash
-                                                                                                                      && UseHttpResponseMessageAsReturnType == other.UseHttpResponseMessageAsReturnType;
-
-        if (!everythingIsSame)
-        {
-            return false;
-        }
-
-        if (ParameterTransformations.Count != other.ParameterTransformations.Count)
-        {
-            return false;
-        }
-
-        foreach (var keyValuePair in ParameterTransformations)
-        {
-            var isPresent = other.ParameterTransformations.TryGetValue(keyValuePair.Key, out var otherParamTransformation);
-            if (!isPresent)
-            {
-                return false;
-            }
-
-            if (!keyValuePair.Value.Equals(otherParamTransformation))
-            {
-                return false;
-            }
-        }
-
-        if (ParametersToAdd.Length != other.ParametersToAdd.Length)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < ParametersToAdd.Length - 1; i++)
-        {
-            if (!ParametersToAdd[i].Equals(other.ParametersToAdd[i]))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public override bool Equals(
-        object? obj)
-    {
-        if (ReferenceEquals(null, obj))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, obj))
-        {
-            return true;
-        }
-
-        if (obj.GetType() != GetType())
-        {
-            return false;
-        }
-
-        return Equals((MethodToGenerate)obj);
-    }
-
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (ContainingControllerFullyQualifiedName.GetHashCode() * 397) ^ MethodHash;
-        }
     }
 }

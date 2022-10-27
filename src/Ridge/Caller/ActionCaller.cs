@@ -1,6 +1,5 @@
 ﻿using Ridge.ActionInfo;
 using Ridge.Interceptor;
-using Ridge.LogWriter;
 using Ridge.Pipeline;
 using Ridge.Pipeline.Public;
 using Ridge.Response;
@@ -10,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace Ridge.Caller;
@@ -21,90 +20,155 @@ namespace Ridge.Caller;
 /// </summary>
 public class ActionCaller
 {
-    private readonly WebCaller _webCaller;
-    private readonly ActionInfoProvider _actionInfoProvider;
-    private readonly IHttpResponseCallFactory _httpResponseCallFactory;
-    private readonly ActionInfoTransformersCaller _actionInfoTransformersCaller;
-    private readonly IRequestResponseSerializer _serializer;
+    private readonly WebCaller _webCaller = null!;
+    private readonly ActionInfoProvider _actionInfoProvider = null!;
+    private readonly IHttpResponseCallFactory _httpResponseCallFactory = null!;
+    private readonly ActionInfoTransformersCaller _actionInfoTransformersCaller = null!;
+    private readonly IRequestResponseSerializer _serializer = null!;
 
-
+    
     /// <summary>
-    ///     Create <see cref="ActionCaller" />.
+    /// Create <see cref="ActionCaller" />.
     /// </summary>
-    /// <param name="requestBuilder">
-    ///     Builder which can be used to add <see cref="IActionInfoTransformer" /> and
-    ///     <see cref="IHttpRequestPipelinePart" />.
-    /// </param>
-    /// <param name="logWriter">Logger which logs generated request and responses.</param>
-    /// <param name="httpClient">HttpClient used to call the server.</param>
-    /// <param name="serviceProvider">ServiceProvider used to gather information about the server.</param>
-    /// <param name="serializer">Serializer used to serialize and deserialize requests.</param>
-    public ActionCaller(
-        RequestBuilder requestBuilder,
-        ILogWriter? logWriter,
-        HttpClient httpClient,
-        IServiceProvider serviceProvider,
-        IRequestResponseSerializer? serializer)
+    public ActionCaller()
     {
-        _serializer = SerializerProvider.GetSerializer(serviceProvider, serializer);
-        _actionInfoProvider = new ActionInfoProvider(serviceProvider);
-        _httpResponseCallFactory = new HttpResponseCallFactory(_serializer);
-        _webCaller = requestBuilder.BuildWebCaller(httpClient, logWriter ?? new NullLogWriter());
-        _actionInfoTransformersCaller = requestBuilder.BuildActionInfoTransformerCaller();
     }
 
     /// <summary>
-    ///     Creates http request for the given method and calls the server.
+    /// Creates http request for the given method and calls the server.
     /// </summary>
     /// <param name="arguments">Arguments of controller method.</param>
-    /// <param name="method">Method on controller for which the request will be generated.</param>
+    /// <param name="methodName">Controller method for which the request will be generated.</param>
+    /// <param name="controllerCaller">Provides information about caller settings.</param>
+    /// <param name="callParameters">Argument types of controller method.</param>
+    /// <param name="headers">Headers which will be added to the request</param>
+    /// <param name="authenticationHeaderValue">Authentication headers which will be added to request</param>
+    /// <param name="actionInfoTransformers">Action transformers which will be used for the request</param>
+    /// <param name="httpRequestPipelineParts">HttpPipeline parts which will be used for the request</param>
+    /// <typeparam name="TController">Controller to be called</typeparam>
+    /// <typeparam name="TReturn">Return type</typeparam>
     /// <returns>Returns the response from server.</returns>
-    public async Task<HttpResponseMessage> CallActionWithHttpResponseMessageResult(
+    public async Task<HttpCallResponse<TReturn>> CallAction<TReturn, TController>(
         IEnumerable<object?> arguments,
-        MethodInfo method)
+        string methodName,
+        IControllerCaller controllerCaller,
+        Type[] callParameters,
+        IEnumerable<(string Key, string? Value)>? headers = null,
+        AuthenticationHeaderValue? authenticationHeaderValue = null,
+        IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+        IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null)
     {
         var callId = Guid.NewGuid();
-        return await CallActionCore(arguments, method, callId);
-    }
-
-
-    /// <summary>
-    ///     Creates http request for the given method and calls the server.
-    /// </summary>
-    /// <param name="arguments">Arguments of controller method.</param>
-    /// <param name="method">Method on controller for which the request will be generated.</param>
-    /// <returns>Returns the response from server.</returns>
-    public async Task<HttpCallResponse> CallAction(
-        IEnumerable<object?> arguments,
-        MethodInfo method)
-    {
-        var callId = Guid.NewGuid();
-        var result = await CallActionCore(arguments, method, callId);
-        return await _httpResponseCallFactory.CreateControllerCallResult(result, callId.ToString());
-    }
-
-    /// <summary>
-    ///     Creates http request for the given method and calls the server.
-    /// </summary>
-    /// <param name="arguments">Arguments of controller method.</param>
-    /// <param name="method">Method on controller for which the request will be generated.</param>
-    /// <typeparam name="TReturn">Response type of the controller.</typeparam>
-    /// <returns>Returns the response from server.</returns>
-    public async Task<HttpCallResponse<TReturn>> CallAction<TReturn>(
-        IEnumerable<object?> arguments,
-        MethodInfo method)
-    {
-        var callId = Guid.NewGuid();
-        var result = await CallActionCore(arguments, method, callId);
+        var result = await CallActionCore<TController>(arguments,
+            methodName,
+            controllerCaller,
+            callId,
+            callParameters,
+            headers,
+            authenticationHeaderValue,
+            actionInfoTransformers,
+            httpRequestPipelineParts);
         return await _httpResponseCallFactory.CreateControllerCallResult<TReturn>(result, callId.ToString());
     }
-
-    private async Task<HttpResponseMessage> CallActionCore(
+    
+    /// <summary>
+    /// Creates http request for the given method and calls the server.
+    /// </summary>
+    /// <param name="arguments">Arguments of controller method.</param>
+    /// <param name="methodName">Controller method for which the request will be generated.</param>
+    /// <param name="controllerCaller">Provides information about caller settings.</param>
+    /// <param name="callParameters">Argument types of controller method.</param>
+    /// <param name="headers">Headers which will be added to the request</param>
+    /// <param name="authenticationHeaderValue">Authentication headers which will be added to request</param>
+    /// <param name="actionInfoTransformers">Action transformers which will be used for the request</param>
+    /// <param name="httpRequestPipelineParts">HttpPipeline parts which will be used for the request</param>
+    /// <typeparam name="TController">Controller to be called</typeparam>
+    /// <returns>Returns the response from server.</returns>
+    public async Task<HttpCallResponse> CallAction<TController>(
         IEnumerable<object?> arguments,
-        MethodInfo method,
-        Guid callId)
+        string methodName,
+        IControllerCaller controllerCaller,
+        Type[] callParameters,
+        IEnumerable<(string Key, string? Value)>? headers = null,
+        AuthenticationHeaderValue? authenticationHeaderValue = null,
+        IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+        IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null)
     {
-        var (url, actionInfo) = await _actionInfoProvider.GetInfo(arguments.ToList(), method, _actionInfoTransformersCaller);
+        var callId = Guid.NewGuid();
+        var result = await CallActionCore<TController>(arguments,
+            methodName,
+            controllerCaller,
+            callId,
+            callParameters,
+            headers,
+            authenticationHeaderValue,
+            actionInfoTransformers,
+            httpRequestPipelineParts);
+        return await _httpResponseCallFactory.CreateControllerCallResult(result, callId.ToString());
+    }
+    
+    
+    /// <summary>
+    /// Creates http request for the given method and calls the server.
+    /// </summary>
+    /// <param name="arguments">Arguments of controller method.</param>
+    /// <param name="methodName">Controller method for which the request will be generated.</param>
+    /// <param name="controllerCaller">Provides information about caller settings.</param>
+    /// <param name="callParameters">Argument types of controller method.</param>
+    /// <param name="headers">Headers which will be added to the request</param>
+    /// <param name="authenticationHeaderValue">Authentication headers which will be added to request</param>
+    /// <param name="actionInfoTransformers">Action transformers which will be used for the request</param>
+    /// <param name="httpRequestPipelineParts">HttpPipeline parts which will be used for the request</param>
+    /// <typeparam name="TController">Controller to be called</typeparam>
+    /// <returns>Returns the response from server.</returns>
+    public async Task<HttpResponseMessage> CallActionWithHttpResponseMessageResult<TController>(
+        IEnumerable<object?> arguments,
+        string methodName,
+        IControllerCaller controllerCaller,
+        Type[] callParameters,
+        IEnumerable<(string Key, string? Value)>? headers = null,
+        AuthenticationHeaderValue? authenticationHeaderValue = null,
+        IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+        IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null)
+    {
+        var callId = Guid.NewGuid();
+        var result = await CallActionCore<TController>(arguments,
+            methodName,
+            controllerCaller,
+            callId,
+            callParameters,
+            headers,
+            authenticationHeaderValue,
+            actionInfoTransformers,
+            httpRequestPipelineParts);
+        return result;
+    }
+
+    private async Task<HttpResponseMessage> CallActionCore<TController>(
+        IEnumerable<object?> arguments,
+        string methodName,
+        IControllerCaller controllerCaller,
+        Guid callId,
+        Type[] callParameters,
+        IEnumerable<(string Key, string? Value)>? headers = null,
+        AuthenticationHeaderValue? authenticationHeaderValue = null,
+        IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+        IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null)
+    {
+        var requestBuilder = controllerCaller.RequestBuilder.CreateNewBuilderByCopyingExisting();
+        requestBuilder.AddHeaders(headers);
+        requestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
+        requestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
+        requestBuilder.AddActionInfoTransformers(actionInfoTransformers);
+        var controllerType = typeof(TController);
+        var methodInfo = controllerType.GetMethod(methodName, callParameters);
+
+        if (methodInfo == null)
+        {
+            throw new InvalidOperationException($"Method with name {methodName} not found in class {controllerType.FullName}.");
+        }
+
+        var (url, actionInfo) = await _actionInfoProvider.GetInfo(arguments.ToList(), methodInfo, _actionInfoTransformersCaller);
         using var request = HttpRequestProvider.Create(
             actionInfo.HttpMethod,
             url,
@@ -115,7 +179,7 @@ public class ActionCaller
             _serializer);
         ExceptionManager.ExceptionManager.InsertEmptyDataToIndicateTestCall(callId);
 
-        var result = await _webCaller.Call(request, actionInfo, new MethodInvocationInfo(arguments, method));
+        var result = await _webCaller.Call(request, actionInfo, new MethodInvocationInfo(arguments, methodInfo));
         return result;
     }
 }
