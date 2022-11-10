@@ -41,6 +41,10 @@ public partial class TestCaller : IControllerCaller
             bool @b,
             int addedParameter,
 
+            int addedParameterX,
+
+            int addedParameterY,
+
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
@@ -71,6 +75,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     public async Task<HttpCallResponse<string>> Call_Foo1(
             int addedParameter,
 
+            int addedParameterX,
+
+            int addedParameterY,
+
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
@@ -98,6 +106,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             String renamed,
             String renamed1,
             int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
 
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
@@ -129,6 +141,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     public async Task<HttpCallResponse> Call_Foo3(
             int addedParameter,
 
+            int addedParameterX,
+
+            int addedParameterY,
+
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
@@ -154,6 +170,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     /// </summary>
     public async Task<HttpCallResponse<int>> Call_Foo4(
             int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
 
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
@@ -181,6 +201,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> Call_Foo5(
             int addedParameter,
 
+            int addedParameterX,
+
+            int addedParameterY,
+
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
@@ -206,6 +230,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     /// </summary>
     public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> Call_Foo6(
             int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
 
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
@@ -234,6 +262,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     public async Task<HttpCallResponse> Call_Foo7(
             int addedParameter,
 
+            int addedParameterX,
+
+            int addedParameterY,
+
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
@@ -259,6 +291,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     /// </summary>
     public async Task<HttpCallResponse<int>> Call_Foo8(
             int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
 
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
@@ -286,6 +322,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     public async Task<HttpCallResponse> Call_Foo9(
             int addedParameter,
 
+            int addedParameterX,
+
+            int addedParameterY,
+
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
@@ -312,6 +352,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
     public async Task<HttpCallResponse> Call_Foo20(
             int[] @b,
             int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
 
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
@@ -342,6 +386,10 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             string @event,
             int addedParameter,
 
+            int addedParameterX,
+
+            int addedParameterY,
+
             int? addedParameterOptional = default,
 IEnumerable<(string Key, string? Value)>? headers = null,
             AuthenticationHeaderValue? authenticationHeaderValue = null,
@@ -353,6 +401,135 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         var arguments = new List<object?>()
         {
             @event,
+        };
+
+        var actionParameters = new Type[] {
+        typeof(string),
+        };
+
+        var caller = new ActionCaller();
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+    }
+
+
+    /// <summary>
+    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo5" />.
+    /// </summary>
+    public async Task<HttpCallResponse> Call_EventFoo5(
+            string @a,
+            string @a,
+            int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
+
+            int? addedParameterOptional = default,
+IEnumerable<(string Key, string? Value)>? headers = null,
+            AuthenticationHeaderValue? authenticationHeaderValue = null,
+            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
+        )
+    {
+        var methodName = nameof(TestNamespace.Controller.Test.EventFoo5);
+        var arguments = new List<object?>()
+        {
+            @a,
+            @a,
+        };
+
+        var actionParameters = new Type[] {
+        typeof(string),
+        typeof(string),
+        };
+
+        var caller = new ActionCaller();
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+    }
+
+
+    /// <summary>
+    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo6" />.
+    /// </summary>
+    public async Task<HttpCallResponse> Call_EventFoo6(
+            int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
+
+            int? addedParameterOptional = default,
+IEnumerable<(string Key, string? Value)>? headers = null,
+            AuthenticationHeaderValue? authenticationHeaderValue = null,
+            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
+        )
+    {
+        var methodName = nameof(TestNamespace.Controller.Test.EventFoo6);
+        var arguments = new List<object?>()
+        {
+        };
+
+        var actionParameters = new Type[] {
+        };
+
+        var caller = new ActionCaller();
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+    }
+
+
+    /// <summary>
+    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo7" />.
+    /// </summary>
+    public async Task<HttpCallResponse> Call_EventFoo7(
+            int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
+
+            int? addedParameterOptional = default,
+IEnumerable<(string Key, string? Value)>? headers = null,
+            AuthenticationHeaderValue? authenticationHeaderValue = null,
+            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
+        )
+    {
+        var methodName = nameof(TestNamespace.Controller.Test.EventFoo7);
+        var arguments = new List<object?>()
+        {
+        };
+
+        var actionParameters = new Type[] {
+        };
+
+        var caller = new ActionCaller();
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+    }
+
+
+    /// <summary>
+    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo8" />.
+    /// </summary>
+    public async Task<HttpCallResponse> Call_EventFoo8(
+            string @a,
+            int addedParameter,
+
+            int addedParameterX,
+
+            int addedParameterY,
+
+            int? addedParameterOptional = default,
+IEnumerable<(string Key, string? Value)>? headers = null,
+            AuthenticationHeaderValue? authenticationHeaderValue = null,
+            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
+            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
+        )
+    {
+        var methodName = nameof(TestNamespace.Controller.Test.EventFoo8);
+        var arguments = new List<object?>()
+        {
+            @a,
         };
 
         var actionParameters = new Type[] {

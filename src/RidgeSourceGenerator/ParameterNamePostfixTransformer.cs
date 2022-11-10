@@ -9,7 +9,7 @@ public class ParameterNamePostfixTransformer
     {
         foreach (var methodParameter in methodParameters)
         {
-            _namesBuffer.Add(methodParameter, 0);
+            _namesBuffer[methodParameter] = 0;
         }
     }
 

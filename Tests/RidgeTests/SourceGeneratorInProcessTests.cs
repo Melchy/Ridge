@@ -26,6 +26,13 @@ namespace TestNamespace.Controller;
 [Ridge.AddParameterToCaller(typeof(int?), ""addedParameterOptional"", Optional = true)]
 [Ridge.AddParameterToCaller(typeof(int), ""addedParameter"", Optional = false)]
 [Ridge.TransformParameterInCaller(fromType: typeof(int), toType: typeof(string), GeneratedParameterName = ""renamed"")]
+[AddParameterToCaller()]
+[Ridge.AddParameterToCaller(typeof(int))]
+[Ridge.AddParameterToCaller(typeof(int), )]
+[Ridge.AddParameterToCaller(typeof(int)]
+[Ridge.AddParameterToCaller(typeof(int), ""addedParameterZ"", Op)]
+[Ridge.AddParameterToCaller(typeof(int), ""addedParameterX"", Optional = fae)]
+[Ridge.AddParameterToCaller(typeof(int), ""addedParameterY"", Optional = fae)
 [Ridge.GenerateCaller()]
 public class Test
 {
@@ -42,6 +49,17 @@ public class Test
     public void Foo9(){}
     public void Foo20(params int[] b){ var a = 1;}
     public void EventFoo(string @event){}
+    public void EventFoo2(string){}
+    public void EventFoo3(sstring foo){}
+    public void EventFoo4(,,){}
+    public void EventFoo5(string a, string a){}
+    public void EventFoo6()
+    public void EventFoo7(
+    public void EventFoo8(string a
+    public void EventFoo9(string a,
+    public void EventFoo10(string,
+    public void EventFoo11(string,)
+    public void EventFoo11(string a,){}
 }
 public class Foo<Ttype>
     {
