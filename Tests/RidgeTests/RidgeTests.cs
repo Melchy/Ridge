@@ -548,7 +548,9 @@ namespace RidgeTests
         public ControllerWithoutAttributeRoutingCaller ControllerWithoutAttributeRoutingCaller { get; set; }
 
         public ControllerWithSpecialGenerationSettingsCaller ControllerWithSpecialGenerationSettingsCaller { get; set; }
-        
+
+        // TODO middleware si muze predavat informace pomoci servisi kterou si zaregistruje a pak nepotrebujes header
+        // TODO CreateDefaultHandler umoznuje predani delgation handleru tak ze je mozne tohle pouzit misto pipelineParts.
         public Application(
             WebApplicationFactory<Startup> webApplicationFactory)
         {

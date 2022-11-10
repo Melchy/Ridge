@@ -6,9 +6,6 @@ using System.Text;
 
 namespace RidgeSourceGenerator;
 
-
-
-
 [Generator]
 public class ControllerGenerator : IIncrementalGenerator
 {
@@ -171,9 +168,11 @@ public class ControllerGenerator : IIncrementalGenerator
         var mainAttributeSettings = generatorAttribute?.NamedArguments ?? ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty;
 
         var typeTransformerAttributes = attributes
+           .Where(x => x.AttributeClass is not IErrorTypeSymbol)
            .Where(x => x.AttributeClass?.Name is "TransformParameterInCaller" or "TransformParameterInCallerAttribute");
 
         var addParameterAttributes = attributes
+           .Where(x => x.AttributeClass is not IErrorTypeSymbol)
            .Where(x => x.AttributeClass?.Name is "AddParameterToCaller" or "AddParameterToCallerAttribute");
 
         cancellationToken.ThrowIfCancellationRequested();

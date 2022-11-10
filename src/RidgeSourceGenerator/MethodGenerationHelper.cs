@@ -22,7 +22,15 @@ public static class MethodGenerationHelper
         {
             return "";
         }
-        
+
+        foreach (var publicMethodParameter in publicMethod.Parameters)
+        {
+            if (publicMethodParameter.Name == "" || publicMethodParameter.Type is IErrorTypeSymbol)
+            {
+                return "";
+            }
+        }
+
         ParameterNamePostfixTransformer parameterNamePostfixTransformer = null!;
         // Small optimization. If there are no user parameterNames then we wont use ParameterNamePostfixTransformer 
         if (methodToGenerate.ParameterTransformations.Count() + methodToGenerate.ParametersToAdd.Length > 0)

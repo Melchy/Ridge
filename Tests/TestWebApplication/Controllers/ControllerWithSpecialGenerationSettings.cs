@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
 
+// TODO prejmenova middleware   HttpClientMiddleware, RequestResponseMiddleware
+
 [GenerateCaller(UseHttpResponseMessageAsReturnType = true)]
 [TransformParameterInCaller(fromType: typeof(TestController.ComplexArgument), toType: typeof(void))]
 [TransformParameterInCaller(fromType: typeof(ILogger), toType: typeof(void))]

@@ -41,6 +41,10 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
         var result = new List<AddParameter>();
         foreach (var addParameterAttribute in addParameterAttributes)
         {
+            if (addParameterAttribute.ConstructorArguments.Length != 2)
+            {
+                continue;
+            }
             var parameterType = (ISymbol?)addParameterAttribute.ConstructorArguments[0].Value;
             var parameterName = (string?)addParameterAttribute.ConstructorArguments[1].Value;
             var optional = addParameterAttribute.NamedArguments.FirstOrDefault(x => x.Key == "Optional").Value.Value as bool? ?? false;
