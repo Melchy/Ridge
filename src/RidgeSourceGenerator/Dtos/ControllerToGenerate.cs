@@ -1,12 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
 
-namespace RidgeSourceGenerator;
+namespace RidgeSourceGenerator.Dtos;
 
 public class ControllerToGenerate : IEquatable<ControllerToGenerate>
 {
     public readonly IEnumerable<(IMethodSymbol MethodSymbol, int MethodHash)> PublicMethods;
-    private readonly int _cachedHashCode;
     public readonly string Name;
     public readonly string FullyQualifiedName;
     public readonly string Namespace;
@@ -14,6 +13,9 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
     public bool UseHttpResponseMessageAsReturnType;
     public IDictionary<string, ParameterTransformation> ParameterTransformations;
     public AddParameter[] ParametersToAdd;
+
+    public readonly int AttributesHash;
+    private readonly int _attributesClassNameAndMethodsHashCode;
 
     public ControllerToGenerate(
         string name,
@@ -23,10 +25,12 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
         ImmutableArray<KeyValuePair<string, TypedConstant>> mainAttributeSettings,
         IEnumerable<AttributeData> typeTransformerAttributes,
         IEnumerable<AttributeData> addParameterAttributes,
-        int cachedHashCode)
+        int attributesClassNameAndMethodsHashCode,
+        int attributesHash)
     {
+        AttributesHash = attributesHash;
         PublicMethods = publicMethods;
-        _cachedHashCode = cachedHashCode;
+        _attributesClassNameAndMethodsHashCode = attributesClassNameAndMethodsHashCode;
         Name = name;
         FullyQualifiedName = fullyQualifiedName;
         Namespace = @namespace;
@@ -57,9 +61,9 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
         }
 
         return result.ToArray();
-    } 
+    }
 
-    private IDictionary<string, ParameterTransformation> GetTypeTransformations(
+    private static IDictionary<string, ParameterTransformation> GetTypeTransformations(
         IEnumerable<AttributeData> typeTransformerAttributes)
     {
         var result = new Dictionary<string, ParameterTransformation>();
@@ -80,7 +84,7 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
         return result;
     }
 
-    private bool GetUseHttpResponseMessageAsReturnType(
+    private static bool GetUseHttpResponseMessageAsReturnType(
         ImmutableArray<KeyValuePair<string, TypedConstant>> mainAttributeSettings)
     {
         var result = mainAttributeSettings.FirstOrDefault(x =>
@@ -102,7 +106,7 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
             return true;
         }
 
-        return _cachedHashCode == other.GetHashCode();
+        return _attributesClassNameAndMethodsHashCode == other.GetHashCode();
     }
 
     public override bool Equals(
@@ -128,7 +132,7 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
 
     public override int GetHashCode()
     {
-        return _cachedHashCode;
+        return _attributesClassNameAndMethodsHashCode;
     }
 }
 

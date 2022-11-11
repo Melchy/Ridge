@@ -1,16 +1,17 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace RidgeSourceGenerator;
+namespace RidgeSourceGenerator.Dtos;
 
 public class MethodToGenerate : IEquatable<MethodToGenerate>
 {
     public readonly AddParameter[] ParametersToAdd;
     public readonly IMethodSymbol PublicMethod;
-    public bool UseHttpResponseMessageAsReturnType;
-    public IDictionary<string, ParameterTransformation> ParameterTransformations;
+    public readonly bool UseHttpResponseMessageAsReturnType;
+    public readonly IDictionary<string, ParameterTransformation> ParameterTransformations;
     public readonly string ContainingControllerFullyQualifiedName;
-    public readonly int MethodHash;
 
+    private readonly int _methodHash;
+    private readonly int _classAttributesHash;
     private readonly Lazy<string> _generatedMethod;
 
     public MethodToGenerate(
@@ -20,14 +21,16 @@ public class MethodToGenerate : IEquatable<MethodToGenerate>
         string containingControllerFullyQualifiedName,
         int methodHash,
         AddParameter[] parametersToAdd,
+        int classAttributesHash,
         CancellationToken cancellationToken)
     {
         ParametersToAdd = parametersToAdd;
+        _classAttributesHash = classAttributesHash;
         PublicMethod = publicMethod;
         UseHttpResponseMessageAsReturnType = useHttpResponseMessageAsReturnType;
         ParameterTransformations = parameterTransformations;
         ContainingControllerFullyQualifiedName = containingControllerFullyQualifiedName;
-        MethodHash = methodHash;
+        _methodHash = methodHash;
         _generatedMethod = new Lazy<string>(() => MethodGenerationHelper.GenerateMethod(this, cancellationToken));
     }
 
@@ -51,44 +54,11 @@ public class MethodToGenerate : IEquatable<MethodToGenerate>
         }
 
 
-        var everythingIsSame = ContainingControllerFullyQualifiedName == other.ContainingControllerFullyQualifiedName && MethodHash == other.MethodHash
-                                                                                                                      && UseHttpResponseMessageAsReturnType == other.UseHttpResponseMessageAsReturnType;
-
-        if (!everythingIsSame)
+        if (ContainingControllerFullyQualifiedName != other.ContainingControllerFullyQualifiedName ||
+            _methodHash != other._methodHash ||
+            _classAttributesHash != other._classAttributesHash)
         {
             return false;
-        }
-
-        if (ParameterTransformations.Count != other.ParameterTransformations.Count)
-        {
-            return false;
-        }
-
-        foreach (var keyValuePair in ParameterTransformations)
-        {
-            var isPresent = other.ParameterTransformations.TryGetValue(keyValuePair.Key, out var otherParamTransformation);
-            if (!isPresent)
-            {
-                return false;
-            }
-
-            if (!keyValuePair.Value.Equals(otherParamTransformation))
-            {
-                return false;
-            }
-        }
-
-        if (ParametersToAdd.Length != other.ParametersToAdd.Length)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < ParametersToAdd.Length - 1; i++)
-        {
-            if (!ParametersToAdd[i].Equals(other.ParametersToAdd[i]))
-            {
-                return false;
-            }
         }
 
         return true;
@@ -119,7 +89,10 @@ public class MethodToGenerate : IEquatable<MethodToGenerate>
     {
         unchecked
         {
-            return (ContainingControllerFullyQualifiedName.GetHashCode() * 397) ^ MethodHash;
+            var hashCode = ContainingControllerFullyQualifiedName.GetHashCode();
+            hashCode = (hashCode * 397) ^ _methodHash;
+            hashCode = (hashCode * 397) ^ _classAttributesHash;
+            return hashCode;
         }
     }
 }

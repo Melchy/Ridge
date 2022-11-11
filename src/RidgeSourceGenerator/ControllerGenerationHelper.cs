@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using RidgeSourceGenerator.Dtos;
+using System.Text;
 
 namespace RidgeSourceGenerator;
 
