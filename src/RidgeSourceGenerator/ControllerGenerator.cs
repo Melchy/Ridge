@@ -62,14 +62,22 @@ public class ControllerGenerator : IIncrementalGenerator
     private static bool IsSyntaxTargetForGeneration(
         SyntaxNode node)
     {
-        if (node is not AttributeSyntax attribute)
+        if (node is not ClassDeclarationSyntax classDeclaration)
         {
             return false;
         }
 
-        var name = ExtractName(attribute.Name);
+        if (classDeclaration.AttributeLists.Count == 0)
+        {
+            return false;
+        }
 
-        return IsMainCorrectAttribute(name);
+        if (classDeclaration.AttributeLists.Any(x => x.Attributes.Any(x => IsMainCorrectAttribute(x.Name.ToString()))))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static bool IsMainCorrectAttribute(
@@ -94,10 +102,10 @@ public class ControllerGenerator : IIncrementalGenerator
         };
     }
 
-    private static AttributeSyntax GetSemanticTargetForGeneration(
+    private static ClassDeclarationSyntax GetSemanticTargetForGeneration(
         GeneratorSyntaxContext context)
     {
-        return (AttributeSyntax)context.Node;
+        return (ClassDeclarationSyntax)context.Node;
     }
 
     private static void GenerateClass(

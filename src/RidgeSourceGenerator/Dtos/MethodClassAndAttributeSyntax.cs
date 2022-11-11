@@ -11,12 +11,12 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
     public readonly int CachedHashCode;
 
     public MethodClassAndAttributeSyntax(
-        AttributeSyntax attributeSyntax,
+        ClassDeclarationSyntax classDeclarationSyntax,
         SemanticModel semanticModel,
         CancellationToken cancellationToken)
     {
         SemanticModel = semanticModel;
-        ClassDeclarationSyntax = (ClassDeclarationSyntax?)attributeSyntax.Parent?.Parent;
+        ClassDeclarationSyntax = classDeclarationSyntax;
         if (ClassDeclarationSyntax == null)
         {
             return;
