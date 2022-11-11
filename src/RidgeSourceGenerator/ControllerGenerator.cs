@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using RidgeSourceGenerator.Dtos;
 using System.Collections.Immutable;
 using System.Text;
 
@@ -37,6 +38,7 @@ public class ControllerGenerator : IIncrementalGenerator
                         controllerToGenerate.FullyQualifiedName,
                         methodSymbolAndHash.MethodHash,
                         controllerToGenerate.ParametersToAdd,
+                        controllerToGenerate.AttributesHash,
                         ct)))
            .Collect();
 
@@ -119,7 +121,7 @@ public class ControllerGenerator : IIncrementalGenerator
     
     
     private static void Execute(
-        (ControllerToGenerate? ControllerToGenerate, ImmutableArray<MethodToGenerate> MethodsToGenerate) controllerAndMethods,
+        (Dtos.ControllerToGenerate? ControllerToGenerate, ImmutableArray<MethodToGenerate> MethodsToGenerate) controllerAndMethods,
         SourceProductionContext context)
     {
         if (controllerAndMethods.ControllerToGenerate == null)
@@ -232,6 +234,7 @@ public class ControllerGenerator : IIncrementalGenerator
             mainAttributeSettings: mainAttributeSettings,
             typeTransformerAttributes: typeTransformerAttributes,
             addParameterAttributes: addParameterAttributes,
-            cachedHashCode: methodClassAndAttributeSyntax.CachedHashCode);
+            attributesClassNameAndMethodsHashCode: methodClassAndAttributeSyntax.AttributesClassNameAndMethodsHashCode,
+            attributesHash: methodClassAndAttributeSyntax.AttributesHashCode);
     }
 }

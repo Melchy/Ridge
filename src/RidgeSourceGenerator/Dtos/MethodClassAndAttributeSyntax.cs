@@ -1,14 +1,15 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace RidgeSourceGenerator;
+namespace RidgeSourceGenerator.Dtos;
 
 public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeSyntax>
 {
     public SemanticModel SemanticModel;
     public ClassDeclarationSyntax? ClassDeclarationSyntax { get; set; }
     public List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclarationHash)> Methods { get; set; } = new List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclaration)>();
-    public readonly int CachedHashCode;
+    public readonly int AttributesClassNameAndMethodsHashCode;
+    public readonly int AttributesHashCode;
 
     public MethodClassAndAttributeSyntax(
         AttributeSyntax attributeSyntax,
@@ -47,7 +48,8 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
                     return methodDeclaration;
                 }) ?? Array.Empty<string>());
         cancellationToken.ThrowIfCancellationRequested();
-        CachedHashCode = GetHashCode(attributesDeclaration, className, methodDeclarations);
+        AttributesHashCode = attributesDeclaration.GetHashCode();
+        AttributesClassNameAndMethodsHashCode = GetHashCode(className, methodDeclarations);
     }
 
     public bool Equals(
@@ -63,7 +65,7 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
             return true;
         }
 
-        return CachedHashCode == other.CachedHashCode;
+        return AttributesClassNameAndMethodsHashCode == other.AttributesClassNameAndMethodsHashCode;
     }
 
     public override bool Equals(
@@ -89,17 +91,16 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
 
     public override int GetHashCode()
     {
-        return CachedHashCode;
+        return AttributesClassNameAndMethodsHashCode;
     }
 
     private int GetHashCode(
-        string attributesDeclaration,
         string className,
         string methodDeclarations)
     {
         unchecked
         {
-            var hashCode = 397 ^ attributesDeclaration.GetHashCode();
+            var hashCode = 397 ^ AttributesHashCode;
             hashCode = (hashCode * 397) ^ className.GetHashCode();
             hashCode = (hashCode * 397) ^ methodDeclarations.GetHashCode();
             return hashCode;

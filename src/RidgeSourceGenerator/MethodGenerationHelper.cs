@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using RidgeSourceGenerator.Dtos;
 using System.Text;
 
 namespace RidgeSourceGenerator;
