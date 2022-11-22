@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ridge;
+using Ridge.GeneratorAttributes;
 using System.Threading.Tasks;
 
-namespace TestWebApplication.Controllers
+namespace TestWebApplication.Controllers;
+
+[Area("Area")]
+[Route("[controller]")]
+[GenerateCaller]
+public class ControllerInArea : ControllerBase
 {
-    [Area("Area")]
-    [Route("[controller]")]
-    [GenerateCaller]
-    public class ControllerInArea : ControllerBase
+    [HttpGet("index")]
+    public virtual async Task<ActionResult> Index()
     {
-        [HttpGet("index")]
-        public virtual async Task<ActionResult> Index()
-        {
-            await Task.CompletedTask;
-            return Ok();
-        }
+        await Task.CompletedTask;
+        return Ok();
     }
 }

@@ -7,57 +7,55 @@ using Ridge.LogWriter;
 using System;
 using System.Threading.Tasks;
 
-namespace RidgeTests
+namespace RidgeTests;
+
+public class TestApplicationWithDefaultSerialization
 {
-    public class TestApplicationWithDefaultSerialization
+    [Test]
+    public async Task ArgumentsWithoutAttributesAreSupported()
     {
-        [Test]
-        public async Task ArgumentsWithoutAttributesAreSupported()
+        using var application = CreateApplication();
+        var complexObject = new ComplexObject()
         {
-            using var application = CreateApplication();
-            var complexObject = new ComplexObject()
+            Str = "foo",
+            NestedComplexObject = new NestedComplexObject()
             {
-                Str = "foo",
-                NestedComplexObject = new NestedComplexObject()
-                {
-                    Integer = 1,
-                    Str = "br",
-                },
-            };
-            var response = await application.TestControllerCaller.Call_ArgumentsWithoutAttributes(complexObject,
-                1,
-                2);
-            response.Result.ComplexObject.Should().BeEquivalentTo(complexObject);
-            response.Result.FromQuery.Should().Be(2);
-            response.Result.FromRoute.Should().Be(1);
+                Integer = 1,
+                Str = "br",
+            },
+        };
+        var response = await application.TestControllerCaller.CallArgumentsWithoutAttributes(complexObject,
+            1,
+            2);
+        response.Result.ComplexObject.Should().BeEquivalentTo(complexObject);
+        response.Result.FromQuery.Should().Be(2);
+        response.Result.FromRoute.Should().Be(1);
+    }
+
+    internal static Application CreateApplication()
+    {
+        var webAppFactory = new WebApplicationFactory<Program>();
+        return new Application(webAppFactory);
+    }
+
+    internal sealed class Application : IDisposable
+    {
+        public WebApplicationFactory<Program> WebApplicationFactory { get; set; }
+        public TestControllerCaller<Program> TestControllerCaller { get; set; }
+
+        public Application(
+            WebApplicationFactory<Program> webApplicationFactory)
+        {
+            WebApplicationFactory = webApplicationFactory;
+            TestControllerCaller = new TestControllerCaller<Program>(
+                WebApplicationFactory,
+                new NunitLogWriter());
         }
 
-        internal static Application CreateApplication()
+        public void Dispose()
         {
-            var webAppFactory = new WebApplicationFactory<Startup>();
-            return new Application(webAppFactory);
-        }
-
-        internal sealed class Application : IDisposable
-        {
-            public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
-            public TestControllerCaller TestControllerCaller { get; set; }
-
-            public Application(
-                WebApplicationFactory<Startup> webApplicationFactory)
-            {
-                WebApplicationFactory = webApplicationFactory;
-                TestControllerCaller = new TestControllerCaller(
-                    WebApplicationFactory.CreateClient(),
-                    WebApplicationFactory.Services,
-                    new NunitProgressLogWriter());
-            }
-
-            public void Dispose()
-            {
-                WebApplicationFactory?.Dispose();
-                GC.SuppressFinalize(this);
-            }
+            WebApplicationFactory?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

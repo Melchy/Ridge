@@ -1,34 +1,33 @@
 ﻿using System.Text.Json;
 
-namespace Ridge.Serialization
+namespace Ridge.Serialization;
+
+/// <summary>
+///     SystemJson implementation of serializer.
+/// </summary>
+public class SystemJsonSerializer : IRequestResponseSerializer
 {
-    /// <summary>
-    ///     SystemJson implementation of serializer.
-    /// </summary>
-    public class SystemJsonSerializer : IRequestResponseSerializer
+    /// <inheritdoc />
+    public TResult Deserialize<TResult>(
+        string data)
     {
-        /// <inheritdoc />
-        public TResult Deserialize<TResult>(
-            string data)
+        var options = new JsonSerializerOptions
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
-            return JsonSerializer.Deserialize<TResult>(data, options)!;
-        }
+            PropertyNameCaseInsensitive = true,
+        };
+        return JsonSerializer.Deserialize<TResult>(data, options)!;
+    }
 
-        /// <inheritdoc />
-        public string? Serialize(
-            object? obj)
-        {
-            return JsonSerializer.Serialize(obj);
-        }
+    /// <inheritdoc />
+    public string? Serialize(
+        object? obj)
+    {
+        return JsonSerializer.Serialize(obj);
+    }
 
-        /// <inheritdoc />
-        public string? GetSerializerName()
-        {
-            return "System.Text.Json";
-        }
+    /// <inheritdoc />
+    public string? GetSerializerName()
+    {
+        return "System.Text.Json";
     }
 }

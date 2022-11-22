@@ -1,33 +1,32 @@
-﻿namespace Ridge.Serialization
+﻿namespace Ridge.Serialization;
+
+/// <summary>
+///     Serializer which is used by ridge to serialize and deserialize request.
+///     Default serializer is chosen automatically based on the settings of asp.net core.
+/// </summary>
+public interface IRequestResponseSerializer
 {
     /// <summary>
-    ///     Serializer which is used by ridge to serialize and deserialize request.
-    ///     Default serializer is chosen automatically based on the settings of asp.net core.
+    ///     Deserialize data.
     /// </summary>
-    public interface IRequestResponseSerializer
-    {
-        /// <summary>
-        ///     Deserialize data.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <typeparam name="TResult"></typeparam>
-        /// <returns></returns>
-        public TResult Deserialize<TResult>(
-            string data);
+    /// <param name="data"></param>
+    /// <typeparam name="TResult"></typeparam>
+    /// <returns></returns>
+    public TResult Deserialize<TResult>(
+        string data);
 
-        /// <summary>
-        ///     Serialize data.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public string? Serialize(
-            object? obj);
+    /// <summary>
+    ///     Serialize data.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public string? Serialize(
+        object? obj);
 
-        /// <summary>
-        ///     Provide debug information for better logging.
-        ///     When the serializer is chosen automatically it is nice to know which one was used.
-        /// </summary>
-        /// <returns></returns>
-        public string? GetSerializerName();
-    }
+    /// <summary>
+    ///     Provide debug information for better logging.
+    ///     When the serializer is chosen automatically it is nice to know which one was used.
+    /// </summary>
+    /// <returns></returns>
+    public string? GetSerializerName();
 }

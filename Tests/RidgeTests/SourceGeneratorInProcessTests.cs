@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
-using Ridge;
+using Ridge.GeneratorAttributes;
 using RidgeSourceGenerator;
 using System;
 using System.Collections.Generic;
@@ -125,7 +125,7 @@ public static class TestHelper
         // var emitResult = compilation.Emit(new MemoryStream());
 
         // Create an instance of our EnumGenerator incremental source generator
-        var generator = new ControllerGenerator();
+        var generator = new ControllerCallerGenerator();
 
         // The GeneratorDriver is used to run our generator against a compilation
         GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);

@@ -1,55 +1,47 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
-namespace ApplicationWithDefaultSerialization
+namespace ApplicationWithDefaultSerialization;
+
+public static class Startup
 {
-    public class Startup
+    public static void SetupServices(
+        IServiceCollection services,
+        IConfiguration configuration)
     {
-        public IConfiguration Configuration { get; }
-
-        public Startup(
-            IConfiguration configuration)
+        services.AddControllers();
+        services.AddSwaggerGen(c =>
         {
-            Configuration = configuration;
+            c.SwaggerDoc("v1", new OpenApiInfo {Title = "ApplicationWithDefaultSerialization", Version = "v1"});
+        });
+    }
+
+    public static void SetupPipeline(
+        WebApplication app,
+        IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApplicationWithDefaultSerialization v1"));
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(
-            IServiceCollection services)
-        {
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "ApplicationWithDefaultSerialization", Version = "v1"});
-            });
-        }
+        app.UseHttpsRedirection();
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(
-            IApplicationBuilder app,
-            IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApplicationWithDefaultSerialization v1"));
-            }
+        app.UseRouting();
 
-            app.UseHttpsRedirection();
+        app.UseAuthorization();
+    }
 
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+    public static void SetupEndpoints(
+        IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapControllers();
     }
 }
