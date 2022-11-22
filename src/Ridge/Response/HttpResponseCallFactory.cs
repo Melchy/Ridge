@@ -1,12 +1,10 @@
 ﻿using Ridge.Serialization;
-using System;
 using System.Net.Http;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace Ridge.Response;
 
-internal class HttpResponseCallFactory : IHttpResponseCallFactory
+internal class HttpResponseCallFactory
 {
     private readonly IRequestResponseSerializer _serializer;
 
@@ -20,38 +18,24 @@ internal class HttpResponseCallFactory : IHttpResponseCallFactory
         HttpResponseMessage httpResponseMessage,
         string callId)
     {
-        CheckIfExceptionOccuredAndThrowIfItDid(callId);
-
         var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
-        var ridgeResult = new HttpCallResponse<TReturn>(
+        var httpCallResponse = new HttpCallResponse<TReturn>(
             httpResponseMessage,
             resultString,
             httpResponseMessage.StatusCode,
             _serializer);
-        return ridgeResult;
+        return httpCallResponse;
     }
 
     public async Task<HttpCallResponse> CreateControllerCallResult(
         HttpResponseMessage httpResponseMessage,
         string callId)
     {
-        CheckIfExceptionOccuredAndThrowIfItDid(callId);
         var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
-        var ridgeResult = new HttpCallResponse(
+        var httpCallResponse = new HttpCallResponse(
             httpResponseMessage,
             resultString,
             httpResponseMessage.StatusCode);
-        return ridgeResult;
-    }
-
-    private static void CheckIfExceptionOccuredAndThrowIfItDid(
-        string callId)
-    {
-        Exception? exceptionWhichOccuredInApplication = ExceptionManager.ExceptionManager.GetException(callId);
-        if (exceptionWhichOccuredInApplication != null)
-        {
-            ExceptionDispatchInfo.Capture(exceptionWhichOccuredInApplication).Throw();
-            throw new InvalidOperationException("This is never thrown"); // this line is never reached
-        }
+        return httpCallResponse;
     }
 }

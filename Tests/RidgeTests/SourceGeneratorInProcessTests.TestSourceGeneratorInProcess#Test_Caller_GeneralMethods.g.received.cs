@@ -12,10 +12,10 @@
 
 using Ridge.Caller;
 using Ridge.LogWriter;
-using Ridge.Pipeline.Public;
 using Ridge.Serialization;
 using Ridge.Transformers;
 using Ridge.Response;
+using Ridge.Setup;
 using Ridge.ActionInfo;
 using System;
 using System.Collections.Generic;
@@ -29,19 +29,22 @@ namespace TestNamespace.Controller
 /// <summary>
 /// Generated Api client for tests. Calls <see cref="TestNamespace.Controller.TestCaller" />
 /// </summary>
-public partial class TestCaller : IControllerCaller
+public partial class TestCaller<TEntryPoint> : IControllerCaller where TEntryPoint : class
 {
-    HttpClient IControllerCaller.HttpClient { get; set; } = null!;
+    HttpClient IControllerCaller.HttpClient { get => _webApplicationFactorySetupHelpers.CreateClient(((IControllerCaller)this).LogWriter, _httpClientOptions, _delegatingHandlers.ToArray()); }
     IServiceProvider IControllerCaller.ServiceProvider { get; set; } = null!;
     ILogWriter? IControllerCaller.LogWriter { get; set; } = null!;
     IRequestResponseSerializer? IControllerCaller.RidgeSerializer { get; set; } = null!;
-    RequestBuilder IControllerCaller.RequestBuilder { get; set; }  = new();
+    HttpRequestFactoryMiddlewareBuilder IControllerCaller.HttpRequestFactoryMiddlewareBuilder { get; }  = new();
+    private Test? _httpClientOptions;
+    private List<DelegatingHandler> _delegatingHandlers = new List<DelegatingHandler>();
+    private WebApplicationFactorySetupHelpers<TEntryPoint> _webApplicationFactorySetupHelpers;
 
     /// <summary>
     ///     Create controller factory.
     /// </summary>
-    /// <param name="httpClient">HttpClient used to call the server.</param>
-    /// <param name="serviceProvider">ServiceProvider used to gather information about the server.</param>
+    /// <param name="webApplicationFactory">WebApplicationFactory<TEntryPoint>. This parameter is object because generator can not ensure that containing assembly 
+    ///    references correct nuget package</param>
     /// <param name="logWriter">
     ///     Used to log requests and responses from server.
     ///     Use <see cref="XunitLogWriter" /> or <see cref="NunitLogWriter" /> or <see cref="NunitProgressLogWriter"/> or implement custom <see cref="ILogWriter" />
@@ -52,35 +55,36 @@ public partial class TestCaller : IControllerCaller
     ///     <see cref="IRequestResponseSerializer" />.
      /// </param>
     public TestCaller(
-        HttpClient httpClient,
-        IServiceProvider serviceProvider,
+        object webApplicationFactory,
         ILogWriter? logWriter = null,
         IRequestResponseSerializer? ridgeSerializer = null)
     {
-        ((IControllerCaller)this).HttpClient = httpClient;
-        ((IControllerCaller)this).ServiceProvider = serviceProvider;
+        _webApplicationFactorySetupHelpers = new WebApplicationFactorySetupHelpers<TEntryPoint>(webApplicationFactory);
+        _webApplicationFactorySetupHelpers.RegisterDependencies();
+        ((IControllerCaller)this).ServiceProvider = _webApplicationFactorySetupHelpers.GetServices();
         ((IControllerCaller)this).LogWriter = logWriter;
         ((IControllerCaller)this).RidgeSerializer = ridgeSerializer;
     }
 
-    /// <summary>
-    ///     Add <see cref="IHttpRequestPipelinePart"/> which will be used to transform <see cref="HttpRequestMessage"/>s.
-    /// </summary>
-    /// <param name="httpRequestPipelineParts"><see cref="IHttpRequestPipelinePart"/> to add.</param>
-    public void AddHttpRequestPipelineParts(
-        params IHttpRequestPipelinePart[] httpRequestPipelineParts)
+    
+    public void SetHttpClientOptions(Test options)
     {
-        ((IControllerCaller)this).RequestBuilder.AddHttpRequestPipelineParts(httpRequestPipelineParts);
+        _httpClientOptions = options;
+    }
+    
+    public void AddHttpClientDelegationHandler(DelegatingHandler delegatingHandler)
+    {
+        _delegatingHandlers.Add(delegatingHandler);
     }
 
     /// <summary>
     ///     Adds <see cref="IActionInfoTransformer"/> which will be later used to transform <see cref="IActionInfo"/>s.
     /// </summary>
     /// <param name="actionInfoTransformers"><see cref="IActionInfoTransformer"/>  to add.</param>
-    public void AddActionInfoTransformers(
-        params IActionInfoTransformer[] actionInfoTransformers)
+    public void AddHttpRequestFactoryMiddleware(
+        params HttpRequestFactoryMiddleware[] httpRequestFactoryMiddlewares)
     {
-        ((IControllerCaller)this).RequestBuilder.AddActionInfoTransformers(actionInfoTransformers);
+        ((IControllerCaller)this).HttpRequestFactoryMiddlewareBuilder.AddHttpRequestFactoryMiddlewares(httpRequestFactoryMiddlewares);
     }
 
     /// <summary>
@@ -90,18 +94,7 @@ public partial class TestCaller : IControllerCaller
     /// <param name="headers">Headers to add.</param>
     public void AddHeaders(params (string Key, string? Value)[] headers)
     {
-        ((IControllerCaller)this).RequestBuilder.AddHeaders(headers);
-    }
-
-    /// <summary>
-    ///     Adds <see cref="AuthenticationHeaderValue"/> to the requests. This method actually adds <see cref="IActionInfoTransformer"/>
-    ///     which then adds the header to requests.
-    /// </summary>
-    /// <param name="authenticationHeaderValue"><see cref="AuthenticationHeaderValue"/> to add.</param>
-    public void AddAuthenticationHeaderValue(
-        AuthenticationHeaderValue authenticationHeaderValue)
-    {
-        ((IControllerCaller)this).RequestBuilder.AddAuthenticationHeaderValue(authenticationHeaderValue);
+        ((IControllerCaller)this).HttpRequestFactoryMiddlewareBuilder.AddHeaders(headers);
     }
     
 }

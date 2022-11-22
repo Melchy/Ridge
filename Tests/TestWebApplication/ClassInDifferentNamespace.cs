@@ -1,4 +1,4 @@
-﻿namespace WeirdNamespace;
+﻿namespace TestWebApplication;
 
 public class ClassInDifferentNamespace
 {

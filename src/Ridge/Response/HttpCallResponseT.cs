@@ -3,61 +3,60 @@ using System;
 using System.Net;
 using System.Net.Http;
 
-namespace Ridge.Response
+namespace Ridge.Response;
+
+/// <inheritdoc />
+public class HttpCallResponse<TResult> : HttpCallResponse
 {
-    /// <inheritdoc />
-    public class HttpCallResponse<TResult> : HttpCallResponse
+    private readonly IRequestResponseSerializer _serializer;
+
+    /// <summary>
+    ///     Deserialize body content to TResult.
+    /// </summary>
+    public TResult Result => GetResultOrThrow();
+
+    internal HttpCallResponse(
+        HttpResponseMessage httpResponseMessage,
+        string resultAsString,
+        HttpStatusCode statusCode,
+        IRequestResponseSerializer serializer)
+        : base(httpResponseMessage, resultAsString, statusCode)
     {
-        private readonly IRequestResponseSerializer _serializer;
+        _serializer = serializer;
+    }
 
-        /// <summary>
-        ///     Deserialize body content to TResult.
-        /// </summary>
-        public TResult Result => GetResultOrThrow();
-
-        internal HttpCallResponse(
-            HttpResponseMessage httpResponseMessage,
-            string resultAsString,
-            HttpStatusCode statusCode,
-            IRequestResponseSerializer serializer)
-            : base(httpResponseMessage, resultAsString, statusCode)
+    /// <summary>
+    ///     This method throws if result can not be deserialized into TResult.
+    ///     When the response is not 2xx exception is thrown.
+    /// </summary>
+    /// <returns></returns>
+    private TResult GetResultOrThrow()
+    {
+        if (!HttpResponseMessage.IsSuccessStatusCode)
         {
-            _serializer = serializer;
+            throw new InvalidOperationException($"Request failed. Status Code: '{StatusCode}', Response: '{ResultAsString}'");
         }
 
-        /// <summary>
-        ///     This method throws if result can not be deserialized into TResult
-        ///     or when result is failed
-        /// </summary>
-        /// <returns></returns>
-        private TResult GetResultOrThrow()
+        try
         {
-            if (!HttpResponseMessage.IsSuccessStatusCode)
+            if (string.IsNullOrEmpty(ResultAsString))
             {
-                throw new InvalidOperationException($"Request failed. Status Code: {StatusCode}, HttpContent: '{ResultAsString}'");
+                return default!;
             }
 
-            try
+            if (typeof(TResult) == typeof(string))
             {
-                if (string.IsNullOrEmpty(ResultAsString))
-                {
-                    return default!;
-                }
-
-                if (typeof(TResult) == typeof(string))
-                {
-                    return (TResult)(object)ResultAsString;
-                }
-
-                return _serializer.Deserialize<TResult>(ResultAsString);
+                return (TResult)(object)ResultAsString;
             }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("Deserialization to type: " +
-                                                    $"{typeof(TResult)} failed using serializer: {_serializer.GetSerializerName()}." +
-                                                    $" Json that was sent from server: '{ResultAsString}'",
-                    e);
-            }
+
+            return _serializer.Deserialize<TResult>(ResultAsString);
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException("Deserialization to type: " +
+                                                $"'{typeof(TResult)}' failed using serializer: '{_serializer.GetSerializerName()}'." +
+                                                $" Json sent from server: '{ResultAsString}'",
+                e);
         }
     }
 }

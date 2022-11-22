@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Ridge;
+using Ridge.GeneratorAttributes;
 using System;
 using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
-
-// TODO prejmenova middleware   HttpClientMiddleware, RequestResponseMiddleware
 
 [GenerateCaller(UseHttpResponseMessageAsReturnType = true)]
 [TransformParameterInCaller(fromType: typeof(TestController.ComplexArgument), toType: typeof(void))]

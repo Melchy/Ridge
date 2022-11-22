@@ -27,7 +27,7 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
         var attributesDeclaration = ClassDeclarationSyntax.AttributeLists.ToString();
         var className = ClassDeclarationSyntax.Identifier.ToString();
         var methodDeclarations = string.Join(";",
-            ClassDeclarationSyntax?.DescendantNodes()
+            ClassDeclarationSyntax?.ChildNodes()
                .OfType<MethodDeclarationSyntax>()
                .Select(x =>
                 {

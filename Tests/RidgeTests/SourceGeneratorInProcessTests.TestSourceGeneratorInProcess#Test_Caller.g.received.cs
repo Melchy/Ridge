@@ -13,7 +13,6 @@
 
 using Ridge.Caller;
 using Ridge.LogWriter;
-using Ridge.Pipeline.Public;
 using Ridge.Serialization;
 using Ridge.Transformers;
 using Ridge.Response;
@@ -30,7 +29,7 @@ namespace TestNamespace.Controller
 /// <summary>
 /// Generated Api client for tests. Calls <see cref="TestNamespace.Controller.Test" />
 /// </summary>
-public partial class TestCaller : IControllerCaller
+public partial class TestCaller<TEntryPoint> : IControllerCaller where TEntryPoint : class
 {
     
     /// <summary>
@@ -46,11 +45,7 @@ public partial class TestCaller : IControllerCaller
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo);
         var arguments = new List<object?>()
@@ -65,7 +60,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -80,11 +75,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo1);
         var arguments = new List<object?>()
@@ -95,7 +86,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -112,11 +103,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo2);
         var arguments = new List<object?>()
@@ -131,7 +118,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -146,11 +133,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo3);
         var arguments = new List<object?>()
@@ -161,7 +144,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -176,11 +159,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo4);
         var arguments = new List<object?>()
@@ -191,7 +170,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<int,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<int,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -206,11 +185,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo5);
         var arguments = new List<object?>()
@@ -221,7 +196,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -236,11 +211,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo6);
         var arguments = new List<object?>()
@@ -252,7 +223,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -267,11 +238,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo7);
         var arguments = new List<object?>()
@@ -282,7 +249,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -297,11 +264,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo8);
         var arguments = new List<object?>()
@@ -312,7 +275,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<int,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<int,TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -327,11 +290,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo9);
         var arguments = new List<object?>()
@@ -342,7 +301,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -358,11 +317,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.Foo20);
         var arguments = new List<object?>()
@@ -375,7 +330,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -391,11 +346,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.EventFoo);
         var arguments = new List<object?>()
@@ -408,7 +359,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -425,11 +376,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.EventFoo5);
         var arguments = new List<object?>()
@@ -444,7 +391,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -459,11 +406,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.EventFoo6);
         var arguments = new List<object?>()
@@ -474,7 +417,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -489,11 +432,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.EventFoo7);
         var arguments = new List<object?>()
@@ -504,7 +443,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 
@@ -520,11 +459,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
             int addedParameterY,
 
             int? addedParameterOptional = default,
-IEnumerable<(string Key, string? Value)>? headers = null,
-            AuthenticationHeaderValue? authenticationHeaderValue = null,
-            IEnumerable<IActionInfoTransformer>? actionInfoTransformers = null,
-            IEnumerable<IHttpRequestPipelinePart>? httpRequestPipelineParts = null
-        )
+params object[] customParameters)
     {
         var methodName = nameof(TestNamespace.Controller.Test.EventFoo8);
         var arguments = new List<object?>()
@@ -537,7 +472,7 @@ IEnumerable<(string Key, string? Value)>? headers = null,
         };
 
         var caller = new ActionCaller();
-        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, headers, authenticationHeaderValue, actionInfoTransformers, httpRequestPipelineParts);
+        return await caller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, this, actionParameters, customParameters);
     }
 
 }
