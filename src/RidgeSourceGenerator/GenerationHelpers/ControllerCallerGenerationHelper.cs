@@ -27,7 +27,6 @@ public static class ControllerCallerGenerationHelper
         sb.Append(@"
 #nullable enable
 #pragma warning disable CS0419
-#pragma warning disable CS1570
 
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.WebApplicationFactoryTools;
@@ -79,7 +78,6 @@ public partial class ");
 
         cancellationToken.ThrowIfCancellationRequested();
         sb.AppendLine("#pragma warning restore CS0419");
-        sb.AppendLine("#pragma warning restore CS1570");
         
         sb.Append("#nullable restore");
         return sb.ToString();

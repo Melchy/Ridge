@@ -66,8 +66,9 @@ public partial class ");
     /// <summary>
     ///     Create controller caller.
     /// </summary>
-    /// <param name=""webApplicationFactory"">Pass WebApplicationFactory<TEntryPoint> to this parameter. This parameter is object because generator can not ensure that containing assembly 
-    ///    references correct nuget package</param>
+    /// <param name=""webApplicationFactory"">Pass WebApplicationFactory{TEntryPoint} to this parameter. This parameter is object because generator can not ensure that containing assembly 
+    ///    references correct nuget package.
+    /// </param>
     /// <param name=""logWriter"">
     ///     Used to log requests and responses from server.
     ///     Use <see cref=""XunitLogWriter"" /> or <see cref=""NunitLogWriter"" /> or implement custom <see cref=""ILogWriter"" />
