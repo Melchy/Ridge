@@ -40,7 +40,7 @@
         <None Include="..\..\ridge.png" Pack="true" PackagePath=""/>
     </ItemGroup>
     <ItemGroup>
-        <None Include="$(OutputPath)\RidgeSourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+        <None Include="$(OutputPath)\net7\RidgeSourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\RidgeSourceGenerator\RidgeSourceGenerator.csproj">
