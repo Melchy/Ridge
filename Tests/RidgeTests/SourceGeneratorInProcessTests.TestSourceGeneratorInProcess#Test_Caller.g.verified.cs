@@ -10,7 +10,6 @@
 
 #nullable enable
 #pragma warning disable CS0419
-#pragma warning disable CS1570
 
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.WebApplicationFactoryTools;
@@ -319,5 +318,4 @@ public partial class TestCaller<TEntryPoint> where TEntryPoint : class
 }
 }
 #pragma warning restore CS0419
-#pragma warning restore CS1570
 #nullable restore
