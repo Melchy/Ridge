@@ -45,17 +45,6 @@ public class ControllerCallerGenerator : IIncrementalGenerator
 
         var controllersWithMethods = controllerDeclarations.Combine(methodsToGenerate);
 
-        IncrementalValuesProvider<(string? Name, string? Namespace)>
-            controllerNamesAndNamespaces = controllerDeclarations.Select((
-                x,
-                ctx) => (x?.Name, x?.Namespace));
-
-        context.RegisterSourceOutput(controllerNamesAndNamespaces,
-            static (
-                spc,
-                source) => GenerateClass(source,
-                spc));
-        
         context.RegisterSourceOutput(controllersWithMethods,
             static (
                 spc,
@@ -103,24 +92,6 @@ public class ControllerCallerGenerator : IIncrementalGenerator
         return (AttributeSyntax)context.Node;
     }
 
-    private static void GenerateClass(
-        (string? Name, string? Namespace) controllerNameAndNamespace,
-        SourceProductionContext context)
-    {
-        if (controllerNameAndNamespace.Name == null)
-        {
-            return;
-        }
-
-        StringBuilder sb = new StringBuilder();
-        var result = ControllerCallerGeneralMethodsGenerationHelper.GenerateExtensionClass(sb,
-            controllerNameAndNamespace.Name,
-            controllerNameAndNamespace.Namespace,
-            context.CancellationToken);
-        context.AddSource(controllerNameAndNamespace.Name + "_Caller_GeneralMethods.g.cs", SourceText.From(result, Encoding.UTF8));
-    }
-    
-    
     private static void Execute(
         (Dtos.ControllerToGenerate? ControllerToGenerate, ImmutableArray<MethodToGenerate> MethodsToGenerate) controllerAndMethods,
         SourceProductionContext context)

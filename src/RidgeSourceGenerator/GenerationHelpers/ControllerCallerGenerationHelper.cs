@@ -57,11 +57,19 @@ using System.Threading.Tasks;
         sb.Append(controllerToGenerate.Name);
         sb.AppendLine("\" />");
         sb.Append(@"/// </summary>
-public partial class ");
+public class ");
         sb.Append(className);
         sb.Append("<TEntryPoint> where TEntryPoint : class");
         sb.Append(@"
 {
+    private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
+    public ");
+        sb.Append(className);
+
+        sb.Append(@"(ApplicationCaller<TEntryPoint> applicationCaller)
+    {
+        _applicationCaller = applicationCaller;
+    }
     ");
 
         foreach (var methodToGenerate in generatedMethods)
