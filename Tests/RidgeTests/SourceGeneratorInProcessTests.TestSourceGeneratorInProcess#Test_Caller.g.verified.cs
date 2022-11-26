@@ -32,6 +32,12 @@ namespace TestNamespace.Controller
 public class TestCaller<TEntryPoint> where TEntryPoint : class
 {
     private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
+    /// <summary>
+    /// Creates controller caller. 
+    /// </summary>
+    /// <param name="applicationCaller">
+    ///     Application caller which will be used to call application.
+    /// </param>
     public TestCaller(ApplicationCaller<TEntryPoint> applicationCaller)
     {
         _applicationCaller = applicationCaller;

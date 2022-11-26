@@ -63,6 +63,12 @@ public class ");
         sb.Append(@"
 {
     private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
+    /// <summary>
+    /// Creates controller caller. 
+    /// </summary>
+    /// <param name=""applicationCaller"">
+    ///     Application caller which will be used to call application.
+    /// </param>
     public ");
         sb.Append(className);
 
