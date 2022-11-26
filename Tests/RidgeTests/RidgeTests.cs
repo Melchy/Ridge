@@ -5,7 +5,6 @@ using NUnit.Framework;
 using Ridge;
 using Ridge.DelegationHandlers;
 using Ridge.HttpRequestFactoryMiddlewares;
-using Ridge.LogWriter;
 using Ridge.Response;
 using System;
 using System.Collections.Generic;
@@ -343,16 +342,13 @@ public class RidgeTests
     {
         using var application = CreateApplication();
 
-        var testControllerCaller = new TestControllerCaller<Program>(
-            application.WebApplicationFactory);
-
-        testControllerCaller.AddHeaders(
+        application.ApplicationCaller.AddHeader(
             new HttpHeader("foo", "foo"),
             new HttpHeader("header1", "header1"),
             new HttpHeader("header2", "header2")
         );
 
-        var response = await testControllerCaller.CallMethodReturningHeaders();
+        var response = await application.TestControllerCaller.CallMethodReturningHeaders();
         response.Result["foo"].First().Should().Be("foo");
         response.Result["header1"].First().Should().Be("header1");
         response.Result["header2"].First().Should().Be("header2");
@@ -423,7 +419,7 @@ public class RidgeTests
     public async Task CustomDelegationHandler()
     {
         using var application = CreateApplication();
-        application.TestControllerCaller.AddHttpClientDelegationHandlers(new ListSeparatedByCommasDelegationHandler(new[] {1, 1, 1}));
+        application.ApplicationCaller.AddDelegationHandler(new ListSeparatedByCommasDelegationHandler(new[] {1, 1, 1}));
         var result =
             await application.TestControllerCaller.CallCustomBinder(null!, ListSeparatedByCommasDelegationHandler.UseThisHandler());
         result.Result.Should().AllBeEquivalentTo(1);
@@ -433,7 +429,7 @@ public class RidgeTests
     public async Task PreModelBinderTest()
     {
         using var application = CreateApplication();
-        application.TestControllerCaller.AddHttpRequestFactoryMiddlewares(new TestObjectAddHttpRequestFactoryMiddleware());
+        application.ApplicationCaller.AddHttpRequestFactoryMiddleware(new TestObjectAddHttpRequestFactoryMiddleware());
         var result = await application.TestControllerCaller.CallCustomBinderFullObject(
             new TestController.CountryCodeBinded()
             {
@@ -557,24 +553,19 @@ internal sealed class Application : IDisposable
     public ControllerInAreaCaller<Program> ControllerInAreaCaller { get; set; }
     public ControllerWithoutAttributeRoutingCaller<Program> ControllerWithoutAttributeRoutingCaller { get; set; }
 
+    public ApplicationCaller<Program> ApplicationCaller { get; set; }
+
     public ControllerWithSpecialGenerationSettingsCaller<Program> ControllerWithSpecialGenerationSettingsCaller { get; set; }
 
     public Application(
         WebApplicationFactory<Program> webApplicationFactory)
     {
         WebApplicationFactory = webApplicationFactory;
-        TestControllerCaller = new TestControllerCaller<Program>(
-            WebApplicationFactory,
-            new NunitLogWriter());
-        ControllerInAreaCaller = new ControllerInAreaCaller<Program>(
-            WebApplicationFactory,
-            new NunitLogWriter());
-        ControllerWithoutAttributeRoutingCaller = new ControllerWithoutAttributeRoutingCaller<Program>(
-            WebApplicationFactory,
-            new NunitLogWriter());
-        ControllerWithSpecialGenerationSettingsCaller = new ControllerWithSpecialGenerationSettingsCaller<Program>(
-            WebApplicationFactory,
-            new NunitLogWriter());
+        ApplicationCaller = new ApplicationCaller<Program>(WebApplicationFactory);
+        TestControllerCaller = new TestControllerCaller<Program>(ApplicationCaller);
+        ControllerInAreaCaller = new ControllerInAreaCaller<Program>(ApplicationCaller);
+        ControllerWithoutAttributeRoutingCaller = new ControllerWithoutAttributeRoutingCaller<Program>(ApplicationCaller);
+        ControllerWithSpecialGenerationSettingsCaller = new ControllerWithSpecialGenerationSettingsCaller<Program>(ApplicationCaller);
     }
 
     public void Dispose()

@@ -29,8 +29,13 @@ namespace TestNamespace.Controller
 /// <summary>
 /// Generated Api caller. Calls <see cref="TestNamespace.Controller.Test" />
 /// </summary>
-public partial class TestCaller<TEntryPoint> where TEntryPoint : class
+public class TestCaller<TEntryPoint> where TEntryPoint : class
 {
+    private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
+    public TestCaller(ApplicationCaller<TEntryPoint> applicationCaller)
+    {
+        _applicationCaller = applicationCaller;
+    }
     
     /// <summary>
     ///     Calls <see cref="TestNamespace.Controller.Test.Foo" />.

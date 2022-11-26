@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Ridge;
 using Ridge.LogWriter;
 using System;
 using System.Threading.Tasks;
@@ -45,14 +46,15 @@ internal sealed class Application : IDisposable
 
     public ControllerInAreaCaller<Program> ControllerInAreaCaller { get; set; }
 
+    public ApplicationCaller<Program> ApplicationCaller { get; set; }
+    
     public Application(
         WebApplicationFactory<Program> webApplicationFactory,
         ITestOutputHelper testOutputHelper)
     {
         WebApplicationFactory = webApplicationFactory;
-        ControllerInAreaCaller = new ControllerInAreaCaller<Program>(
-            WebApplicationFactory,
-            new XunitLogWriter(testOutputHelper));
+        ApplicationCaller = new ApplicationCaller<Program>(WebApplicationFactory, new XunitLogWriter(testOutputHelper));
+        ControllerInAreaCaller = new ControllerInAreaCaller<Program>(ApplicationCaller);
     }
 
     public void Dispose()

@@ -11,6 +11,7 @@ using Ridge.Serialization;
 using Ridge.WebApplicationFactoryTools;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -34,6 +35,12 @@ public class ApplicationCaller<TEntryPoint>
     private readonly List<DelegatingHandler> _delegatingHandlers = new();
 
     /// <summary>
+    ///     Http client used to call Application. When this property is called for the first time the client is
+    ///     generated using <see cref="WebApplicationFactory{TEntryPoint}" />.
+    /// </summary>
+    public Lazy<HttpClient> HttpClient => new(CreateClient);
+
+    /// <summary>
     ///     Create <see cref="ApplicationCaller{TEntryPoint}" />.
     /// </summary>
     /// <param name="webApplicationFactory">
@@ -51,13 +58,13 @@ public class ApplicationCaller<TEntryPoint>
     ///     <see cref="IRequestResponseSerializer" />.
     /// </param>
     public ApplicationCaller(
-        object webApplicationFactory,
+        WebApplicationFactory<TEntryPoint> webApplicationFactory,
         ILogWriter? logWriter = null,
         IRequestResponseSerializer? ridgeSerializer = null)
     {
         _logWriter = logWriter;
         _ridgeSerializer = ridgeSerializer;
-        _webApplicationFactory = GetWebApplicationFactoryOfCorrectType(webApplicationFactory);
+        _webApplicationFactory = webApplicationFactory;
         RegisterDependencies();
     }
 
@@ -77,11 +84,7 @@ public class ApplicationCaller<TEntryPoint>
         });
     }
 
-    /// <summary>
-    ///     Create http client.
-    /// </summary>
-    /// <returns><see cref="HttpClient" /> which will be used to send request.</returns>
-    public HttpClient CreateClient()
+    private HttpClient CreateClient()
     {
         var delegationHandlersList = _delegatingHandlers.ToList();
         if (_webApplicationFactoryClientOptions != null)
@@ -107,19 +110,6 @@ public class ApplicationCaller<TEntryPoint>
             delegationHandlersList.ToArray());
     }
 
-    private static WebApplicationFactory<TEntryPoint> GetWebApplicationFactoryOfCorrectType(
-        object webApplicationFactory)
-    {
-        if (webApplicationFactory is WebApplicationFactory<TEntryPoint> result)
-        {
-            return result;
-        }
-
-        throw new InvalidOperationException("Parameter webApplicationFactory must be of type `WebApplicationFactory<TEntryPoint>` where TEntryPoint" +
-                                            "is generic type passed to Caller");
-    }
-
-
     /// <summary>
     ///     Creates http request for the given method and calls the server.
     /// </summary>
@@ -130,6 +120,7 @@ public class ApplicationCaller<TEntryPoint>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <typeparam name="TReturn">Return type</typeparam>
     /// <returns>Returns the response from server.</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task<HttpCallResponse<TReturn>> CallAction<TReturn, TController>(
         IEnumerable<object?> arguments,
         string methodName,
@@ -157,6 +148,7 @@ public class ApplicationCaller<TEntryPoint>
     /// <param name="customParameters">Custom parameters passed to caller.</param>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <returns>Returns the response from server.</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task<HttpCallResponse> CallAction<TController>(
         IEnumerable<object?> arguments,
         string methodName,
@@ -184,6 +176,7 @@ public class ApplicationCaller<TEntryPoint>
     /// <param name="customParameters">Custom parameters passed to caller.</param>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <returns>Returns the response from server.</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public async Task<HttpResponseMessage> CallActionWithHttpResponseMessageResult<TController>(
         IEnumerable<object?> arguments,
         string methodName,
@@ -229,8 +222,7 @@ public class ApplicationCaller<TEntryPoint>
             callId);
         using var request = await requestFactoryMiddleware.CreateHttpRequest(requestFactoryContext);
 
-        var client = CreateClient();
-        var response = await client.SendAsync(request);
+        var response = await HttpClient.Value.SendAsync(request);
 
         var exceptionManager = _serviceProvider.GetRequiredService<ExceptionManager>();
         exceptionManager.CheckIfExceptionOccuredAndThrowIfItDid(callId.ToString());
@@ -252,7 +244,7 @@ public class ApplicationCaller<TEntryPoint>
     /// </summary>
     /// <param name="delegatingHandler"><see cref="DelegatingHandler" /> to add.</param>
     public void AddDelegationHandler(
-        DelegatingHandler[] delegatingHandler)
+        params DelegatingHandler[] delegatingHandler)
     {
         _delegatingHandlers.AddRange(delegatingHandler);
     }
@@ -262,8 +254,8 @@ public class ApplicationCaller<TEntryPoint>
     ///     which then adds the header to requests.
     /// </summary>
     /// <param name="headers">Headers to add.</param>
-    public void AddHeaders(
-        HttpHeader[] headers)
+    public void AddHeader(
+        params HttpHeader[] headers)
     {
         HttpRequestFactoryMiddlewareBuilder.AddHeaders(headers);
     }
@@ -273,8 +265,8 @@ public class ApplicationCaller<TEntryPoint>
     ///     HttpRequestMessage.
     /// </summary>
     /// <param name="httpRequestFactoryMiddlewares"><see cref="HttpRequestFactoryMiddleware" />  to add.</param>
-    public void AddHttpRequestFactoryMiddlewares(
-        HttpRequestFactoryMiddleware[] httpRequestFactoryMiddlewares)
+    public void AddHttpRequestFactoryMiddleware(
+        params HttpRequestFactoryMiddleware[] httpRequestFactoryMiddlewares)
     {
         HttpRequestFactoryMiddlewareBuilder.AddHttpRequestFactoryMiddlewares(httpRequestFactoryMiddlewares);
     }
