@@ -8,7 +8,8 @@
         <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.6.3"/>
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.6.3"/>
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.6.3"/>
-        <PackageReference Include="System.Text.Json" Version="6.0.7"/>
+        <PackageReference Include="System.Text.Json" Version="6.0.7" Condition="'$(TargetFramework)' == 'net6'"/>
+        <PackageReference Include="System.Text.Json" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7'"/>
         <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
