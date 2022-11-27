@@ -27,12 +27,12 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.2.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.11"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.11" Condition="'$(TargetFramework)' == 'net6'"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7'"/>
+        <PackageReference Include="System.Text.Json" Version="6.0.7" Condition="'$(TargetFramework)' == 'net6'"/>
+        <PackageReference Include="System.Text.Json" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7'"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
-    </ItemGroup>
-    <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
-        <PackageReference Include="System.Text.Json" Version="6.0.7"/>
         <PackageReference Include="xunit.abstractions" Version="2.0.1"/>
         <PackageReference Include="NUnit" Version="3.6.0"/>
     </ItemGroup>
