@@ -10,7 +10,7 @@ public static class CallerMethodGenerationHelper
         MethodToGenerate methodToGenerate,
         CancellationToken cancellationToken)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(1024);
 
 
         var publicMethod = methodToGenerate.PublicMethod;
@@ -43,27 +43,29 @@ public static class CallerMethodGenerationHelper
         string? returnType = publicMethod.ReturnType.Name;
 
         GenerateMethodComment(methodToGenerate, sb, publicMethod);
-        sb.Append(@"    public async ");
+        sb.Append(@"        public async ");
 
         returnType = AddReturnType(methodToGenerate, sb, returnType, fullReturnType);
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        sb.Append(" ");
-        sb.Append("Call");
-        sb.Append(publicMethod.Name);
-        sb.Append("(");
+        sb.Append($" Call{publicMethod.Name}(");
 
         var stringBuilderForOptionalParameters = new StringBuilder();
-        var nonRemovedArgumentNames = AddUserParameters(methodToGenerate, cancellationToken, publicMethod, sb, parameterNamePostfixTransformer, stringBuilderForOptionalParameters);
+        var nonRemovedArgumentNames = AddUserParameters(methodToGenerate,
+            cancellationToken,
+            publicMethod,
+            sb,
+            parameterNamePostfixTransformer,
+            stringBuilderForOptionalParameters);
         sb.Append(stringBuilderForOptionalParameters);
         AddRidgeParameters(sb);
 
         cancellationToken.ThrowIfCancellationRequested();
         
-        sb.AppendLine(@"    {");
+        sb.AppendLine(@"        {");
         AddMethodBody(methodToGenerate, cancellationToken, sb, publicMethod, nonRemovedArgumentNames, returnType);
-        sb.AppendLine(@"    }");
+        sb.AppendLine(@"        }");
         sb.AppendLine();
 
         return sb.ToString();
@@ -77,61 +79,51 @@ public static class CallerMethodGenerationHelper
         List<string> nonRemovedArgumentNames,
         string? returnType)
     {
-        sb.Append(@"        var methodName = ");
-        sb.Append("nameof(");
-        sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
-        sb.Append(".");
-        sb.Append(publicMethod.Name);
-        sb.AppendLine(");");
-
-        sb.AppendLine(@"        var arguments = new List<object?>()");
-        sb.AppendLine(@"        {");
+        sb.Append($$"""
+                                var methodName = nameof({{methodToGenerate.ContainingControllerFullyQualifiedName}}.{{publicMethod.Name}});
+                                var arguments = new List<object?>()
+                                { 
+                    """);
         foreach (var parameterName in nonRemovedArgumentNames)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            sb.Append(@"            ");
-            sb.Append(parameterName);
-            sb.AppendLine(",");
+            sb.Append($@"
+                {parameterName},");
         }
 
-        sb.AppendLine(@"        };");
+        sb.AppendLine();
+        sb.AppendLine(@"            };");
 
 
         sb.Append(@"
-        var actionParameters = new Type[] {");
+            var actionParameters = new Type[] {");
         foreach (var publicMethodParameter in publicMethod.Parameters)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            sb.Append(@"
-        ");
-            sb.Append("typeof(");
-            sb.Append(publicMethodParameter.Type.ToDisplayString(NullableFlowState.None));
-            sb.Append("),");
+            sb.Append($@"
+                typeof({publicMethodParameter.Type.ToDisplayString(NullableFlowState.None)}),");
         }
 
         sb.AppendLine(@"
-        };");
+            };");
 
         if (methodToGenerate.UseHttpResponseMessageAsReturnType)
         {
-            sb.Append(@"        return await _applicationCaller.CallActionWithHttpResponseMessageResult<");
+            sb.Append(@"            return await _applicationCaller.CallActionWithHttpResponseMessageResult<");
         }
         else
         {
             if (returnType == null)
             {
-                sb.Append(@"        return await _applicationCaller.CallAction<");
+                sb.Append(@"            return await _applicationCaller.CallAction<");
             }
             else
             {
-                sb.Append(@"        return await _applicationCaller.CallAction<");
-                sb.Append(returnType);
-                sb.Append(",");
+                sb.Append(@$"           return await _applicationCaller.CallAction<{returnType},");
             }
         }
 
-        sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
-        sb.AppendLine(">(arguments, methodName, actionParameters, customParameters);");
+        sb.AppendLine($"{methodToGenerate.ContainingControllerFullyQualifiedName}>(arguments, methodName, actionParameters, customParameters);");
     }
 
     private static void AddRidgeParameters(
@@ -153,7 +145,12 @@ public static class CallerMethodGenerationHelper
         foreach (var publicMethodParameter in publicMethod.Parameters)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ProcessParameter(sb, stringBuilderForOptionalParameters, methodToGenerate, publicMethodParameter, nonRemovedArgumentNames, parameterNamePostfixTransformer);
+            ProcessParameter(sb,
+                stringBuilderForOptionalParameters,
+                methodToGenerate,
+                publicMethodParameter,
+                nonRemovedArgumentNames,
+                parameterNamePostfixTransformer);
         }
 
         foreach (var addParameter in methodToGenerate.ParametersToAdd)
@@ -196,14 +193,12 @@ public static class CallerMethodGenerationHelper
         StringBuilder sb,
         IMethodSymbol publicMethod)
     {
-        sb.Append(@"
-    /// <summary>
-    ///     Calls <see cref=""");
-        sb.Append(methodToGenerate.ContainingControllerFullyQualifiedName);
-        sb.Append(".");
-        sb.Append(publicMethod.Name);
-        sb.AppendLine(@""" />.
-    /// </summary>");
+        sb.AppendLine(
+            $$"""
+                    /// <summary>
+                    ///     Calls <see cref="{{methodToGenerate.ContainingControllerFullyQualifiedName}}.{{publicMethod.Name}}" />. 
+                    /// </summary> 
+            """);
     }
 
     private static void ProcessParameterAddedByUser(
@@ -221,9 +216,7 @@ public static class CallerMethodGenerationHelper
         {
             stringBuidlerToUse = stringBuilder;
         }
-
-        stringBuidlerToUse.Append(@"
-            ");
+        
         if (parameterToAdd.IsOptional)
         {
             stringBuidlerToUse.Append(MakeTypeNullableIfItIsNotAlready(parameterToAdd.Type));
@@ -240,7 +233,7 @@ public static class CallerMethodGenerationHelper
             stringBuidlerToUse.Append(" = default");
         }
 
-        stringBuidlerToUse.AppendLine(",");
+        stringBuidlerToUse.Append(", ");
     }
 
     private static void ProcessParameter(
@@ -279,11 +272,7 @@ public static class CallerMethodGenerationHelper
             {
                 builderToUseForCurrentParameter = sb;
             }
-
-            builderToUseForCurrentParameter.Append(@"
-            ");
-
-
+            
             if (result.Optional)
             {
                 builderToUseForCurrentParameter.Append(MakeTypeNullableIfItIsNotAlready(result.ToType));
@@ -320,14 +309,12 @@ public static class CallerMethodGenerationHelper
             {
                 builderToUseForCurrentParameter = sb;
             }
-
-            builderToUseForCurrentParameter.Append(@"
-            ");
-
+            
             resultName = $"@{publicMethodParameter.Name}";
-            builderToUseForCurrentParameter.Append(publicMethodParameter.Type);
-            builderToUseForCurrentParameter.Append(" ");
-            builderToUseForCurrentParameter.Append(resultName);
+            builderToUseForCurrentParameter.Append(
+                $$"""
+                {{publicMethodParameter.Type}} {{resultName}}  
+                """);
 
             if (publicMethodParameter.HasExplicitDefaultValue)
             {
@@ -338,15 +325,17 @@ public static class CallerMethodGenerationHelper
                 }
                 else if (publicMethodParameter.ExplicitDefaultValue is string)
                 {
-                    builderToUseForCurrentParameter.Append("\"");
-                    builderToUseForCurrentParameter.Append(publicMethodParameter.ExplicitDefaultValue);
-                    builderToUseForCurrentParameter.Append("\"");
+                    builderToUseForCurrentParameter.Append(
+                        $$"""
+                        "{{publicMethodParameter.ExplicitDefaultValue}}"
+                        """);
                 }
                 else if (publicMethodParameter.ExplicitDefaultValue is char)
                 {
-                    builderToUseForCurrentParameter.Append("\'");
-                    builderToUseForCurrentParameter.Append(publicMethodParameter.ExplicitDefaultValue);
-                    builderToUseForCurrentParameter.Append("\'");
+                    builderToUseForCurrentParameter.Append(
+                        $$"""
+                        '{{publicMethodParameter.ExplicitDefaultValue}}'
+                        """);
                 }
                 else
                 {
@@ -356,7 +345,7 @@ public static class CallerMethodGenerationHelper
         }
 
         nonRemovedArgumentNames.Add(resultName);
-        builderToUseForCurrentParameter.Append(",");
+        builderToUseForCurrentParameter.Append(", ");
     }
 
     private static string MakeTypeNullableIfItIsNotAlready(

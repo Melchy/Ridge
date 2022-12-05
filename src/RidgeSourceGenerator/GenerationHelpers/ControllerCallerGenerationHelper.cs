@@ -24,66 +24,65 @@ public static class ControllerCallerGenerationHelper
         var className = $"{controllerToGenerate.Name}Caller";
 
         sb.Append(Header);
-        sb.Append(@"
-#nullable enable
-#pragma warning disable CS0419
+        sb.AppendLine(
+            """
+            #nullable enable
+            #pragma warning disable CS0419
 
-using Ridge.HttpRequestFactoryMiddlewares;
-using Ridge.WebApplicationFactoryTools;
-using Ridge;
-using Ridge.LogWriter;
-using Ridge.Serialization;
-using Ridge.Response;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Threading.Tasks;
-");
+            using Ridge.HttpRequestFactoryMiddlewares;
+            using Ridge.WebApplicationFactoryTools;
+            using Ridge;
+            using Ridge.LogWriter;
+            using Ridge.Serialization;
+            using Ridge.Response;
+            using System;
+            using System.Collections.Generic;
+            using System.Net.Http;
+            using System.Net.Http.Headers;
+            using System.Reflection;
+            using System.Threading.Tasks;
+            """
+        );
+        
         if (!string.IsNullOrEmpty(controllerToGenerate.Namespace))
         {
-            sb.Append(@"namespace ").AppendLine(controllerToGenerate.Namespace);
-            sb.AppendLine("{");
+            sb.AppendLine(
+                $$"""
+                namespace {{controllerToGenerate.Namespace}}
+                {
+                """ 
+            );
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        sb.Append(@"
-/// <summary>
-/// Generated Api caller. Calls <see cref=""");
-        sb.Append(controllerToGenerate.Namespace);
-        sb.Append(".");
-        sb.Append(controllerToGenerate.Name);
-        sb.AppendLine("\" />");
-        sb.Append(@"/// </summary>
-public class ");
-        sb.Append(className);
-        sb.Append("<TEntryPoint> where TEntryPoint : class");
-        sb.Append(@"
-{
-    private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
-    /// <summary>
-    /// Creates controller caller. 
-    /// </summary>
-    /// <param name=""applicationCaller"">
-    ///     Application caller which will be used to call application.
-    /// </param>
-    public ");
-        sb.Append(className);
-
-        sb.Append(@"(ApplicationCaller<TEntryPoint> applicationCaller)
-    {
-        _applicationCaller = applicationCaller;
-    }
-    ");
+        sb.Append(
+                $$"""
+                    /// <summary>
+                    /// Generated Api caller. Calls <see cref="{{controllerToGenerate.Namespace}}.{{controllerToGenerate.Name}}" />
+                    /// </summary>
+                    public class {{className}}<TEntryPoint> where TEntryPoint : class
+                    {
+                        private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
+                        /// <summary>
+                        /// Creates controller caller. 
+                        /// </summary>
+                        /// <param name="applicationCaller">
+                        ///     Application caller which will be used to call application.
+                        /// </param>
+                        public {{className}}(ApplicationCaller<TEntryPoint> applicationCaller)
+                        {
+                            _applicationCaller = applicationCaller;
+                        }
+                        
+                """);
 
         foreach (var methodToGenerate in generatedMethods)
         {
             sb.Append(methodToGenerate.GenerateMethod(cancellationToken));
         }
 
-        sb.AppendLine("}");
+        sb.AppendLine(" }");
 
         if (!string.IsNullOrEmpty(controllerToGenerate.Namespace))
         {

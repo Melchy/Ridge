@@ -7,7 +7,6 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
-
 #nullable enable
 #pragma warning disable CS0419
 
@@ -25,308 +24,282 @@ using System.Reflection;
 using System.Threading.Tasks;
 namespace TestNamespace.Controller
 {
-
-/// <summary>
-/// Generated Api caller. Calls <see cref="TestNamespace.Controller.Test" />
-/// </summary>
-public class TestCaller<TEntryPoint> where TEntryPoint : class
-{
-    private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
     /// <summary>
-    /// Creates controller caller. 
+    /// Generated Api caller. Calls <see cref="TestNamespace.Controller.Test" />
     /// </summary>
-    /// <param name="applicationCaller">
-    ///     Application caller which will be used to call application.
-    /// </param>
-    public TestCaller(ApplicationCaller<TEntryPoint> applicationCaller)
+    public class TestCaller<TEntryPoint> where TEntryPoint : class
     {
-        _applicationCaller = applicationCaller;
-    }
-    
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo" />.
-    /// </summary>
-    public async Task<HttpCallResponse<string>> CallFoo(
-            System.Threading.Tasks.Task<string> @a,
-            bool @b,params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo);
-        var arguments = new List<object?>()
+        private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
+        /// <summary>
+        /// Creates controller caller. 
+        /// </summary>
+        /// <param name="applicationCaller">
+        ///     Application caller which will be used to call application.
+        /// </param>
+        public TestCaller(ApplicationCaller<TEntryPoint> applicationCaller)
         {
-            @a,
-            @b,
-        };
-
-        var actionParameters = new Type[] {
-        typeof(System.Threading.Tasks.Task<string>),
-        typeof(bool),
-        };
-        return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
-
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo1" />.
-    /// </summary>
-    public async Task<HttpCallResponse<string>> CallFoo1(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo1);
-        var arguments = new List<object?>()
+            _applicationCaller = applicationCaller;
+        }
+                /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse<string>> CallFoo(System.Threading.Tasks.Task<string> @a  , bool @b  , params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo);
+            var arguments = new List<object?>()
+            { 
+                @a,
+                @b,
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+                typeof(System.Threading.Tasks.Task<string>),
+                typeof(bool),
+            };
+           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo2" />.
-    /// </summary>
-    public async Task<HttpCallResponse<string>> CallFoo2(
-            int @b= 1,
-            int @c= 2,params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo2);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo1" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse<string>> CallFoo1(params object[] customParameters)
         {
-            @b,
-            @c,
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo1);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        typeof(int),
-        typeof(int),
-        };
-        return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo3" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallFoo3(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo3);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo2" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse<string>> CallFoo2(int @b  = 1, int @c  = 2, params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo2);
+            var arguments = new List<object?>()
+            { 
+                @b,
+                @c,
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+                typeof(int),
+                typeof(int),
+            };
+           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo4" />.
-    /// </summary>
-    public async Task<HttpCallResponse<int>> CallFoo4(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo4);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo3" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallFoo3(params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo3);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<int,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo5" />.
-    /// </summary>
-    public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> CallFoo5(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo5);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo4" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse<int>> CallFoo4(params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo4);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+           return await _applicationCaller.CallAction<int,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo6" />.
-    /// </summary>
-    public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> CallFoo6(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo6);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo5" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> CallFoo5(params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo5);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        typeof(object),
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+           return await _applicationCaller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo7" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallFoo7(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo7);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo6" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> CallFoo6(params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo6);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+                typeof(object),
+            };
+           return await _applicationCaller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo8" />.
-    /// </summary>
-    public async Task<HttpCallResponse<int>> CallFoo8(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo8);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo7" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallFoo7(params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo7);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<int,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo9" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallFoo9(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo9);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo8" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse<int>> CallFoo8(params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo8);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+           return await _applicationCaller.CallAction<int,TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.Foo20" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallFoo20(
-            int[] @b,params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.Foo20);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo9" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallFoo9(params object[] customParameters)
         {
-            @b,
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo9);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        typeof(int[]),
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallEventFoo(
-            string @event,params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.EventFoo);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.Foo20" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallFoo20(int[] @b  , params object[] customParameters)
         {
-            @event,
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.Foo20);
+            var arguments = new List<object?>()
+            { 
+                @b,
+            };
 
-        var actionParameters = new Type[] {
-        typeof(string),
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+                typeof(int[]),
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo5" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallEventFoo5(
-            string @a,
-            string @a,params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.EventFoo5);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallEventFoo(string @event  , params object[] customParameters)
         {
-            @a,
-            @a,
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.EventFoo);
+            var arguments = new List<object?>()
+            { 
+                @event,
+            };
 
-        var actionParameters = new Type[] {
-        typeof(string),
-        typeof(string),
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+                typeof(string),
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo6" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallEventFoo6(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.EventFoo6);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo5" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallEventFoo5(string @a  , string @a  , params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.EventFoo5);
+            var arguments = new List<object?>()
+            { 
+                @a,
+                @a,
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+                typeof(string),
+                typeof(string),
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo7" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallEventFoo7(params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.EventFoo7);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo6" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallEventFoo6(params object[] customParameters)
         {
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.EventFoo6);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-
-    /// <summary>
-    ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo8" />.
-    /// </summary>
-    public async Task<HttpCallResponse> CallEventFoo8(
-            string @a,params object[] customParameters)
-    {
-        var methodName = nameof(TestNamespace.Controller.Test.EventFoo8);
-        var arguments = new List<object?>()
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo7" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallEventFoo7(params object[] customParameters)
         {
-            @a,
-        };
+            var methodName = nameof(TestNamespace.Controller.Test.EventFoo7);
+            var arguments = new List<object?>()
+            { 
+            };
 
-        var actionParameters = new Type[] {
-        typeof(string),
-        };
-        return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
-    }
+            var actionParameters = new Type[] {
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
 
-}
+        /// <summary>
+        ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo8" />. 
+        /// </summary> 
+        public async Task<HttpCallResponse> CallEventFoo8(string @a  , params object[] customParameters)
+        {
+            var methodName = nameof(TestNamespace.Controller.Test.EventFoo8);
+            var arguments = new List<object?>()
+            { 
+                @a,
+            };
+
+            var actionParameters = new Type[] {
+                typeof(string),
+            };
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(arguments, methodName, actionParameters, customParameters);
+        }
+
+ }
 }
 #pragma warning restore CS0419
 #nullable restore
