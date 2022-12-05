@@ -105,7 +105,7 @@ public class ControllerCallerGenerator : IIncrementalGenerator
            .Where(x => x?.ContainingControllerFullyQualifiedName == controllerAndMethods.ControllerToGenerate.FullyQualifiedName);
         
         
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(2048);
         var result = ControllerCallerGenerationHelper.GenerateExtensionClass(sb,
             controllerAndMethods.ControllerToGenerate,
             generatedMethods!,
