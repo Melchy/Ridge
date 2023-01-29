@@ -20,10 +20,4 @@ public class JsonNetSerializer : IRequestResponseSerializer
     {
         return JsonConvert.SerializeObject(obj);
     }
-
-    /// <inheritdoc />
-    public string? GetSerializerName()
-    {
-        return "NewtonsoftJson";
-    }
 }

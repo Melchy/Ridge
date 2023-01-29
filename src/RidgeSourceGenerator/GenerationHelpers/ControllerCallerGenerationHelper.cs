@@ -30,7 +30,6 @@ public static class ControllerCallerGenerationHelper
             #pragma warning disable CS0419
 
             using Ridge.HttpRequestFactoryMiddlewares;
-            using Ridge.WebApplicationFactoryTools;
             using Ridge;
             using Ridge.LogWriter;
             using Ridge.Serialization;
@@ -41,6 +40,7 @@ public static class ControllerCallerGenerationHelper
             using System.Net.Http.Headers;
             using System.Reflection;
             using System.Threading.Tasks;
+            using Ridge.Parameters.CustomParams;
             """
         );
         
@@ -61,18 +61,18 @@ public static class ControllerCallerGenerationHelper
                     /// <summary>
                     /// Generated Api caller. Calls <see cref="{{controllerToGenerate.Namespace}}.{{controllerToGenerate.Name}}" />
                     /// </summary>
-                    public class {{className}}<TEntryPoint> where TEntryPoint : class
+                    public class {{className}}
                     {
-                        private readonly ApplicationCaller<TEntryPoint> _applicationCaller;
+                        private readonly ApplicationCaller _applicationCaller;
                         /// <summary>
                         /// Creates controller caller. 
                         /// </summary>
                         /// <param name="applicationCaller">
                         ///     Application caller which will be used to call application.
                         /// </param>
-                        public {{className}}(ApplicationCaller<TEntryPoint> applicationCaller)
+                        public {{className}}(RidgeHttpClient ridgeHttpClient)
                         {
-                            _applicationCaller = applicationCaller;
+                            _applicationCaller = new ApplicationCaller(ridgeHttpClient);
                         }
                         
                 """);

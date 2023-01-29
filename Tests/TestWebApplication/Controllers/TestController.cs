@@ -4,7 +4,9 @@ using Microsoft.Extensions.Logging;
 using Ridge.GeneratorAttributes;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
@@ -84,12 +86,12 @@ public class TestController : ControllerBase
         return Ok();
     }
 
-    [HttpPost("{fromRoute}/{fromRoute2}")]
+    [HttpPost("SimpleArguments/{fromRoute}/{fromRoute2}")]
     public virtual async Task<ActionResult<SimpleArgumentResult>> SimpleArguments(
         [FromRoute] int fromRoute,
         [FromBody] DateTime body,
         [FromQuery] TestEnum fromQuery,
-        [FromRoute] long fromRoute2,
+        [FromRoute] [BindRequired] long fromRoute2,
         [FromQuery] DateTime fromQuery2)
     {
         return Ok(new SimpleArgumentResult(fromRoute, body, fromQuery, fromRoute2, fromQuery2));
@@ -261,6 +263,19 @@ public class TestController : ControllerBase
     {
         return HttpContext.Request.Headers.ToDictionary(x => x.Key,
             x => x.Value.ToList());
+    }
+
+    [HttpPost("MethodReturningBody")]
+    public async Task<string> MethodReturningBody()
+    {
+        StreamReader reader = new StreamReader(HttpContext.Request.Body);
+        return await reader.ReadToEndAsync();
+    }
+
+    [HttpGet("RouteAndQueryParameters/{routeParameter}")]
+    public (string? routeParameter, string? queryParameter) RouteAndQueryParameters()
+    {
+        return (HttpContext.Request.RouteValues["routeParameter"]?.ToString(), HttpContext.Request.Query["queryParameter"].FirstOrDefault());
     }
 
     [HttpGet("MethodThrowingInvalidOperationException")]
@@ -452,6 +467,13 @@ public class TestController : ControllerBase
     {
         return "ok";
     }
+
+    [HttpGet("TaskCancellationTokenIsRemoved")]
+    public virtual ActionResult<string> TaskCancellationTokenIsRemoved(
+        CancellationToken cancellationToken)
+    {
+        return "ok";
+    }
 }
 
 public class CountryCodeBinder : IModelBinder
@@ -507,4 +529,6 @@ public class CommaDelimitedArrayParameterBinder : IModelBinder
 
         return Task.CompletedTask;
     }
+    
+    
 }

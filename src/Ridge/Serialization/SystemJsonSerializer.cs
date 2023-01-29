@@ -24,10 +24,4 @@ public class SystemJsonSerializer : IRequestResponseSerializer
     {
         return JsonSerializer.Serialize(obj);
     }
-
-    /// <inheritdoc />
-    public string? GetSerializerName()
-    {
-        return "System.Text.Json";
-    }
 }

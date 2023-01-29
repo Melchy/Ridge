@@ -8,7 +8,7 @@ public class MethodToGenerate : IEquatable<MethodToGenerate>
     public readonly AddParameter[] ParametersToAdd;
     public readonly IMethodSymbol PublicMethod;
     public readonly bool UseHttpResponseMessageAsReturnType;
-    public readonly IDictionary<string, ParameterTransformation> ParameterTransformations;
+    public readonly Dictionary<ITypeSymbol, ParameterTransformation> ParameterTransformations;
     public readonly string ContainingControllerFullyQualifiedName;
 
     private readonly int _methodHash;
@@ -18,7 +18,7 @@ public class MethodToGenerate : IEquatable<MethodToGenerate>
     public MethodToGenerate(
         IMethodSymbol publicMethod,
         bool useHttpResponseMessageAsReturnType,
-        IDictionary<string, ParameterTransformation> parameterTransformations,
+        Dictionary<ITypeSymbol, ParameterTransformation> parameterTransformations,
         string containingControllerFullyQualifiedName,
         int methodHash,
         AddParameter[] parametersToAdd,

@@ -16,7 +16,7 @@ public class HttpCallResponse
     /// <summary>
     ///     Response content as a string.
     /// </summary>
-    public string ResultAsString { get; }
+    public string ContentAsString { get; }
 
     /// <summary>
     ///     Status code returned from server.
@@ -46,11 +46,11 @@ public class HttpCallResponse
 
     internal HttpCallResponse(
         HttpResponseMessage httpResponseMessage,
-        string resultAsString,
+        string contentAsString,
         HttpStatusCode statusCode)
     {
         HttpResponseMessage = httpResponseMessage;
-        ResultAsString = resultAsString;
+        ContentAsString = contentAsString;
         StatusCode = statusCode;
     }
 }

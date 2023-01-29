@@ -15,8 +15,7 @@ internal class HttpResponseCallFactory
     }
 
     public async Task<HttpCallResponse<TReturn>> CreateControllerCallResult<TReturn>(
-        HttpResponseMessage httpResponseMessage,
-        string callId)
+        HttpResponseMessage httpResponseMessage)
     {
         var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
         var httpCallResponse = new HttpCallResponse<TReturn>(
@@ -28,8 +27,7 @@ internal class HttpResponseCallFactory
     }
 
     public async Task<HttpCallResponse> CreateControllerCallResult(
-        HttpResponseMessage httpResponseMessage,
-        string callId)
+        HttpResponseMessage httpResponseMessage)
     {
         var resultString = await httpResponseMessage.Content.ReadAsStringAsync();
         var httpCallResponse = new HttpCallResponse(

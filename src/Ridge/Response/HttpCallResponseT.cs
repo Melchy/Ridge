@@ -17,10 +17,10 @@ public class HttpCallResponse<TResult> : HttpCallResponse
 
     internal HttpCallResponse(
         HttpResponseMessage httpResponseMessage,
-        string resultAsString,
+        string contentAsString,
         HttpStatusCode statusCode,
         IRequestResponseSerializer serializer)
-        : base(httpResponseMessage, resultAsString, statusCode)
+        : base(httpResponseMessage, contentAsString, statusCode)
     {
         _serializer = serializer;
     }
@@ -34,28 +34,28 @@ public class HttpCallResponse<TResult> : HttpCallResponse
     {
         if (!HttpResponseMessage.IsSuccessStatusCode)
         {
-            throw new InvalidOperationException($"Request failed. Status Code: '{StatusCode}', Response: '{ResultAsString}'");
+            throw new InvalidOperationException($"Request failed. Status Code: '{StatusCode}', Response: '{ContentAsString}'");
         }
 
         try
         {
-            if (string.IsNullOrEmpty(ResultAsString))
+            if (string.IsNullOrEmpty(ContentAsString))
             {
                 return default!;
             }
 
             if (typeof(TResult) == typeof(string))
             {
-                return (TResult)(object)ResultAsString;
+                return (TResult)(object)ContentAsString;
             }
 
-            return _serializer.Deserialize<TResult>(ResultAsString);
+            return _serializer.Deserialize<TResult>(ContentAsString);
         }
         catch (Exception e)
         {
             throw new InvalidOperationException("Deserialization to type: " +
-                                                $"'{typeof(TResult)}' failed using serializer: '{_serializer.GetSerializerName()}'." +
-                                                $" Json sent from server: '{ResultAsString}'",
+                                                $"'{typeof(TResult)}' failed. Serializer used : '{_serializer.GetType().FullName}'." +
+                                                $" Json sent from server: '{ContentAsString}'",
                 e);
         }
     }

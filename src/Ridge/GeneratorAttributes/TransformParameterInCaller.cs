@@ -16,12 +16,15 @@ public sealed class TransformParameterInCaller : Attribute
     ///     Type to which will <see cref="FromType" /> be transformed. If you want to remove parameter from
     ///     action use typeof(void).
     /// </param>
+    /// <param name="parameterMapping">Select how to map the parameter when creating request.</param>
     public TransformParameterInCaller(
         Type fromType,
-        Type toType)
+        Type toType,
+        ParameterMapping parameterMapping)
     {
         FromType = fromType;
         ToType = toType;
+        ParameterMapping = parameterMapping;
     }
 
     /// <summary>
@@ -36,7 +39,12 @@ public sealed class TransformParameterInCaller : Attribute
     public Type ToType { get; }
 
     /// <summary>
-    ///     Set to true if the parameter should be optional. Remember that optional parameter can not be followed by non optional parameter.
+    /// Select how to map the parameter when creating request.
+    /// </summary>
+    public ParameterMapping ParameterMapping { get; }
+
+    /// <summary>
+    ///     Set to true if the parameter should be optional.
     /// </summary>
     public bool Optional { get; set; }
 

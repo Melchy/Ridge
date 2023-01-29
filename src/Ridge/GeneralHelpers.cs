@@ -49,10 +49,8 @@ internal static class GeneralHelpers
             type == typeof(DateTimeOffset) ||
             type == typeof(TimeSpan) ||
             type == typeof(Guid) ||
-#if NET6_0_OR_GREATER
             type == typeof(DateOnly) ||
             type == typeof(TimeOnly) ||
-#endif
             type.IsEnum)
         {
             return true;
@@ -143,7 +141,13 @@ internal static class GeneralHelpers
         params IDictionary<TKey, TValue>[] dictionaries)
         where TKey : notnull
     {
-        return dictionaries.SelectMany(x => x)
-           .ToDictionary(x => x.Key, y => y.Value);
+        var mergedDictionaries = new Dictionary<TKey, TValue>();
+
+        foreach (var keyValue in dictionaries.SelectMany(x => x))
+        {
+            mergedDictionaries[keyValue.Key] = keyValue.Value;
+        }
+
+        return mergedDictionaries;
     }
 }
