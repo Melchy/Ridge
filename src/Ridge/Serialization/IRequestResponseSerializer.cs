@@ -22,11 +22,4 @@ public interface IRequestResponseSerializer
     /// <returns></returns>
     public string? Serialize(
         object? obj);
-
-    /// <summary>
-    ///     Provide debug information for better logging.
-    ///     When the serializer is chosen automatically it is nice to know which one was used.
-    /// </summary>
-    /// <returns></returns>
-    public string? GetSerializerName();
 }

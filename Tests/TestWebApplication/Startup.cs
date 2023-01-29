@@ -18,6 +18,7 @@ public static class Startup
            .ConfigureApiBehaviorOptions(options => options.SuppressInferBindingSourcesForParameters = true)
            .AddControllersAsServices()
            .AddNewtonsoftJson();
+        services.AddTransient<object>();
         services.AddSwaggerGen();
     }
 
@@ -54,7 +55,7 @@ public static class Startup
         endpoints.MapControllers();
         endpoints.MapControllerRoute(
             name: "complexExample",
-            "{controller}/{action}/{fromRoute}/");
+            "{controller}/ComplexExample/{fromRoute}/");
         endpoints.MapControllerRoute(
             name: "foo",
             "{controller}/{action}/");

@@ -29,9 +29,6 @@ internal static class SerializerProvider
             return new JsonNetSerializer();
         }
 
-        throw new InvalidOperationException(
-            "Could not detect correct serializer. " +
-            "Please provide custom implementation of IRidgeSerializer. " +
-            "For more information see documentation");
+        return new SystemJsonSerializer();
     }
 }

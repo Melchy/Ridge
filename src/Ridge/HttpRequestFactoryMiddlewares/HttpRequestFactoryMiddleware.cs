@@ -15,12 +15,12 @@ public abstract class HttpRequestFactoryMiddleware
     ///     Method creating http request message.
     /// </summary>
     /// <param name="requestFactoryContext">
-    ///     <see cref="RequestFactoryContext" /> which contains data used to create
+    ///     <see cref="IRequestFactoryContext" /> which contains data used to create
     ///     <see cref="HttpRequestMessage" />.
     /// </param>
     /// <returns><see cref="HttpRequestMessage" /> which will be send to the server.</returns>
     public virtual async Task<HttpRequestMessage> CreateHttpRequest(
-        RequestFactoryContext requestFactoryContext)
+        IRequestFactoryContext requestFactoryContext)
     {
         if (RequestFactoryMiddlewareInner == null)
         {

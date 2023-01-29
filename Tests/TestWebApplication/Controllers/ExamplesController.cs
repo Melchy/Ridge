@@ -1,27 +1,50 @@
 ﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Ridge.GeneratorAttributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
 
 [GenerateCaller]
+[AddParameterToCaller(typeof(string), "GeneratedParameter", ParameterMapping.MapToQueryOrRouteParameter, Optional = true)]
+[TransformParameterInCaller(fromType: typeof(CountryCode), toType: typeof(string), ParameterMapping.MapToQueryOrRouteParameter)]
 public class ExamplesController : Controller
 {
-    // Example controller
-    // Method must be virtual
+    [HttpGet("ReadQueryParameterFromHttpContext")]
+    public async Task<string> ReadQueryParameterFromHttpContext()
+    {
+        return HttpContext.Request.Query["GeneratedParameter"];
+    }
+
+
+    private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
+
+    public ExamplesController(
+        IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)
+    {
+        _actionDescriptorCollectionProvider = actionDescriptorCollectionProvider;
+    }
+
     [HttpGet("ReturnGivenNumber")]
-    public virtual ActionResult<int> ReturnGivenNumber(
+    public ActionResult<int> ReturnGivenNumber(
         [FromQuery] int input)
     {
         return input;
     }
 
+    [HttpGet("ReturnAllHeaders")]
+    public ActionResult<IEnumerable<(string key, string value)>> ReturnAllHeaders()
+    {
+        return new ActionResult<IEnumerable<(string key, string value)>>(HttpContext.Request.Headers.Select(x => (x.Key, x.Value.FirstOrDefault())));
+    }
+
     [HttpGet("ThrowException")]
-    public virtual ActionResult ThrowException()
+    public ActionResult ThrowException()
     {
         throw new InvalidOperationException("Exception throw");
     }
@@ -29,7 +52,7 @@ public class ExamplesController : Controller
     // notice that you don't have to use endpoint routing
     // route for this action is defined in startup in following way
     // endpoints.MapControllerRoute(name: "complexExample", "{controller}/{action}/{fromRoute}");
-    public virtual ActionResult<ResponseObject> ComplexExample(
+    public ActionResult<ResponseObject> ComplexExample(
         [FromQuery] ComplexObject complexObjectFromQuery,
         [FromQuery] List<string> listOfSimpleTypesFromQuery,
         [FromBody] List<ComplexObject> complexObjectsFromBody,
@@ -46,32 +69,51 @@ public class ExamplesController : Controller
         };
     }
 
-    [HttpGet("customModelBinder/{thisIsBoundedUsingCustomBinder}")]
-    public virtual ActionResult<string> CustomModelBinderExample(
-        [ModelBinder(typeof(CountryCodeBinder))] string boundFromCustomModelBinder)
+    [HttpGet("ReturnHeader")]
+    public async Task<string> ReturnHeader(
+        string headerName)
     {
-        return boundFromCustomModelBinder;
+        return HttpContext.Request.Headers[headerName];
     }
-
+    
     [HttpGet("CallThatNeedsHeaders")]
-    public virtual ActionResult CallThatNeedsHeaders()
+    public ActionResult CallThatNeedsHeaders()
     {
         return Ok();
     }
 
-    public class CountryCodeBinder : IModelBinder
+    [HttpGet("CallWithCustomModelBinder")]
+    public ActionResult<string> WithCustomModelBinder(
+        [ModelBinder(typeof(BindCountryCodeFromQueryOrHeader))] CountryCode countryCode)
+    {
+        return countryCode.Value;
+    }
+
+    public class BindCountryCodeFromQueryOrHeader : IModelBinder
     {
         public Task BindModelAsync(
             ModelBindingContext bindingContext)
         {
-            var str = bindingContext.ActionContext.HttpContext
-               .Request.RouteValues["countryCode"]!.ToString();
-            bindingContext.Result = ModelBindingResult.Success(str);
+            // Get value from query or header
+            var str = bindingContext.ActionContext.HttpContext.Request.Headers["countryCode"].FirstOrDefault() ??
+                      bindingContext.ActionContext.HttpContext.Request.Query["countryCode"].FirstOrDefault();
+
+            bindingContext.Result = ModelBindingResult.Success(str == null ? null : new CountryCode(str));
             return Task.CompletedTask;
         }
     }
-}
 
+    public class CountryCode
+    {
+        public string Value { get; }
+
+        public CountryCode(
+            string value)
+        {
+            Value = value;
+        }
+    }
+}
 public class ComplexObject
 {
     public string Str { get; set; }

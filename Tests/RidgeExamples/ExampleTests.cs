@@ -1,179 +1,210 @@
-﻿// using Microsoft.AspNetCore.Mvc.Testing;
-// using NUnit.Framework;
-// using Ridge.CallResult.Controller.Extensions;
-// using Ridge.Interceptor;
-// using Ridge.LogWriter;
-// using Ridge.Pipeline.Public;
-// using Ridge.Transformers;
-// using System;
-// using System.Collections.Generic;
-// using System.Linq;
-// using System.Net.Http;
-// using System.Net.Http.Headers;
-// using System.Net.Http.Json;
-// using System.Threading.Tasks;
-// using TestWebApplication;
-// using TestWebApplication.Controllers.Examples;
-//
-// namespace RidgeExamples
-// {
-//     public class ExampleTests
-//     {
-//         [Test]
-//         public async Task TestUsingWebApplicationFactory()
-//         {
-//             var webApplicationFactory = new WebApplicationFactory<Startup>();
-//             var client = webApplicationFactory.CreateClient();
-//
-//             var result = await client.GetFromJsonAsync<int>("/ReturnGivenNumber?input=10");
-//
-//             Assert.AreEqual(10, result);
-//         }
-//
-//
-//         [Test]
-//         public void TestUsingRidge()
-//         {
-//             var webApplicationFactory = new WebApplicationFactory<Startup>();
-//             var client = webApplicationFactory.CreateClient();
-//             var controllerFactory = new ControllerFactory(
-//                 client,
-//                 webApplicationFactory.Services,
-//                 new NunitLogWriter());
-//
-//             var testController = controllerFactory.CreateController<ExamplesController>();
-//             // Ridge transforms method call to httpRequest
-//             var response = testController.ReturnGivenNumber(10);
-//
-//             Assert.True(response.IsSuccessStatusCode());
-//             Assert.AreEqual(10, response.GetResult());
-//         }
-//
-//
-//         [Test]
-//         public async Task ThrowExceptionTest()
-//         {
-//             var webApplicationFactory = new WebApplicationFactory<Startup>();
-//             var client = webApplicationFactory.CreateClient();
-//             var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services);
-//
-//             var testController = controllerFactory.CreateController<ExamplesController>();
-//             try
-//             {
-//                 _ = testController.ThrowException();
-//             }
-//             catch (InvalidOperationException e)
-//             {
-//                 Assert.AreEqual("Exception throw", e.Message);
-//             }
-//         }
-//
-//         [Test]
-//         public void ComplexTest()
-//         {
-//             var webAppFactory = new WebApplicationFactory<Startup>();
-//             var client = webAppFactory.CreateClient();
-//             var controllerFactory = new ControllerFactory(client,
-//                 webAppFactory.Services,
-//                 new NunitLogWriter()); // add writer which writes generated requests to test output.
-//             // Register transformer which allows us to work with custom model binder
-//             controllerFactory.AddActionInfoTransformer(new CustomModelBinderTransformer());
-//             // add httpRequestTransformation which allows us to transform final http request
-//             controllerFactory.AddHttpRequestPipelinePart(new HttpRequestTransformationPipelinePart());
-//             var testController = controllerFactory.CreateController<ExamplesController>();
-//             var response = testController.ComplexExample(
-//                 complexObjectFromQuery: new ComplexObject()
-//                 {
-//                     Str = "str",
-//                     NestedComplexObject = new NestedComplexObject()
-//                     {
-//                         Integer = 1,
-//                         Str = "string",
-//                     },
-//                 },
-//                 listOfSimpleTypesFromQuery: new List<string>()
-//                 {
-//                     "foo", "bar",
-//                 },
-//                 complexObjectsFromBody: new List<ComplexObject>()
-//                 {
-//                     new()
-//                     {
-//                         Str = "str",
-//                         NestedComplexObject = new NestedComplexObject()
-//                         {
-//                             Integer = 5,
-//                             Str = "bar",
-//                         },
-//                     },
-//                 },
-//                 fromRoute: 1,
-//                 examplesController: null); // this value won`t be used
-//
-//             Assert.AreEqual("str", response.GetResult().ComplexObjectFromQuery.Str);
-//             Assert.AreEqual("string", response.GetResult().ComplexObjectFromQuery.NestedComplexObject.Str);
-//             Assert.AreEqual("foo", response.GetResult().ListOfSimpleTypesFromQuery.First());
-//             Assert.AreEqual(5, response.GetResult().ComplexObjectsFromBody.First().NestedComplexObject.Integer);
-//             Assert.AreEqual(1, response.GetResult().FromRoute);
-//         }
-//
-//
-//         [Test]
-//         public void CustomModelBinderTest()
-//         {
-//             var webAppFactory = new WebApplicationFactory<Startup>();
-//             var client = webAppFactory.CreateClient();
-//             var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
-//             // Register action transformer which allows us to work with custom model binder
-//             controllerFactory.AddActionInfoTransformer(new CustomModelBinderTransformer());
-//             var testController = controllerFactory.CreateController<ExamplesController>();
-//             var response = testController.CustomModelBinderExample("exampleValue");
-//
-//             Assert.AreEqual("exampleValue", response.GetResult());
-//         }
-//
-//         [Test]
-//         public void HttpRequestPipelineTest()
-//         {
-//             var webAppFactory = new WebApplicationFactory<Startup>();
-//             var client = webAppFactory.CreateClient();
-//             var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
-//
-//             controllerFactory.AddHttpRequestPipelinePart(new HttpRequestTransformationPipelinePart());
-//
-//             var testController = controllerFactory.CreateController<ExamplesController>();
-//             var response = testController.CallThatNeedsHeaders();
-//
-//             Assert.True(response.IsSuccessStatusCode());
-//         }
-//     }
-//
-//     public class CustomModelBinderTransformer : IActionInfoTransformer
-//     {
-//         public Task TransformAsync(
-//             IActionInfo actionInfo, // IActionInfo contains information about request
-//             InvocationInfo invocationInfo) // invocation info contains information about method that was called
-//         {
-//             // set route parameter "thisIsBoundedUsingCustomBinder" to value of first argument passed to method
-//             actionInfo.RouteParams.Add("thisIsBoundedUsingCustomBinder", invocationInfo.Arguments.First());
-//             return Task.CompletedTask;
-//         }
-//     }
-//
-//     public class HttpRequestTransformationPipelinePart : IHttpRequestPipelinePart
-//     {
-//         public async Task<HttpResponseMessage> InvokeAsync(
-//             Func<Task<HttpResponseMessage>> next,
-//             HttpRequestMessage httpRequestMessage,
-//             IReadOnlyActionInfo actionInfo,
-//             InvocationInfo invocationInfo)
-//         {
-//             // transform http request
-//             httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-//             var response = await next();
-//             // we could even transform response
-//             //response.Content = new StringContent("foo");
-//             return response;
-//         }
-//     }
-// }
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using NUnit.Framework;
+using Ridge;
+using Ridge.HttpRequestFactoryMiddlewares;
+using Ridge.Parameters.CustomParams;
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
+using TestWebApplication;
+using TestWebApplication.Controllers;
+
+namespace RidgeExamples;
+
+public class ExampleTests
+{
+    // Test file
+    [Test]
+    public async Task CallControllerUsingRidge()
+    {
+        // Create special WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
+        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        // create http client for ridge caller
+        var client = ridgeApplicationFactory.CreateRidgeClient();
+        var examplesControllerCaller = new ExamplesControllerCaller(client);
+
+        // Ridge wraps the HttpResponseMessage in a convenient wrapper class
+        var response = await examplesControllerCaller.CallReturnGivenNumber(10);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.AreEqual(10, response.Result);
+
+        // Access the http response directly
+        Assert.True(response.HttpResponseMessage.IsSuccessStatusCode);
+    }
+
+    // Equivalent code without using ridge 
+    [Test]
+    public async Task CallControllerWithoutRidge()
+    {
+        // Create special WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
+        using var ridgeApplicationFactory = new WebApplicationFactory<Program>();
+        // create http client for ridge caller
+        var client = ridgeApplicationFactory.CreateClient();
+
+        var response = await client.GetAsync("/returnGivenNumber/?input=10");
+        Assert.True(response.IsSuccessStatusCode);
+        var responseAsString = await response.Content.ReadAsStringAsync();
+        Assert.AreEqual(10, JsonSerializer.Deserialize<int>(responseAsString));
+    }
+
+
+    [Test]
+    public async Task ThrowExceptionTest()
+    {
+        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+
+        try
+        {
+            _ = await examplesControllerCaller.CallThrowException();
+        }
+        catch (InvalidOperationException e)
+        {
+            Assert.AreEqual("Exception throw", e.Message);
+        }
+    }
+
+
+    [Test]
+    public async Task HttpRequestFactoryExample()
+    {
+        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        ridgeApplicationFactory.AddHttpRequestFactoryMiddleware(new AddHeaderHttpRequestFactoryMiddleware("exampleHeader", "exampleHeaderValue"));
+        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+
+        // controller finds header by it's name and returns it's value
+        var response = await examplesControllerCaller.CallReturnHeader(headerName: "exampleHeader");
+        Assert.AreEqual("exampleHeaderValue", response.Result);
+    }
+
+    [Test]
+    public async Task AddHeaderSimple()
+    {
+        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        // use AddHeader
+        ridgeApplicationFactory.AddHeader(new HttpHeaderParameter("exampleHeader", "exampleHeaderValue"));
+        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+
+        // controller finds header by it's name and returns it's value
+        var response = await examplesControllerCaller.CallReturnHeader(headerName: "exampleHeader");
+        Assert.AreEqual("exampleHeaderValue", response.Result);
+    }
+
+    [Test]
+    public async Task ParameterAddedByRidge()
+    {
+        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+
+        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+
+        // controller finds header by it's name and returns it's value
+        var response = await examplesControllerCaller.CallReadQueryParameterFromHttpContext(GeneratedParameter: "queryParameterValue");
+        Assert.AreEqual("queryParameterValue", response.Result);
+    }
+
+    [Test]
+    public async Task CustomModelBinderTest()
+    {
+        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+
+        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+
+        // controller finds header by it's name and returns it's value
+        var response = await examplesControllerCaller.CallWithCustomModelBinder("cs-CZ");
+        Assert.AreEqual("cs-CZ", response.Result);
+    }
+
+    [Test]
+    public async Task CustomParameter()
+    {
+        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        ridgeApplicationFactory.AddHttpRequestFactoryMiddleware(new AddHeaderFromCustomParameters());
+        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+
+        // action returns all passed headers
+        var response = await examplesControllerCaller.CallReturnAllHeaders(customParameters: new CustomParameter("exampleHeader", "exampleHeaderValue"));
+
+        Assert.AreEqual("exampleHeaderValue", response.Result.First(x => x.key == "exampleHeader").value);
+    }
+}
+
+public class AddHeaderFromCustomParameters : HttpRequestFactoryMiddleware
+{
+    public override Task<HttpRequestMessage> CreateHttpRequest(
+        IRequestFactoryContext requestFactoryContext)
+    {
+        var customParameters = requestFactoryContext.ParameterProvider.GetCustomParameters();
+
+        foreach (var customParameter in customParameters)
+        {
+            requestFactoryContext.Headers.Add(customParameter.Name, customParameter.Value?.ToString());
+        }
+
+        return base.CreateHttpRequest(requestFactoryContext);
+    }
+}
+
+public class CountryCodeHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
+{
+    public override Task<HttpRequestMessage> CreateHttpRequest(
+        IRequestFactoryContext requestFactoryContext)
+    {
+        var parameterValue = requestFactoryContext.ParameterProvider
+           .GetCallerParameters()
+           .GetValueByNameOrDefault<string>("countryCode");
+        if (string.IsNullOrEmpty(parameterValue))
+        {
+            return base.CreateHttpRequest(requestFactoryContext);
+        }
+
+        requestFactoryContext.UrlGenerationParameters["countryCode"] = parameterValue;
+        return base.CreateHttpRequest(requestFactoryContext);
+    }
+}
+
+public class MapQueryParameterHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
+{
+    public override Task<HttpRequestMessage> CreateHttpRequest(
+        IRequestFactoryContext requestFactoryContext)
+    {
+        var parameterValue = requestFactoryContext.ParameterProvider
+           .GetCallerParameters()
+           .GetValueByNameOrDefault<string>("GeneratedParameter");
+        if (string.IsNullOrEmpty(parameterValue))
+        {
+            return base.CreateHttpRequest(requestFactoryContext);
+        }
+
+        requestFactoryContext.UrlGenerationParameters["ExampleQueryParameter"] = parameterValue;
+        return base.CreateHttpRequest(requestFactoryContext);
+    }
+}
+
+public class AddHeaderHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
+{
+    private readonly string _headerName;
+    private readonly string _headerValue;
+
+    public AddHeaderHttpRequestFactoryMiddleware(
+        string headerName,
+        string headerValue)
+    {
+        _headerName = headerName;
+        _headerValue = headerValue;
+    }
+
+    public override Task<HttpRequestMessage> CreateHttpRequest(
+        IRequestFactoryContext requestFactoryContext)
+    {
+        requestFactoryContext.Headers.Add(_headerName, _headerValue);
+        return base.CreateHttpRequest(requestFactoryContext);
+    }
+}

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Ridge.Parameters;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 
 namespace Ridge.DelegationHandlers;
@@ -13,76 +14,47 @@ public class RequestDescription
     /// <summary>
     /// Key which identified this object in <see cref="HttpRequestOptions"/>.
     /// </summary>
-    public static string OptionsKey = nameof(RequestDescription);
+    public const string OptionsKey = nameof(RequestDescription);
+
+    
+    /// <summary>
+    /// Action and caller arguments.
+    /// </summary>
+    public ParameterProvider ParameterProvider { get; }
+    
+    
+    /// <summary>
+    ///     Id used to identify call. This id is was to header.
+    /// </summary>
+    public Guid CallId { get; }
+    
+    /// <summary>
+    ///     Controller method which should be called when request is processed.
+    /// </summary>
+    public MethodInfo CalledControllerMethodInfo { get; }
 
     /// <summary>
-    /// Body of request
+    /// Parameters which were used to Generate URL. This dictionary must contain all query parameters,
+    /// route parameters, controller name, action name and area.
     /// </summary>
-    public object? Body { get; }
-
-    /// <summary>
-    /// Route parameters
-    /// </summary>
-    public IReadOnlyDictionary<string, object?> RouteParams { get; }
-
-    /// <summary>
-    /// Http content type
-    /// </summary>
-    public string HttpContentType { get; }
-
-    /// <summary>
-    /// Http headers
-    /// </summary>
-    public HttpHeaders Headers { get; }
-
-    /// <summary>
-    /// Controller method which should be called when request is processed.
-    /// </summary>
-    public MethodInfo CalledMethod { get; }
-
-    /// <summary>
-    /// Arguments passed to Caller
-    /// </summary>
-    public IEnumerable<object?> PassedArguments { get; }
-
-    /// <summary>
-    /// Http method
-    /// </summary>
-    public string HttpMethod { get; } = null!;
-
-    /// <summary>
-    /// Custom parameters provided by user in CustomParameters argument
-    /// </summary>
-    public CustomParameterProvider CustomParametersProvider { get; }
+    public IReadOnlyDictionary<string, object?> UrlGenerationParameters { get; }
 
     /// <summary>
     /// Creates <see cref="RequestDescription"/> 
     /// </summary>
-    /// <param name="body">Http body</param>
-    /// <param name="routeParams">Route parameters</param>
-    /// <param name="httpContentType">Http content type</param>
-    /// <param name="httpMethod">Http method</param>
-    /// <param name="headers">Http headers</param>
-    /// <param name="calledMethod">Controller method which should be called when request is processed</param>
-    /// <param name="passedArguments">Arguments passed to Caller</param>
-    /// <param name="customParametersProvider">Custom parameters provided by user in CustomParameters argument</param>
+    /// <param name="callId">Id used to identify call. This id is was to header.</param>
+    /// <param name="parameterProvider">Action and caller arguments.</param>
+    /// <param name="urlGenerationParameters">Parameters which were used to Generate URL. This dictionary must contain all query parameters, route parameters, controller name, action name and area.</param>
+    /// <param name="calledControllerMethodInfo">Controller method which should be called when request is processed.</param>
     public RequestDescription(
-        object? body,
-        IReadOnlyDictionary<string, object?> routeParams,
-        string httpContentType,
-        string httpMethod,
-        HttpHeaders headers,
-        MethodInfo calledMethod,
-        IEnumerable<object?> passedArguments,
-        CustomParameterProvider customParametersProvider)
+        IReadOnlyDictionary<string, object?> urlGenerationParameters,
+        MethodInfo calledControllerMethodInfo,
+        Guid callId,
+        ParameterProvider parameterProvider)
     {
-        Body = body;
-        RouteParams = routeParams;
-        HttpContentType = httpContentType;
-        HttpMethod = httpMethod;
-        Headers = headers;
-        CalledMethod = calledMethod;
-        PassedArguments = passedArguments;
-        CustomParametersProvider = customParametersProvider;
+        UrlGenerationParameters = urlGenerationParameters;
+        CalledControllerMethodInfo = calledControllerMethodInfo;
+        CallId = callId;
+        ParameterProvider = parameterProvider;
     }
 }

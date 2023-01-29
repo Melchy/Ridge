@@ -10,6 +10,6 @@ public interface ILogWriter
     ///     Write log line to console.
     /// </summary>
     /// <param name="text">Message to be logged.</param>
-    public void WriteLine(
+    void WriteLine(
         string text);
 }

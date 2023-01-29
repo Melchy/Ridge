@@ -52,19 +52,24 @@ public static class CallerMethodGenerationHelper
         sb.Append($" Call{publicMethod.Name}(");
 
         var stringBuilderForOptionalParameters = new StringBuilder();
-        var nonRemovedArgumentNames = AddUserParameters(methodToGenerate,
-            cancellationToken,
-            publicMethod,
-            sb,
+        var transformedParameters = ParameterTransformationService.GetTransformation(
+            publicMethod.Parameters,
+            methodToGenerate.ParameterTransformations,
             parameterNamePostfixTransformer,
-            stringBuilderForOptionalParameters);
+            methodToGenerate.ParametersToAdd);
+
+        ProcessParameters(sb,
+            stringBuilderForOptionalParameters,
+            transformedParameters,
+            cancellationToken);
+        
         sb.Append(stringBuilderForOptionalParameters);
         AddRidgeParameters(sb);
 
         cancellationToken.ThrowIfCancellationRequested();
         
         sb.AppendLine(@"        {");
-        AddMethodBody(methodToGenerate, cancellationToken, sb, publicMethod, nonRemovedArgumentNames, returnType);
+        AddMethodBody(methodToGenerate, cancellationToken, sb, publicMethod, transformedParameters, returnType);
         sb.AppendLine(@"        }");
         sb.AppendLine();
 
@@ -76,24 +81,12 @@ public static class CallerMethodGenerationHelper
         CancellationToken cancellationToken,
         StringBuilder sb,
         IMethodSymbol publicMethod,
-        List<string> nonRemovedArgumentNames,
+        ParameterAndTransformationInfo[] parametersAndTransformationsInfo,
         string? returnType)
     {
         sb.Append($$"""
                                 var methodName = nameof({{methodToGenerate.ContainingControllerFullyQualifiedName}}.{{publicMethod.Name}});
-                                var arguments = new List<object?>()
-                                { 
                     """);
-        foreach (var parameterName in nonRemovedArgumentNames)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            sb.Append($@"
-                {parameterName},");
-        }
-
-        sb.AppendLine();
-        sb.AppendLine(@"            };");
-
 
         sb.Append(@"
             var actionParameters = new Type[] {");
@@ -106,6 +99,40 @@ public static class CallerMethodGenerationHelper
 
         sb.AppendLine(@"
             };");
+
+        sb.AppendLine("""
+                                var parametersAndTransformations = new List<RawParameterAndTransformationInfo>()
+                                { 
+                    """);
+        foreach (var parameterAndTransformationInfo in parametersAndTransformationsInfo)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            sb.Append($@"                RawParameterAndTransformationInfo.Create<{methodToGenerate.ContainingControllerFullyQualifiedName}>(");
+            sb.Append(parameterAndTransformationInfo.OriginalName == null ? "null," : $"\"{parameterAndTransformationInfo.OriginalName}\",");
+            sb.Append(parameterAndTransformationInfo.OriginalParameterSymbol?.Type == null ? "null," : $"typeof({parameterAndTransformationInfo.OriginalParameterSymbol?.Type.ToDisplayString(NullableFlowState.NotNull)}),");
+            sb.Append(parameterAndTransformationInfo.OriginalIsOptional == null ? "null," : $"{parameterAndTransformationInfo.OriginalIsOptional.Value.ToString().ToLower()},");
+            sb.Append(parameterAndTransformationInfo.AddedOrTransformedParameterMapping == null ? "null," : $"{(int?)parameterAndTransformationInfo.AddedOrTransformedParameterMapping.Value},");
+
+            if (!parameterAndTransformationInfo.WasDeleted)
+            {
+                sb.Append($"@{parameterAndTransformationInfo.NameInCaller},");
+            }
+            else
+            {
+                sb.Append("null,");
+            }
+
+            sb.AppendLine($"typeof({parameterAndTransformationInfo.TypeInCaller.ToDisplayString(NullableFlowState.NotNull)}), " +
+                          $"\"{parameterAndTransformationInfo.NameInCaller}\", " +
+                          $"{parameterAndTransformationInfo.WasDeleted.ToString().ToLower()}, " +
+                          $"{parameterAndTransformationInfo.IsOptionalInCaller.ToString().ToLower()}, " +
+                          $"{parameterAndTransformationInfo.IsTransformedOrAdded.ToString().ToLower()}," +
+                          "methodName," +
+                          "actionParameters),");
+        }
+
+        sb.AppendLine(@"            };");
 
         if (methodToGenerate.UseHttpResponseMessageAsReturnType)
         {
@@ -123,42 +150,13 @@ public static class CallerMethodGenerationHelper
             }
         }
 
-        sb.AppendLine($"{methodToGenerate.ContainingControllerFullyQualifiedName}>(arguments, methodName, actionParameters, customParameters);");
+        sb.AppendLine($"{methodToGenerate.ContainingControllerFullyQualifiedName}>(methodName, actionParameters, customParameters, parametersAndTransformations);");
     }
 
     private static void AddRidgeParameters(
         StringBuilder sb)
     {
-        sb.AppendLine(@"params object[] customParameters)");
-    }
-
-    private static List<string> AddUserParameters(
-        MethodToGenerate methodToGenerate,
-        CancellationToken cancellationToken,
-        IMethodSymbol publicMethod,
-        StringBuilder sb,
-        ParameterNamePostfixTransformer parameterNamePostfixTransformer,
-        StringBuilder stringBuilderForOptionalParameters)
-    {
-        var nonRemovedArgumentNames = new List<string>();
-
-        foreach (var publicMethodParameter in publicMethod.Parameters)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            ProcessParameter(sb,
-                stringBuilderForOptionalParameters,
-                methodToGenerate,
-                publicMethodParameter,
-                nonRemovedArgumentNames,
-                parameterNamePostfixTransformer);
-        }
-
-        foreach (var addParameter in methodToGenerate.ParametersToAdd)
-        {
-            ProcessParameterAddedByUser(sb, stringBuilderForOptionalParameters, addParameter, parameterNamePostfixTransformer);
-        }
-
-        return nonRemovedArgumentNames;
+        sb.AppendLine(@"params CustomParameter[] customParameters)");
     }
 
     private static string? AddReturnType(
@@ -201,158 +199,65 @@ public static class CallerMethodGenerationHelper
             """);
     }
 
-    private static void ProcessParameterAddedByUser(
-        StringBuilder stringBuilder,
-        StringBuilder stringBuilderForOptionalParameters,
-        AddParameter parameterToAdd,
-        ParameterNamePostfixTransformer parameterNamePostfixTransformer)
-    {
-        StringBuilder stringBuidlerToUse;
-        if (parameterToAdd.IsOptional)
-        {
-            stringBuidlerToUse = stringBuilderForOptionalParameters;
-        }
-        else
-        {
-            stringBuidlerToUse = stringBuilder;
-        }
-        
-        if (parameterToAdd.IsOptional)
-        {
-            stringBuidlerToUse.Append(MakeTypeNullableIfItIsNotAlready(parameterToAdd.Type));
-        }
-        else
-        {
-            stringBuidlerToUse.Append(parameterToAdd.Type);
-        }
-
-        stringBuidlerToUse.Append(" ");
-        stringBuidlerToUse.Append(parameterNamePostfixTransformer.TransformName(parameterToAdd.Name));
-        if (parameterToAdd.IsOptional)
-        {
-            stringBuidlerToUse.Append(" = default");
-        }
-
-        stringBuidlerToUse.Append(", ");
-    }
-
-    private static void ProcessParameter(
+    private static void ProcessParameters(
         StringBuilder sb,
         StringBuilder stringBuilderForOptionalParameters,
-        MethodToGenerate methodToGenerate,
-        IParameterSymbol publicMethodParameter,
-        List<string> nonRemovedArgumentNames,
-        ParameterNamePostfixTransformer parameterNamePostfixTransformer)
+        ParameterAndTransformationInfo[] parameterBuilds,
+        CancellationToken cancellationToken)
     {
-        var fromServicesAttribute = publicMethodParameter.GetAttributes().FirstOrDefault(x => x.AttributeClass?.Name == "FromServicesAttribute");
-        StringBuilder builderToUseForCurrentParameter;
-        if (fromServicesAttribute != null)
+        foreach (var parameter in parameterBuilds)
         {
-            return;
-        }
-
-        string resultName;
-        var typeMustBeTransformed =
-            methodToGenerate.ParameterTransformations.TryGetValue(
-                publicMethodParameter.Type.Name,
-                out var result);
-
-        if (typeMustBeTransformed)
-        {
-            if (result.ToType == "Void")
+            cancellationToken.ThrowIfCancellationRequested();
+            if (parameter.WasDeleted)
             {
-                return;
+                continue;
             }
 
-            if (result.Optional)
+            if (parameter.IsOptionalInCaller)
             {
-                builderToUseForCurrentParameter = stringBuilderForOptionalParameters;
-            }
-            else
-            {
-                builderToUseForCurrentParameter = sb;
-            }
-            
-            if (result.Optional)
-            {
-                builderToUseForCurrentParameter.Append(MakeTypeNullableIfItIsNotAlready(result.ToType));
-            }
-            else
-            {
-                builderToUseForCurrentParameter.Append(result.ToType);
-            }
+                string defaultValue;
+                string type;
 
-            builderToUseForCurrentParameter.Append(" ");
-            if (result.NewName != null)
-            {
-                resultName = result.NewName;
-                builderToUseForCurrentParameter.Append(parameterNamePostfixTransformer.TransformName(resultName));
-            }
-            else
-            {
-                resultName = $"@{publicMethodParameter.Name}";
-                builderToUseForCurrentParameter.Append(resultName);
-            }
-
-            if (result.Optional)
-            {
-                builderToUseForCurrentParameter.Append(" = default");
-            }
-        }
-        else
-        {
-            if (publicMethodParameter.IsOptional)
-            {
-                builderToUseForCurrentParameter = stringBuilderForOptionalParameters;
-            }
-            else
-            {
-                builderToUseForCurrentParameter = sb;
-            }
-            
-            resultName = $"@{publicMethodParameter.Name}";
-            builderToUseForCurrentParameter.Append(
-                $$"""
-                {{publicMethodParameter.Type}} {{resultName}}  
-                """);
-
-            if (publicMethodParameter.HasExplicitDefaultValue)
-            {
-                builderToUseForCurrentParameter.Append("= ");
-                if (publicMethodParameter.ExplicitDefaultValue == null)
+                if (parameter.IsTransformedOrAdded)
                 {
-                    builderToUseForCurrentParameter.Append("default");
-                }
-                else if (publicMethodParameter.ExplicitDefaultValue is string)
-                {
-                    builderToUseForCurrentParameter.Append(
-                        $$"""
-                        "{{publicMethodParameter.ExplicitDefaultValue}}"
-                        """);
-                }
-                else if (publicMethodParameter.ExplicitDefaultValue is char)
-                {
-                    builderToUseForCurrentParameter.Append(
-                        $$"""
-                        '{{publicMethodParameter.ExplicitDefaultValue}}'
-                        """);
+                    defaultValue = "default";
+                    type = parameter.TypeInCaller.ToDisplayString(NullableFlowState.MaybeNull);
                 }
                 else
                 {
-                    builderToUseForCurrentParameter.Append(publicMethodParameter.ExplicitDefaultValue);
+                    type = parameter.TypeInCaller.ToDisplayString();
+                    if (parameter.OriginalParameterSymbol!.HasExplicitDefaultValue)
+                    {
+                        if (parameter.OriginalParameterSymbol!.ExplicitDefaultValue == null)
+                        {
+                            defaultValue = "default";
+                        }
+                        else if (parameter.OriginalParameterSymbol!.ExplicitDefaultValue is string)
+                        {
+                            defaultValue = $"\"{parameter.OriginalParameterSymbol!.ExplicitDefaultValue}\"";
+                        }
+                        else if (parameter.OriginalParameterSymbol!.ExplicitDefaultValue is char)
+                        {
+                            defaultValue = $"\'{parameter.OriginalParameterSymbol!.ExplicitDefaultValue}'";
+                        }
+                        else
+                        {
+                            defaultValue = parameter.OriginalParameterSymbol!.ExplicitDefaultValue.ToString();
+                        }
+                    }
+                    else
+                    {
+                        defaultValue = "default";
+                    }
                 }
+
+                stringBuilderForOptionalParameters.Append($@"{type} @{parameter.NameInCaller} = {defaultValue}, ");
+            }
+            else
+            {
+                sb.Append($@"{parameter.TypeInCaller} @{parameter.NameInCaller}, ");
             }
         }
-
-        nonRemovedArgumentNames.Add(resultName);
-        builderToUseForCurrentParameter.Append(", ");
-    }
-
-    private static string MakeTypeNullableIfItIsNotAlready(
-        string type)
-    {
-        var typeWithNullable = type.TrimEnd('?');
-        return $"{typeWithNullable}?";
     }
 
     private static string? GetActualReturnType(

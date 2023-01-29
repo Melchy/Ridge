@@ -1,7 +1,6 @@
 # Ridge
 
-Testing tool which allows strongly typed http requests using
-[WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory).
+Source generator which generates api caller for integration tests.
 
 ## Install Ridge
 
@@ -19,349 +18,180 @@ dotnet add package RidgeDotNet
 
 ## Example
 
-ASP.NET Core 2.1
-added [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory)
-which can be used to create mock web server. Mock web server can perform http calls in-process without network overhead:
-
 ```csharp
-// Example controller
-[HttpGet("ReturnGivenNumber")]
-public ActionResult<int> ReturnGivenNumber([FromQuery] int input)
+// Controller class
+// Notice the attribute
+[GenerateCaller]
+public class ExamplesController : Controller
 {
-    return input;
+    [HttpGet("ReturnGivenNumber")]
+    public ActionResult<int> ReturnGivenNumber(
+        [FromQuery] int input)
+    {
+        return input;
+    }
 }
 
-//...
+// Test file
 [Test]
-public async Task ExampleTest()
+public async Task CallControllerUsingRidge()
 {
-    var webApplicationFactory = new WebApplicationFactory<Startup>();
-    var client = webApplicationFactory.CreateClient();
+    // Create special WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    // create http client for ridge caller
+    var client = ridgeApplicationFactory.CreateRidgeClient();
+    var examplesControllerCaller = new ExamplesControllerCaller(client);
 
-    var result = await client.GetFromJsonAsync<int>("/Test/ReturnGivenNumber?input=10");
+    // Ridge wraps the HttpResponseMessage in a convenient wrapper class
+    var response = await examplesControllerCaller.CallReturnGivenNumber(10);
+    Assert.True(response.IsSuccessStatusCode);
+    Assert.AreEqual(10, response.Result);
 
-    Assert.AreEqual(10, result);
+    // Access the http response directly
+    Assert.True(response.HttpResponseMessage.IsSuccessStatusCode);
+}
+
+// Equivalent code without using ridge 
+[Test]
+public async Task CallControllerWithoutRidge()
+{
+    // Create webApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
+    using var ridgeApplicationFactory = new WebApplicationFactory<Program>();
+    // create http client
+    var client = ridgeApplicationFactory.CreateClient();
+
+    var response = await client.GetAsync("/returnGivenNumber/?input=10");
+    Assert.True(response.IsSuccessStatusCode);
+    var responseAsString = await response.Content.ReadAsStringAsync();
+    Assert.AreEqual(10, JsonSerializer.Deserialize<int>(responseAsString));
 }
 ```
 
-Ridge simplifies use of [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory) by creating HttpRequest from method call:
+## Why should I test my controllers?
 
-```csharp
-[Test]
-public void TestUsingRidge()
-{
-    var webApplicationFactory = new WebApplicationFactory<Startup>();
-    var client = webApplicationFactory.CreateClient();
-    var controllerFactory = new ControllerFactory(
-        client,
-        webApplicationFactory.Services,
-        new NunitLogWriter());
-
-    // Ridge inherits from ExamplesController at runtime and replaces all methods with custom implementation.
-    var testController = controllerFactory.CreateController<ExamplesController>();
-    // This call generates http request and returns it's result as ActionResult.
-    var response = testController.ReturnGivenNumber(10);
-
-    // Ridge provides extension methods to access HttpResponse wrapped in ActionResult
-    Assert.True(response.IsSuccessStatusCode());
-    Assert.AreEqual(10, response.GetResult());
-}
-```
+There is great [article written by Andrew Lock](https://andrewlock.net/should-you-unit-test-controllers-in-aspnetcore/)
+which explains why is it good idea to use integration tests to test your controllers.
 
 ## Table of contents
 
-* [Setup](#setup)
-    + [Startup example](#startup-example)
-* [Assertions](#assertions)
-* [Exceptions](#exceptions)
-* [Complex example](#complex-example)
-* [Custom model binders](#custom-model-binders)
-* [Ridge extendability](#ridge-extendability)
-* [Logging](#logging)
-* [Serialization](#serialization)
-* [Best practices](#best-practices)
-* [Not supported features](#not-supported-features)
-    + [Features which may be implemented in future](#features-which-may-be-implemented-in-future)
-* [Contributions](#contributions)
+![TableOfContent](/table-of-contents.webp)
 
 ## Setup
 
-* Mark methods in controller as virtual.
-* Add `app.UseRidgeImprovedExceptions();` to your `Configure` method in `Startup`. (This middleware is used only if
-  application is called from test using Ridge.)
+* Mark controller with `[GenerateCaller]` attribute.
+* Add tests using `*YourControllerName*Caller`.
 
-### Startup example
-
-```csharp
-public class Startup
-{
-    public void ConfigureServices(IServiceCollection services) {
-    }
-
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-        
-        // use exception middleware
-        app.UseRidgeImprovedExceptions(); 
-
-        app.UseRouting();
-
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
-    }
-}
-```
+`[GenerateCaller]` tells the source generator to generate Controller caller with
+name `OriginalClassName`Caller.
 
 ## Assertions
 
-Ridge offers multiple extension methods which you can use to assert result:
+Ridge caller returns one of two object - `HttpCallResponse<TResult>` or `HttpCallResponse`.
+Which object is generated depends on the return type of the action -  `HttpCallResponse<TResult>`
+is generated when controller returns `ActionResult<TResult>` or `TResult`. `HttpCallResponse`
+is generated when action returns `IActionResult`, `void` or `ActionResult`.
+
+> Custom types which implement `IActionResult` are not currently supported.
 
 ```csharp
-// Extension methods on IActionResult and ActionResult
-actionResult.HttpResponseMessage()
-actionResult.ResultAsString()
-actionResult.StatusCode()
-actionResult.IsSuccessStatusCode() // status code >=200 and <300
-actionResult.IsRedirectStatusCode() // status code >=300 and <400
-actionResult.IsClientErrorStatusCode() // status code >=400 and <500
-actionResult.IsServerErrorStatusCode() // status code >=500 and <600
-actionResult.Unwrap() // get ControllerResult which contains all of the above information
+// HttpCallResponse contains following methods and properties
+httpCallResponse.HttpResponseMessage
+httpCallResponse.ContentAsString
+httpCallResponse.StatusCode
+httpCallResponse.IsSuccessStatusCode // status code >=200 and <300
+httpCallResponse.IsRedirectStatusCode // status code >=300 and <400
+httpCallResponse.IsClientErrorStatusCode // status code >=400 and <500
+httpCallResponse.IsServerErrorStatusCode // status code >=500 and <600
 
-// Exctension methods on ActionResult<T>
-actionResult.GetResult<T>() // tries to desirialize response to T
-actionResult.HttpResponseMessage()
-actionResult.ResultAsString()
-actionResult.StatusCode()
-actionResult.IsSuccessStatusCode() // status code >=200 and <300
-actionResult.IsRedirectStatusCode() // status code >=300 and <400
-actionResult.IsClientErrorStatusCode() // status code >=400 and <500
-actionResult.IsServerErrorStatusCode() // status code >=500 and <600
-actionResult.Unwrap() // get ControllerResult<T> which contains all of the above information
+// HttpCallResponse<TResult> contains the same methods as HttpCallResponse and one additional
+httpCallResponse.Result // tries to desirialize response to TResult
 ```
 
-## Exceptions
+## Exceptions instead of 500 status code
 
-When using WebApplicationFactory all exceptions are transformed to 500 status code. Ridge behaves differently and
-rethrows the exceptions.
+When unexpected exception occurs it is automatically transformed to 500 status code by asp.net core and the exception
+details are hidden.
+Hiding the exception details and returning 500 is not very useful in tests. That is why
+Ridge offers middleware which saves the thrown exception
+and then rethrows it (with correct callstack) in test code:
 
 ```csharp
-[HttpGet("ThrowException")]
-public virtual ActionResult ThrowException()
+// Controller file
+[GenerateCaller]
+public class ExamplesController : Controller
 {
-    throw new InvalidOperationException("Exception throw");
+    [HttpGet("ThrowException")]
+    public ActionResult ThrowException()
+    {
+        throw new InvalidOperationException("Exception throw");
+    }
 }
 
-//...
+// Test file
 [Test]
 public async Task ThrowExceptionTest()
 {
-    var webApplicationFactory = new WebApplicationFactory<Startup>();
-    var client = webApplicationFactory.CreateClient();
-    var controllerFactory = new ControllerFactory(client, webApplicationFactory.Services);
-
-    var testController = controllerFactory.CreateController<ExamplesController>();
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+    var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+    
     try
     {
-        _ = testController.ThrowException();
+        _ = await examplesControllerCaller.CallThrowException();
     }
     catch (InvalidOperationException e)
     {
         Assert.AreEqual("Exception throw", e.Message);
     }
 }
-
 ```
 
-Note that if your application returns 500 instead of throwing exception it is possible that you forgot to register Ridge
-middleware (see setup).
+### How to use
 
-## Complex example
+To add this middleware use the following example:
 
 ```csharp
-// notice that you don't have to use endpoint routing
-// route for this action is defined in startup in following way
-// endpoints.MapControllerRoute(name: "complexExample", "{controller}/{action}/{fromRoute}/{boundFromCustomModelBinder}");
-public virtual async Task<ActionResult<ResponseObject>> ComplexExample(
-    [FromQuery] ComplexObject complexObjectFromQuery,
-    [FromQuery] List<string> listOfSimpleTypesFromQuery,
-    [FromBody] List<ComplexObject> complexObjectsFromBody,
-    [FromRoute] int fromRoute,
-    // From services arguments are ignored and injected correctly by ASP.Net
-    [FromServices] ExamplesController examplesController)
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+// WasApplicationCalledFromTestCaller is extension method from ridge package
+if (app.WasApplicationCalledFromTestCaller())
 {
-    return new ResponseObject
-    {
-        FromRoute = fromRoute,
-        ComplexObjectFromQuery = complexObjectFromQuery,
-        ComplexObjectsFromBody = complexObjectsFromBody,
-        ListOfSimpleTypesFromQuery = listOfSimpleTypesFromQuery
-    };
+    app.ThrowExceptionInsteadOfReturning500();
 }
-            
-public class ComplexObject
-{
-    public string Str { get; set; }
-    public NestedComplexObject NestedComplexObject { get; set; }
-}
-
-public class NestedComplexObject
-{
-    public string Str { get; set; }
-    public int Integer { get; set; }
-}
-
-//test code 
-
-public void Test()
-{
-
-//Arange
-//omitted for brevity
-
-//Act
-var testController = controllerFactory.CreateController<ExamplesController>();
-var response = testController.ComplexExample(
-    complexObjectFromQuery: new ComplexObject()
-    {
-        Str = "str",
-        NestedComplexObject = new NestedComplexObject()
-        {
-            Integer = 1,
-            Str = "string",
-        },
-    },
-    listOfSimpleTypesFromQuery: new List<string>()
-    {
-        "foo", "bar",
-    },
-    complexObjectsFromBody: new List<ComplexObject>()
-    {
-        new ComplexObject()
-        {
-            Str = "str",
-            NestedComplexObject = new NestedComplexObject()
-            {
-                Integer = 5,
-                Str = "bar",
-            },
-        },
-    },
-    fromRoute: 1,
-    examplesController: null); // this value won`t be used
-    
-//Assert
-//omitted for brevity
+app.UseStaticFiles();
+app.Run();
 ```
 
-## Custom model binders
+**Note that any middleware which handles exceptions must be called before the `ThrowExceptionInsteadOfReturning500`
+middleware.** For example `app.UseDeveloperExceptionPage();`:
 
 ```csharp
-[HttpGet("customModelBinder/{thisIsBoundedUsingCustomBinder}")]
-public virtual ActionResult<string> CustomModelBinderExample(
-    [ModelBinder(typeof(CountryCodeBinder))] string boundFromCustomModelBinder)
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
 {
-    return boundFromCustomModelBinder;
+    app.UseDeveloperExceptionPage();
 }
 
-// simple model binder which does the same as FromRoute attribute
-public class CountryCodeBinder : IModelBinder
+if (app.WasApplicationCalledFromTestCaller())
 {
-    public Task BindModelAsync(ModelBindingContext bindingContext)
-    {
-        var str = bindingContext.ActionContext.HttpContext
-            .Request.RouteValues["thisIsBoundedUsingCustomBinder"]!.ToString();
-        bindingContext.Result = ModelBindingResult.Success(str);
-        return Task.CompletedTask;
-    }
+    app.ThrowExceptionInsteadOfReturning500();
 }
 
-// Test 
-
-[Test]
-public void CustomModelBinderTest()
-{
-    var webAppFactory = new WebApplicationFactory<Startup>();
-    var client = webAppFactory.CreateClient();
-    var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
-    
-    // Register action transformer which allows us to work with custom model binder
-    controllerFactory.AddActionInfoTransformer(new CustomModelBinderTransformer());
-    
-    var testController = controllerFactory.CreateController<ExamplesController>();
-    var response = testController.CustomModelBinderExample("exampleValue");
-
-    Assert.AreEqual("exampleValue", response.GetResult());
-}
-
-public class CustomModelBinderTransformer : IActionInfoTransformer
-{
-    public Task TransformAsync(
-        IActionInfo actionInfo, // IActionInfo contains information about request
-        InvocationInfo invocationInfo) // invocation info contains information about method that was called
-    {
-        // set route parameter "thisIsBoundedUsingCustomBinder" to value of first argument passed to method
-        actionInfo.RouteParams.Add("thisIsBoundedUsingCustomBinder", invocationInfo.Arguments.First());
-        return Task.CompletedTask;
-    }
-}
+app.UseStaticFiles();
+app.Run();
 ```
 
-## Ridge extendability
+## RidgeApplicationFactory
 
-Ridge contains two extendability points - `IActionInfoTransformer` and `IHttpRequestPipelinePart`.
-`IActionTransformer` can manipulate data right before the url is created using
-[linkGenerator.GetPathByRouteValues](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.routing.linkgeneratorroutevaluesaddressextensions.getpathbyroutevalues?view=aspnetcore-5.0)
-. This allows you to transform or add all the necessary things to generate request. Example usage
-of `IActionTransformer`
-can be seen in custom model binders section.
+`RidgeApplicationFactory` inherits from `WebApplicationFactory` and is used
+to setup application settings and dependencies which are used by ridge.
 
-If `IActionTransformer` is not enough for you then you can use `IHttpRequestPipelinePart` which allows transformation of
-the `HttpRequest` right before it is sent.
+### Configuring Request/Response logging
 
-```csharp
-
-[Test]
-public void HttpRequestPipelineTest()
-{
-    var webAppFactory = new WebApplicationFactory<Startup>();
-    var client = webAppFactory.CreateClient();
-    var controllerFactory = new ControllerFactory(client, webAppFactory.Services);
-
-    controllerFactory.AddHttpRequestPipelinePart(new HttpRequestTransformationPipelinePart());
-
-    var testController = controllerFactory.CreateController<ExamplesController>();
-    var response = testController.CallThatNeedsHeaders();
-
-    Assert.True(response.IsSuccessStatusCode());
-}
-
-public class HttpRequestTransformationPipelinePart : IHttpRequestPipelinePart
-{
-    public async Task<HttpResponseMessage> InvokeAsync(
-        Func<Task<HttpResponseMessage>> next,
-        HttpRequestMessage httpRequestMessage,
-        IReadOnlyActionInfo actionInfo,
-        InvocationInfo invocationInfo)
-    {
-        // transform http request
-        httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        var response = await next();
-        // we could even transform response
-        return response;
-    }
-}
-```
-
-## Logging
-
-To log requests and responses add `XunitLogWriter` or `NunitLogWriter` or implement custom log writer and pass it
-to `ControllerFactory`. Example:
+All requests generated by ridge can be logged to test output window:
 
 ```csharp
 
@@ -377,59 +207,50 @@ public class XunitLoggerTests
     
     public void Test(){
         //...
-        var controllerFactory = new ControllerFactory(client,
-                    webAppFactory.Services,
-                    new XunitLogWriter(_testOutputHelper));
+        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        ridgeApplicationFactory.AddXUnitLogger(_testOutputHelper);
+        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
         //...
     }
-
+}
 
 // Nunit
 public void Test(){
-//...
-var controllerFactory = new ControllerFactory(client,
-                webAppFactory.Services,
-                new NunitLogWriter()); // Uses TestContext.WriteLine()
-//...
+    //...
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    ridgeApplicationFactory.AddNUnitLogger();
+    var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+    //...
 }
- 
-// Nunit proggresive logging
-public void Test(){
-//...
-var controllerFactory = new ControllerFactory(client,
-                webAppFactory.Services,
-                new NunitProgressLogWriter()); // Uses TestContext.Progress.WriteLine()
-//...
-}
-         
-         
-                
+
+
+
 // Custom implementation
 public class CustomLogWriter : ILogWriter
 {
     public void WriteLine(string text)
     {
-        // write line somewhere
+        // log
     }
 }
 
 public void Test(){
-//...
-var controllerFactory = new ControllerFactory(client,
-                webAppFactory.Services,
-                new CustomLogWriter());
-//...
+    //...
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    ridgeApplicationFactory.AddCustomLogger(new CustomLogWriter());
+    var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+    //...
 }
 ```
 
-Example log for `simpleExample` mentioned in this readme:
+Log example:
 
-```
+```csharp
 Request:
-Method: GET, RequestUri: '/ReturnGivenNumber?input=10', 
-Version: 1.1, Content: System.Net.Http.StringContent, Headers:
+Time when request was sent: 15:35:58:167
+Method: GET, RequestUri: 'http://localhost/ReturnGivenNumber?input=10', Version: 1.1, Content: System.Net.Http.StringContent, Headers:
 {
-  ridgeCallId: 565458ac-2217-4304-adf1-a2baa86bc33b
+  ridgeCallId: 2bca4d2d-0cd3-4293-8aae-4c3772db1eb1
   Content-Type: application/json; charset=utf-8
   Content-Length: 2
 }
@@ -437,6 +258,7 @@ Body:
 {}
 
 Response:
+Time when response was received: 15:35:58:258
 StatusCode: 200, ReasonPhrase: 'OK', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
 {
   Content-Type: application/json; charset=utf-8
@@ -446,24 +268,443 @@ Body:
 10
 ```
 
-Note that `ridgeCallId` header is ridge specific header necessary for internal request processing.
-
-## Serialization
+### Serialization
 
 Serialization library is automatically determined based on asp.net core settings. For custom serialization
-implement `IRidgeSerializer` and pass it to `ControllerFactory`.
+implement `IRidgeSerializer` and use `RidgeApplicationFactory.AddCustomRequestResponseSerializer`.
+
+## Customisation
+
+### Request generation customisation
+
+Ridge generates `HttpRequest` using pipeline composed of `HttpRequestFactoryMiddleware`s.
+You can add custom `HttpRequestFactoryMiddleware` to the pipeline:
+
+```csharp
+public class AddHeaderHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
+{
+    private readonly string _headerName;
+    private readonly string _headerValue;
+
+    public AddHeaderHttpRequestFactoryMiddleware(
+        string headerName,
+        string headerValue)
+    {
+        _headerName = headerName;
+        _headerValue = headerValue;
+    }
+    
+    public override Task<HttpRequestMessage> CreateHttpRequest(
+        IRequestFactoryContext requestFactoryContext)
+    {
+        requestFactoryContext.Headers.Add(_headerName, _headerValue);
+        return base.CreateHttpRequest(requestFactoryContext);
+    }
+}
+```
+
+This `HttpRequestFactoryMiddleware` takes provided header and adds it to request generation pipeline.
+
+Example usage of `AddHeaderHttpRequestFactoryMiddleware`:
+
+```csharp
+[Test]
+public async Task HttpRequestFactoryExample()
+{
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    ridgeApplicationFactory.AddHttpRequestFactoryMiddleware(new AddHeaderHttpRequestFactoryMiddleware("exampleHeader", "exampleHeaderValue"));
+    var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+    var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+    
+    // controller finds header by it's name and returns it's value
+    var response = await examplesControllerCaller.CallReturnHeader(headerName: "exampleHeader");
+    Assert.AreEqual("exampleHeaderValue", response.Result);
+}
+```
+
+`RequestFactoryContext` is passed to all `HttpRequestFactoryMiddleware`s and contains
+information which will be used to generate http request.
+
+Ridge adds to the pipeline initial and final middleware. Initial middleware gathers
+information about the request and final middleware generates http request.
+
+Ridge also offers simpler way of adding headers. Instead of creating custom  `HttpRequestFactoryMiddleware`
+you can use `RidgeApplicationFactory<T>.AddHeader` which will add `HttpRequestFactoryMiddleware` for you.
+Previous test can be simplified this way:
+
+```csharp
+[Test]
+public async Task AddHeaderSimple()
+{
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    // use AddHeader
+    ridgeApplicationFactory.AddHeader(new HttpHeaderParameter("exampleHeader", "exampleHeaderValue"));
+    var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+    var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+    
+    // controller finds header by it's name and returns it's value
+    var response = await examplesControllerCaller.CallReturnHeader(headerName: "exampleHeader");
+    Assert.AreEqual("exampleHeaderValue", response.Result);
+}
+```
+
+### Delegation handler
+
+In some cases it can be handy to
+add [DelegationHandler](https://learn.microsoft.com/cs-cz/dotnet/api/system.net.http.delegatinghandler?view=net-7.0)
+to the `HttpClient`.
+
+How to add DelegationHandler:
+
+```csharp
+using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+ridgeApplicationFactory.AddDelegationHandler(...);
+```
+
+Ridge uses delegation handler to log requests.
+
+### Using DelegationHandler or HttpRequestFactoryMiddleware in single call
+
+//TODO odakz na specialni paramtery
+
+## Caller and request generation
+
+Ridge generates caller based on the signature of actions. For
+the following action:
+
+```csharp
+public ActionResult<int> ReturnGivenNumber([FromQuery] int input)
+```
+
+ridge generates the following method
+
+```csharp
+public async Task<HttpCallResponse<int>> CallReturnGivenNumber(int @input)
+```
+
+parameters are later analyzed and mapped to query, body and url parameters.
+
+### Parameter mapping
+
+Parameters are mapped by the following heuristic:
+
+* Parameters with attribute `[FromRoute]` are added to `UrlGenerationParameters` dictionary.
+* Parameters with attribute `[FromQuery]` are added to `UrlGenerationParameters` dictionary.
+* Parameter with attribute `[FromBody]` is added as request body.
+* Parameters with attribute `[FromHeader]` are added to request headers.
+* Complex parameter without attribute is added as request body.
+* Simple parameters without attribute are added to `UrlGenerationParameters` dictionary.
+
+`UrlGenerationParameters` are mapped to route and query parameters
+using `_linkGenerator.GetPathByRouteValues("", routeParams);`.
+More information about
+this [method](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.routing.linkgenerator).
+
+### Request generation tips
+
+* It is reccomended to use [FromXXX] parameters to help ridge map parameters correctly.
+* If you are not sure if parameters were mapped correctly you can always use logger (//TODO odkaz) and check test
+  output.
+* If you are not satisfied with how ridge maps parameters you can always add `RequestFactoryContext` and change the
+  generation process.
+* Ridge can handle attribute routing and standard routing. It does not matter which one you use.
+* Ridge can handle areas.
+
+### Special parameters
+
+When ridge generates caller it automatically removes parameters with attribute `[FromServices]` and
+parameters with type `CancellationToken`.
+
+## Customizing caller generation
+
+Attributes `[AddParameterToCaller]` and `[TransformParameterInCaller]` can be used to
+customize caller generation process.
+
+### AddParameterToCaller
+
+Controller can be decorated with attribute `[AddParamterToCaller]`. This attribute adds parameter to all methods of
+generated caller.
+
+Let's say that we have controller which reads query parameters from `httpContext` instead of binding them to
+method parameter:
+
+```csharp
+[HttpPost("ReadQueryParameterFromHttpContext")]
+public async Task<string> ReadQueryParameterFromHttpContext()
+{
+    return HttpContext.Request.Query["ExampleQueryParameter"];
+}
+```
+
+Ridge now generates method `CallReadQueryParameterFromHttpContext()` which does not expect any parameters
+because the action does not contain any parameters.
+
+To add the parameter we can use `[AddParameterToCaller]`:
+
+```csharp
+[GenerateCaller]
+[AddParameterToCaller(typeof(string), "GeneratedParameter", ParameterMapping.MapToQueryOrRouteParameter, Optional = true)]
+public class ExamplesController : Controller
+{
+    [HttpGet("ReadQueryParameterFromHttpContext")]
+    public async Task<string> ReadQueryParameterFromHttpContext()
+    {
+        return HttpContext.Request.Query["GeneratedParameter"];
+    }
+}
+```
+
+Test can use the newly added parameter:
+
+```csharp
+[Test]
+public async Task ParameterAddedByRidge()
+{
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+    var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+    
+    // controller finds header by it's name and returns it's value
+    var response = await examplesControllerCaller.CallReadQueryParameterFromHttpContext(GeneratedParameter: "queryParameterValue");
+    
+    Assert.AreEqual("queryParameterValue", response.Result); 
+}
+```
+
+typeof(string), "GeneratedParameter", ParameterMapping.MapToQueryOrRouteParameter, Optional = true
+`AddParameterToCaller` requires three parameters - type, name, and mapping and one optional parameter which specifies if
+the parameter is optional or required.
+Parameter mapping can have one of four values - None, MapToQueryOrRouteParameter, MapToBody, MapToHeader. All of these
+values
+
+* None - parameter must be mapped manually using custom `HttpRequestFactoryMiddleware` or `DelegationHandler`.
+* MapToQueryOrRouteParameter - parameter is added to route or query. Key is equivalent to the name of parameter in
+  caller.
+* MapToBody - parameter is set as body
+* MapToHeader - parameter is added to headers. Key is equivalent to the name of parameter in caller.
+
+If we specified ParameterMapping.None it the previous test we would have to create
+custom `HttpRequestFactoryMiddleware`:
+
+```csharp
+public class MapQueryParameterHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
+{
+    public override Task<HttpRequestMessage> CreateHttpRequest(
+        IRequestFactoryContext requestFactoryContext)
+    {
+        var parameterValue = requestFactoryContext.ParameterProvider
+           .GetCallerParameters()
+           .GetValueByNameOrDefault<string>("GeneratedParameter");
+        if (string.IsNullOrEmpty(parameterValue))
+        {
+            return base.CreateHttpRequest(requestFactoryContext);
+        }
+        
+        requestFactoryContext.UrlGenerationParameters["GeneratedParameter"] = parameterValue;
+        return base.CreateHttpRequest(requestFactoryContext);
+    }
+}
+```
+
+And then we have to use this `MapQueryParameterHttpRequestFactoryMiddleware` in the test:
+
+```csharp
+ridgeApplicationFactory.AddHttpRequestFactoryMiddleware(new MapQueryParameterHttpRequestFactoryMiddleware());
+```
+
+### TransformParameterInCaller
+
+`TransformParameterInCaller` can be used to decorate controller. This attribute
+changes the type and/or name of all parameters which match the chosen type.
+
+`TransformParameterInCaller` is most often used in combination
+with [custom model binder](https://learn.microsoft.com/en-us/aspnet/core/mvc/advanced/custom-model-binding).
+For example let's say we have the following controller and model binder:
+
+```csharp
+[GenerateCaller]
+public class ExamplesController : Controller
+{
+    [HttpGet("CallWithCustomModelBinder")]
+    public ActionResult<string> CallWithCustomModelBinder(
+        [ModelBinder(typeof(BindCountryCodeFromQueryOrHeader))] CountryCode countryCode)
+    {
+        return countryCode.Value;
+    }
+}
+
+public class BindCountryCodeFromQueryOrHeader : IModelBinder
+{
+    public Task BindModelAsync(
+        ModelBindingContext bindingContext)
+    {
+        // Get value from query or header
+        var str = bindingContext.ActionContext.HttpContext.Request.Headers["countryCode"].FirstOrDefault() ?? 
+                  bindingContext.ActionContext.HttpContext.Request.Query["countryCode"].FirstOrDefault();
+        
+        bindingContext.Result = ModelBindingResult.Success(str == null ? null : new CountryCode(str));
+        return Task.CompletedTask;
+    }
+}
+
+public class CountryCode
+{
+    public string Value { get; }
+
+    public CountryCode(
+        string value)
+    {
+        Value = value;
+    }
+}
+```
+
+Ridge generates caller for this method which takes parameter `CountryCode`.
+This parameter is by default added to request body according to request generation rules (//TODO odkaz).
+Problem is that CustomBinder which was used in previous example excepts the parameter as string and it excepts
+the parameter to be present in header or query parameter.
+
+We could solve this problem by custom `HttpRequestFactoryMiddleware` which would remove the parameter from body
+and then pass it as string to header or query.
+
+Simpler way to achieve the same result is to use transformer which changes `CountryCode` parameter to `string`:
+
+```csharp
+[GenerateCaller]
+[TransformParameterInCaller(fromType: typeof(CountryCode), toType: typeof(string), ParameterMapping.MapToQueryOrRouteParameter)]
+public class ExamplesController : Controller
+{
+    [HttpGet("CallWithCustomModelBinder")]
+    public ActionResult<string> WithCustomModelBinder(
+        [ModelBinder(typeof(BindCountryCodeFromQueryOrHeader))] CountryCode countryCode)
+    {
+        return countryCode.Value;
+    }
+}
+```
+
+With this change Ridge generates method `CallWithCustomModelBinder` which takes parameter `string countryCode`
+instead of `CountryCode countryCode`. We can now write test which calls this action:
+
+```csharp
+[Test]
+public async Task CustomModelBinderTest()
+{
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    
+    var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+    var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+    
+    // controller finds header by it's name and returns it's value
+    var response = await examplesControllerCaller.CallWithCustomModelBinder("cs-CZ");
+    Assert.AreEqual("cs-CZ", response.Result); 
+}
+```
+
+If you would like to test mapping from query and from header you could set `ParameterMapping` to `None` and then write
+custom `HttpRequestFactoryMiddleware` which would map the parameter to header or query based on setting.
+
+`[TransformParameterInCaller]` takes three required parameters `fromType`, `toType`, `parameterMapping` and two
+optional `GeneratedParameterName`, `Optional`.
+`fromType` specifies which parameters will be transformed. `toType` specifies the final type of this parameter which
+will be generated in caller.
+`parameterMapping` specifies how is the parameter going to be used when generating request.
+`GeneratedParameterName` can be used to change the parameter name.  `Optional` can be used to specify if the generated
+parameter will be optional.
+
+#### Removing parameters
+
+`[TransformParameterInCaller]` can also remove parameters. To remove parameter set the `toType` to `void`.
+For example to remove all parameters of type string you can use:
+`[TransformParameterInCaller(typeof(string), typeof(void), ParameterMapping.None)]`
+
+#### Changing default mapping
+
+If you want to change parameter mapping without writing custom `HttpRequestFactoryMiddleware` then you can transform the
+parameter to the same type
+as it is defined in controller and set custom `ParameterMapping`.
+
+## Custom parameters
+
+Every generated caller method contains optional parameter called `CustomParameters`. Custom parameters can be
+used to pass additional parameters to `HttpRequestFactoryMiddleware`.
+
+For example if you need to add header to your request you can use the following:
+
+```csharp
+[Test]
+public async Task CustomParameter()
+{
+    using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+    ridgeApplicationFactory.AddHttpRequestFactoryMiddleware(new AddHeaderFromCustomParameters());
+    var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+    var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
+
+    // action returns all headers present in request
+    var response = await examplesControllerCaller.CallReturnAllHeaders(customParameters: new CustomParameter("exampleHeader", "exampleHeaderValue"));
+    
+    Assert.AreEqual("exampleHeaderValue", response.Result.First(x => x.key == "exampleHeader").value);
+}
+
+public class AddHeaderFromCustomParameters : HttpRequestFactoryMiddleware
+{
+    public override Task<HttpRequestMessage> CreateHttpRequest(
+        IRequestFactoryContext requestFactoryContext)
+    {
+        var customParameters = requestFactoryContext.ParameterProvider.GetCustomParameters();
+
+        foreach (var customParameter in customParameters)
+        {
+            requestFactoryContext.Headers.Add(customParameter.Name, customParameter.Value?.ToString());
+        }
+        
+        return base.CreateHttpRequest(requestFactoryContext);
+    }
+}
+```
+
+### ValueTuple as custom parameter
+
+Ridge offer implicit cast from `ValueTuple` to `CustomParamter` therefore you can write:
+
+```csharp
+var response = await examplesControllerCaller.CallReturnAllHeaders(customParameters: ("exampleHeader", "exampleHeaderValue"));
+```
+
+instead of
+
+```csharp
+var response = await examplesControllerCaller.CallReturnAllHeaders(customParameters: new CustomParameter("exampleHeader", "exampleHeaderValue"));
+```
+
+### Special custom parameters
+
+Ridge offers special custom parameters which are automatically mapped to headers, query parameters, route parameters and
+body.
+
+Example:
+
+```csharp
+var response = await examplesControllerCaller.CallExample(customParameters: 
+new HttpHeader("exampleHeader", "exampleHeaderValue"),
+new QueryOrRouteParameter("exampleQueryOrRouteParameter", "exampleQueryOrRouteParameter"),
+new BodyParameter("exampleBodyValue"),
+);
+```
+
+Those parameters will be mapped automatically without any custom `HttpRequestFactoryMiddleware`.
 
 ## Best practices
 
 * Use strongly typed `ActionsResult<T>` when possible.
-* Use [FromRoute], [FromQuery], [FromBody] and similar attributes.
+* Use [FromRoute], [FromQuery], [FromBody] and similar attributes when possible.
+* Add logger to check request and response when necessary (TODO link).
+* Add ThrowExceptionInsteadOfReturning500 (TODO link).
 
 ## Not supported features
 
-* Methods not returning ActionResult, ActionResult<T>, IActionResult.
-* Projects running on .net core 2.1 and lower.
-
-### Features which may be implemented in future
+* Methods returning custom implementations of IActionResult.
+* Projects running on .net 5 and lower.
 
 * `[FromQuery]` with array of complex arguments is not supported:
 

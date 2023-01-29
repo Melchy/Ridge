@@ -11,7 +11,7 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
     public readonly string Namespace;
 
     public bool UseHttpResponseMessageAsReturnType;
-    public IDictionary<string, ParameterTransformation> ParameterTransformations;
+    public Dictionary<ITypeSymbol, ParameterTransformation> ParameterTransformations;
     public AddParameter[] ParametersToAdd;
 
     public readonly int AttributesHash;
@@ -45,40 +45,74 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
         var result = new List<AddParameter>();
         foreach (var addParameterAttribute in addParameterAttributes)
         {
-            if (addParameterAttribute.ConstructorArguments.Length != 2)
-            {
-                continue;
-            }
-            var parameterType = (ISymbol?)addParameterAttribute.ConstructorArguments[0].Value;
-            var parameterName = (string?)addParameterAttribute.ConstructorArguments[1].Value;
-            var optional = addParameterAttribute.NamedArguments.FirstOrDefault(x => x.Key == "Optional").Value.Value as bool? ?? false;
-            if (parameterType == null || parameterName == null)
+            if (addParameterAttribute.ConstructorArguments.Length != 3)
             {
                 continue;
             }
 
-            result.Add(new AddParameter(parameterName, parameterType.ToDisplayString(), optional));
+            var parameterType = addParameterAttribute.ConstructorArguments[0].Value as ITypeSymbol;
+            var parameterName = (string?)addParameterAttribute.ConstructorArguments[1].Value;
+            var parameterMapping = (int?)addParameterAttribute.ConstructorArguments[2].Value;
+            var optional = addParameterAttribute.NamedArguments.FirstOrDefault(x => x.Key == "Optional").Value.Value as bool? ?? false;
+            if (parameterType == null || parameterName == null || parameterMapping == null)
+            {
+                continue;
+            }
+
+            var parameterMappingEnum = GetParameterMappingOrDefault(parameterMapping.Value);
+            if (parameterMappingEnum == null)
+            {
+                continue;
+            }
+
+            result.Add(new AddParameter(parameterName, parameterType, parameterMappingEnum.Value, optional));
         }
 
         return result.ToArray();
     }
 
-    private static IDictionary<string, ParameterTransformation> GetTypeTransformations(
+    private static ParameterMapping? GetParameterMappingOrDefault(
+        int parameterMapping)
+    {
+        if (Enum.IsDefined(typeof(ParameterMapping), parameterMapping))
+        {
+            return (ParameterMapping)parameterMapping;
+        }
+
+        return null;
+    }
+
+    private static Dictionary<ITypeSymbol, ParameterTransformation> GetTypeTransformations(
         IEnumerable<AttributeData> typeTransformerAttributes)
     {
-        var result = new Dictionary<string, ParameterTransformation>();
+// false positive https://github.com/dotnet/roslyn-analyzers/issues/4845
+#pragma warning disable RS1024
+        var result = new Dictionary<ITypeSymbol, ParameterTransformation>(SymbolEqualityComparer.Default);
+#pragma warning restore RS1024
         foreach (var typeTransformerAttribute in typeTransformerAttributes)
         {
-            var fromType = (ISymbol?)typeTransformerAttribute.ConstructorArguments[0].Value;
-            var toType = (ISymbol?)typeTransformerAttribute.ConstructorArguments[1].Value;
-            var newName = typeTransformerAttribute.NamedArguments.FirstOrDefault(x => x.Key == "GeneratedParameterName").Value.Value as string;
-            var optional = typeTransformerAttribute.NamedArguments.FirstOrDefault(x => x.Key == "Optional").Value.Value as bool? ?? false;
-            if (fromType == null || toType == null)
+            if (typeTransformerAttribute.ConstructorArguments.Length != 3)
             {
                 continue;
             }
 
-            result[fromType.Name] = new ParameterTransformation(toType.Name, newName, optional);
+            var fromType = typeTransformerAttribute.ConstructorArguments[0].Value as ITypeSymbol;
+            var toType = typeTransformerAttribute.ConstructorArguments[1].Value as ITypeSymbol;
+            var parameterMapping = (int?)typeTransformerAttribute.ConstructorArguments[2].Value;
+            var newName = typeTransformerAttribute.NamedArguments.FirstOrDefault(x => x.Key == "GeneratedParameterName").Value.Value as string;
+            var optional = typeTransformerAttribute.NamedArguments.FirstOrDefault(x => x.Key == "Optional").Value.Value as bool?;
+            if (fromType == null || toType == null || parameterMapping == null)
+            {
+                continue;
+            }
+
+            var parameterMappingEnum = GetParameterMappingOrDefault(parameterMapping.Value);
+            if (parameterMappingEnum == null)
+            {
+                continue;
+            }
+
+            result[fromType] = new ParameterTransformation(toType, newName, parameterMappingEnum.Value, optional);
         }
 
         return result;
@@ -133,95 +167,5 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
     public override int GetHashCode()
     {
         return _attributesClassNameAndMethodsHashCode;
-    }
-}
-
-public struct AddParameter : IEquatable<AddParameter>
-{
-    public bool IsOptional;
-    public string Name;
-    public string Type;
-
-    public AddParameter(
-        string name,
-        string type,
-        bool isOptional)
-    {
-        IsOptional = isOptional;
-        Name = name;
-        Type = type;
-    }
-
-    public bool Equals(
-        AddParameter other)
-    {
-        return IsOptional == other.IsOptional && Name == other.Name && Type == other.Type;
-    }
-
-    public override bool Equals(
-        object? obj)
-    {
-        return obj is AddParameter other && Equals(other);
-    }
-
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hashCode = IsOptional.GetHashCode();
-            hashCode = (hashCode * 397) ^ Name.GetHashCode();
-            hashCode = (hashCode * 397) ^ Type.GetHashCode();
-            return hashCode;
-        }
-    }
-}
-
-public struct ParameterTransformation : IEquatable<ParameterTransformation>
-{
-    public readonly string ToType;
-    public readonly string? NewName;
-    public readonly bool Optional;
-
-    public ParameterTransformation(
-        string toType,
-        string? newName,
-        bool optional)
-    {
-        Optional = optional;
-        NewName = newName;
-        ToType = toType;
-    }
-
-    public bool Equals(
-        ParameterTransformation other)
-    {
-        return ToType == other.ToType && NewName == other.NewName && Optional == other.Optional;
-    }
-
-    public override bool Equals(
-        object? obj)
-    {
-        if (ReferenceEquals(null, obj))
-        {
-            return false;
-        }
-
-        if (obj.GetType() != GetType())
-        {
-            return false;
-        }
-
-        return Equals((ParameterTransformation)obj);
-    }
-
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hashCode = ToType.GetHashCode();
-            hashCode = (hashCode * 397) ^ (NewName != null ? NewName.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ Optional.GetHashCode();
-            return hashCode;
-        }
     }
 }
