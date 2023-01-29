@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using Ridge;
 using Ridge.LogWriter;
 using System;
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ public class CustomLoggerTests
 
     internal static Application CreateApplication()
     {
-        var webAppFactory = new RidgeApplicationFactory<Program>();
+        var webAppFactory = new WebApplicationFactory<Program>();
         return new Application(
             webAppFactory
         );
@@ -29,15 +29,15 @@ public class CustomLoggerTests
 
     internal sealed class Application : IDisposable
     {
-        public RidgeApplicationFactory<Program> RidgeApplicationFactory { get; set; }
+        public WebApplicationFactory<Program> RidgeApplicationFactory { get; set; }
         public TestControllerCaller TestControllerCaller { get; }
         public CustomLogger CustomLogger = new();
 
         public Application(
-            RidgeApplicationFactory<Program> ridgeApplicationFactory)
+            WebApplicationFactory<Program> ridgeApplicationFactory)
         {
-            RidgeApplicationFactory = ridgeApplicationFactory.AddCustomLogger(CustomLogger);
-            var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+            RidgeApplicationFactory = ridgeApplicationFactory.AddCustomLogger(CustomLogger).AddExceptionCatching();
+            var ridgeHttpClient = RidgeApplicationFactory.CreateRidgeClient();
             TestControllerCaller = new TestControllerCaller(ridgeHttpClient);
         }
 

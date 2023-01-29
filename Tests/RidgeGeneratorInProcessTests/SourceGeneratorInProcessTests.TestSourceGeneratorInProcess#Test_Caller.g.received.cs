@@ -33,8 +33,8 @@ namespace TestNamespace.Controller
         /// <summary>
         /// Creates controller caller. 
         /// </summary>
-        /// <param name="applicationCaller">
-        ///     Application caller which will be used to call application.
+        /// <param name="ridgeHttpClient">
+        ///     HttpClient which will be used to call application.
         /// </param>
         public TestCaller(RidgeHttpClient ridgeHttpClient)
         {

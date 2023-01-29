@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Ridge;
+using Microsoft.AspNetCore.Mvc.Testing;
 using System;
 using System.Threading.Tasks;
 using TestWebApplication;
@@ -29,7 +29,7 @@ public class XunitLoggerTests
 
     internal Application CreateApplication()
     {
-        var webAppFactory = new RidgeApplicationFactory<Program>().AddXUnitLogger(_testOutputHelper);
+        var webAppFactory = new WebApplicationFactory<Program>().AddXUnitLogger(_testOutputHelper);
 
         return new Application(
             webAppFactory
@@ -39,20 +39,20 @@ public class XunitLoggerTests
 
 internal sealed class Application : IDisposable
 {
-    public RidgeApplicationFactory<Program> RidgeApplicationFactory { get; set; }
+    public WebApplicationFactory<Program> WebApplicationFactory { get; set; }
 
     public ControllerInAreaCaller ControllerInAreaCaller { get; set; }
 
     public Application(
-        RidgeApplicationFactory<Program> ridgeApplicationFactory)
+        WebApplicationFactory<Program> webApplicationFactory)
     {
-        RidgeApplicationFactory = ridgeApplicationFactory;
-        ControllerInAreaCaller = new ControllerInAreaCaller(RidgeApplicationFactory.CreateRidgeClient());
+        WebApplicationFactory = webApplicationFactory;
+        ControllerInAreaCaller = new ControllerInAreaCaller(WebApplicationFactory.CreateRidgeClient());
     }
 
     public void Dispose()
     {
-        RidgeApplicationFactory?.Dispose();
+        WebApplicationFactory?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

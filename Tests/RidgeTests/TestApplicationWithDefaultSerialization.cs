@@ -1,8 +1,8 @@
 using ApplicationWithDefaultSerialization;
 using ApplicationWithDefaultSerialization.Controllers;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using Ridge;
 using System;
 using System.Threading.Tasks;
 
@@ -33,19 +33,19 @@ public class TestApplicationWithDefaultSerialization
 
     internal static Application CreateApplication()
     {
-        return new Application(new RidgeApplicationFactory<Program>());
+        return new Application(new WebApplicationFactory<Program>());
     }
 
     internal sealed class Application : IDisposable
     {
-        public RidgeApplicationFactory<Program> WebApplicationFactory { get; set; }
+        public WebApplicationFactory<Program> WebApplicationFactory { get; set; }
         public TestControllerCaller TestControllerCaller { get; set; }
 
         public Application(
-            RidgeApplicationFactory<Program> webApplicationFactory)
+            WebApplicationFactory<Program> webApplicationFactory)
         {
-            WebApplicationFactory = webApplicationFactory.AddNUnitLogger();
-            TestControllerCaller = new TestControllerCaller(webApplicationFactory.CreateRidgeClient());
+            WebApplicationFactory = webApplicationFactory.AddNUnitLogger().AddExceptionCatching();
+            TestControllerCaller = new TestControllerCaller(WebApplicationFactory.CreateRidgeClient());
         }
 
         public void Dispose()

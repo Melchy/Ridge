@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using Ridge;
 using Ridge.GeneratorAttributes;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.Parameters;
@@ -23,7 +23,7 @@ public class ParameterProviderTests
     {
         using var application = CreateApplication();
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
-        var applicationFactory = application.RidgeApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
+        var applicationFactory = application.WebApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateRidgeClient())
            .CallActionWithOptionalParameter("test",
                 "test",
@@ -72,7 +72,7 @@ public class ParameterProviderTests
     {
         using var application = CreateApplication();
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
-        var applicationFactory = application.RidgeApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
+        var applicationFactory = application.WebApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         applicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateRidgeClient())
            .CallActionWithOptionalParameter("test",
@@ -127,7 +127,7 @@ public class ParameterProviderTests
     {
         using var application = CreateApplication();
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
-        var applicationFactory = application.RidgeApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
+        var applicationFactory = application.WebApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         applicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         var customParameters = new[]
         {
@@ -149,7 +149,7 @@ public class ParameterProviderTests
 
     internal static Application CreateApplication()
     {
-        var webAppFactory = new RidgeApplicationFactory<Program>();
+        var webAppFactory = new WebApplicationFactory<Program>();
         return new Application(
             webAppFactory
         );
