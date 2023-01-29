@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Ridge.ExceptionHandling;
@@ -7,6 +8,7 @@ using Ridge.Parameters;
 using Ridge.Parameters.CustomParams;
 using Ridge.Response;
 using Ridge.Serialization;
+using Ridge.Setup;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -149,8 +151,22 @@ public class ApplicationCaller
 
         var response = await _ridgeHttpClient.HttpClient.SendAsync(request);
 
-        var exceptionManager = _ridgeHttpClient.ServiceProvider.GetRequiredService<ExceptionManager>();
-        exceptionManager.CheckIfExceptionOccuredAndThrowIfItDid(callId.ToString());
+        var exceptionManager = _ridgeHttpClient.ServiceProvider.GetService<ExceptionManager>();
+        if (exceptionManager != null)
+        {
+            exceptionManager.CheckIfExceptionOccuredAndThrowIfItDid(callId.ToString());
+        }
+        else
+        {
+            if (RidgeInstaller.WasInstallerUsed)
+            {
+                throw new InvalidOperationException(
+                    $"You have used '{nameof(RidgeInstaller)}' and didn't call '{nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.AddExceptionCatching)}' " +
+                    $"which is invalid.  Please call '{nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.AddExceptionCatching)}' and then use returned " +
+                    $"'{nameof(WebApplicationFactory<object>)}' to create request.");
+            }
+        }
+        
         return response;
     }
 }

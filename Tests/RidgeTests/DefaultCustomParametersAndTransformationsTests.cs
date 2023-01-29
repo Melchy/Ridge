@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using Ridge;
 using Ridge.Parameters.CustomParams;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,7 +47,7 @@ public class ParametersAddedOrTransformedAutoMappingTests
 
     internal static Application CreateApplication()
     {
-        var webAppFactory = new RidgeApplicationFactory<Program>();
+        var webAppFactory = new WebApplicationFactory<Program>();
         return new Application(
             webAppFactory
         );
@@ -96,7 +96,7 @@ public class DefaultCustomParametersTests
 
     internal static Application CreateApplication()
     {
-        var webAppFactory = new RidgeApplicationFactory<Program>();
+        var webAppFactory = new WebApplicationFactory<Program>();
         return new Application(
             webAppFactory
         );

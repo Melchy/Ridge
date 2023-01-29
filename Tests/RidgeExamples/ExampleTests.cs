@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using Ridge;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.Parameters.CustomParams;
 using System;
@@ -19,10 +18,10 @@ public class ExampleTests
     [Test]
     public async Task CallControllerUsingRidge()
     {
-        // Create special WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
-        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        // Create WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
+        using var webApplicationFactory = new WebApplicationFactory<Program>();
         // create http client for ridge caller
-        var client = ridgeApplicationFactory.CreateRidgeClient();
+        var client = webApplicationFactory.AddExceptionCatching().CreateRidgeClient();
         var examplesControllerCaller = new ExamplesControllerCaller(client);
 
         // Ridge wraps the HttpResponseMessage in a convenient wrapper class
@@ -38,10 +37,10 @@ public class ExampleTests
     [Test]
     public async Task CallControllerWithoutRidge()
     {
-        // Create special WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
-        using var ridgeApplicationFactory = new WebApplicationFactory<Program>();
+        // Create WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
+        using var webApplicationFactory = new WebApplicationFactory<Program>();
         // create http client for ridge caller
-        var client = ridgeApplicationFactory.CreateClient();
+        var client = webApplicationFactory.CreateClient();
 
         var response = await client.GetAsync("/returnGivenNumber/?input=10");
         Assert.True(response.IsSuccessStatusCode);
@@ -53,8 +52,9 @@ public class ExampleTests
     [Test]
     public async Task ThrowExceptionTest()
     {
-        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
-        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        using var webApplicationFactory = new WebApplicationFactory<Program>();
+        // notice use of AddExceptionCatching()
+        var ridgeHttpClient = webApplicationFactory.AddExceptionCatching().AddExceptionCatching().CreateRidgeClient();
         var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
 
         try
@@ -71,9 +71,10 @@ public class ExampleTests
     [Test]
     public async Task HttpRequestFactoryExample()
     {
-        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
-        ridgeApplicationFactory.AddHttpRequestFactoryMiddleware(new AddHeaderHttpRequestFactoryMiddleware("exampleHeader", "exampleHeaderValue"));
-        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        using var webApplicationFactory = new WebApplicationFactory<Program>()
+           .AddExceptionCatching()
+           .AddHttpRequestFactoryMiddleware(new AddHeaderHttpRequestFactoryMiddleware("exampleHeader", "exampleHeaderValue"));
+        var ridgeHttpClient = webApplicationFactory.CreateRidgeClient();
         var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
 
         // controller finds header by it's name and returns it's value
@@ -84,10 +85,10 @@ public class ExampleTests
     [Test]
     public async Task AddHeaderSimple()
     {
-        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
-        // use AddHeader
-        ridgeApplicationFactory.AddHeader(new HttpHeaderParameter("exampleHeader", "exampleHeaderValue"));
-        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        using var webApplicationFactory = new WebApplicationFactory<Program>()
+           .AddExceptionCatching()
+           .AddHeader(new HttpHeaderParameter("exampleHeader", "exampleHeaderValue"));
+        var ridgeHttpClient = webApplicationFactory.CreateRidgeClient();
         var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
 
         // controller finds header by it's name and returns it's value
@@ -98,9 +99,9 @@ public class ExampleTests
     [Test]
     public async Task ParameterAddedByRidge()
     {
-        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        using var webApplicationFactory = new WebApplicationFactory<Program>().AddExceptionCatching();
 
-        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        var ridgeHttpClient = webApplicationFactory.CreateRidgeClient();
         var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
 
         // controller finds header by it's name and returns it's value
@@ -111,9 +112,9 @@ public class ExampleTests
     [Test]
     public async Task CustomModelBinderTest()
     {
-        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
+        using var webApplicationFactory = new WebApplicationFactory<Program>().AddExceptionCatching();
 
-        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        var ridgeHttpClient = webApplicationFactory.CreateRidgeClient();
         var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
 
         // controller finds header by it's name and returns it's value
@@ -124,9 +125,11 @@ public class ExampleTests
     [Test]
     public async Task CustomParameter()
     {
-        using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>();
-        ridgeApplicationFactory.AddHttpRequestFactoryMiddleware(new AddHeaderFromCustomParameters());
-        var ridgeHttpClient = ridgeApplicationFactory.CreateRidgeClient();
+        using var webApplicationFactory = new WebApplicationFactory<Program>()
+           .AddHttpRequestFactoryMiddleware(new AddHeaderFromCustomParameters())
+           .AddExceptionCatching();
+
+        var ridgeHttpClient = webApplicationFactory.CreateRidgeClient();
         var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient);
 
         // action returns all passed headers

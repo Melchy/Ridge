@@ -74,24 +74,12 @@ internal class HttpRequestFactoryMiddlewareBuilder
     /// </summary>
     /// <param name="headers">Headers to add.</param>
     public void AddHeaders(
-        IEnumerable<HttpHeaderParameter>? headers)
+        IEnumerable<HttpHeaderParameter> headers)
     {
-        if (headers == null)
-        {
-            return;
-        }
-
         foreach (var header in headers)
         {
             AddHeader(header.Key, header.Value);
         }
-    }
-
-    internal HttpRequestFactoryMiddlewareBuilder CreateNewBuilderByCopyingExisting()
-    {
-        var httpRequestFactoryMiddlewareBuilder = new HttpRequestFactoryMiddlewareBuilder();
-        httpRequestFactoryMiddlewareBuilder.AddHttpRequestFactoryMiddlewares(_requestFactoryMiddleware);
-        return httpRequestFactoryMiddlewareBuilder;
     }
 
     private void AddHeader(

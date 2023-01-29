@@ -481,6 +481,13 @@ public class TestController : ControllerBase
     {
         return "ok";
     }
+
+    [HttpGet("ReturnsBody")]
+    public virtual ActionResult<string> ReturnsBody(
+        [FromBody] string fromBody)
+    {
+        return fromBody;
+    }
 }
 
 public class CountryCodeBinder : IModelBinder
