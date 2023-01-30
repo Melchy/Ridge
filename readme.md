@@ -84,7 +84,7 @@ which explains why is it good idea to use integration tests to test your control
 `[GenerateCaller]` tells the source generator to generate Controller caller with
 name `OriginalClassName`Caller.
 
-## Assertions
+## Response
 
 Ridge caller returns one of two object - `HttpCallResponse<TResult>` or `HttpCallResponse`.
 Which object is generated depends on the return type of the action -  `HttpCallResponse<TResult>`
@@ -106,6 +106,12 @@ httpCallResponse.IsServerErrorStatusCode // status code >=500 and <600
 // HttpCallResponse<TResult> contains the same methods as HttpCallResponse and one additional
 httpCallResponse.Result // tries to desirialize response to TResult
 ```
+
+### Standard HttpResponseMessage
+
+`[GenerateCaller]` has one optional parameter called `UseHttpResponseMessageAsReturnType`. When
+this parameter is set to `true` ridge generates methods which returns standard `HttpResponseMessage`
+instead of `HttpCallResponse`.
 
 ## Exceptions instead of 500 status code
 
@@ -364,7 +370,26 @@ How to add DelegationHandler:
 using var ridgeApplicationFactory = new RidgeApplicationFactory<Program>().CreateRidgeClient(delegatingHandlers: delegationHandler);
 ```
 
-Ridge uses delegation handler to log requests.
+Ridge provides extension method called `GetRequestDescription` which can be used in any delegation handler used in ridge
+calls.
+`GetRequestDescription` returns request description:
+
+```csharp
+public class ListSeparatedByCommasDelegationHandler : DelegatingHandler
+{
+  protected override async Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage httpRequestMessage,
+        CancellationToken cancellationToken)
+    {
+        //...
+        var requestDescription = httpRequestMessage.GetRequestDescription();
+        var callerParameters = requestDescription.ParameterProvider.GetCallerParameters();
+        //...
+    }
+}
+```
+
+> Ridge uses delegation handler to log requests.
 
 ## Caller and request generation
 
