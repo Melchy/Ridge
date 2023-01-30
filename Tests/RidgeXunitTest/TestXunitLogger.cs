@@ -29,7 +29,7 @@ public class XunitLoggerTests
 
     internal Application CreateApplication()
     {
-        var webAppFactory = new WebApplicationFactory<Program>().AddXUnitLogger(_testOutputHelper);
+        var webAppFactory = new WebApplicationFactory<Program>().AddExceptionCatching().AddXUnitLogger(_testOutputHelper);
 
         return new Application(
             webAppFactory
