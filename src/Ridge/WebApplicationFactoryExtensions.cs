@@ -17,10 +17,6 @@ using Xunit.Abstractions;
 // Namespace is correct
 namespace Microsoft.AspNetCore.Mvc.Testing;
 
-// TODO zdokumentovat WebApplicationFactoryExtensions
-// TODO zdokumentovat ze ridge atribut nemusi generovat return
-// TODO zdokumentovat ze delegation handler ma specialni extension metodu pro ziskani contextu
-
 /// <summary>
 ///     Ridge extensions for WebApplicationFactory.
 /// </summary>
