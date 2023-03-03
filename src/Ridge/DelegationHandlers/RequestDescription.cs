@@ -18,7 +18,7 @@ public class RequestDescription
 
     
     /// <summary>
-    /// Action and caller arguments.
+    /// Action and client arguments.
     /// </summary>
     public ParameterProvider ParameterProvider { get; }
     
@@ -43,7 +43,7 @@ public class RequestDescription
     /// Creates <see cref="RequestDescription"/> 
     /// </summary>
     /// <param name="callId">Id used to identify call. This id is was to header.</param>
-    /// <param name="parameterProvider">Action and caller arguments.</param>
+    /// <param name="parameterProvider">Action and client arguments.</param>
     /// <param name="urlGenerationParameters">Parameters which were used to Generate URL. This dictionary must contain all query parameters, route parameters, controller name, action name and area.</param>
     /// <param name="calledControllerMethodInfo">Controller method which should be called when request is processed.</param>
     public RequestDescription(

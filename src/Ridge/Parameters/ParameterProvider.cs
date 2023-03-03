@@ -1,15 +1,15 @@
 ﻿using Ridge.GeneratorAttributes;
-using Ridge.Parameters.ActionAndCallerParams;
+using Ridge.Parameters.ActionAndClientParams;
 using Ridge.Parameters.ActionParams;
 using Ridge.Parameters.AdditionalParams;
-using Ridge.Parameters.CallerParams;
+using Ridge.Parameters.ClientParams;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Ridge.Parameters;
 
 /// <summary>
-///     This class can be used to get action and caller parameters.
+///     This class can be used to get action and client parameters.
 /// </summary>
 public class ParameterProvider
 {
@@ -30,7 +30,7 @@ public class ParameterProvider
     }
 
     /// <summary>
-    ///     Get collection of additional parameters passed to caller.
+    ///     Get collection of additional parameters passed to client.
     /// </summary>
     /// <returns>Collection of additional parameters.</returns>
     public AdditionalParameters GetAdditionalParameters()
@@ -39,15 +39,15 @@ public class ParameterProvider
     }
 
     /// <summary>
-    ///     Get collection of Action and Caller parameters linked.
+    ///     Get collection of Action and Client parameters linked.
     /// </summary>
-    /// <returns>Action and caller parameters linked.</returns>
-    public ActionAndCallerParametersLinked GetActionAndCallerParametersLinked()
+    /// <returns>Action and client parameters linked.</returns>
+    public ActionAndClientParametersLinked GetActionAndClientParametersLinked()
     {
-        var actionAndCallerParametersLinked = _parameters.Select(x =>
+        var actionAndClientParametersLinked = _parameters.Select(x =>
         {
             ActionParameter? actionParameter = null;
-            CallerParameter? callerParameter;
+            ClientParameter? clientParameter;
             if (!(x.OriginalParameterInfo == null || x.OriginalName == null || x.OriginalType == null))
             {
                 actionParameter = new ActionParameter(x.OriginalParameterInfo, x.OriginalName, x.OriginalType);
@@ -55,17 +55,17 @@ public class ParameterProvider
 
             if (x.WasDeleted)
             {
-                callerParameter = null;
+                clientParameter = null;
             }
             else
             {
-                callerParameter = new CallerParameter(x.NameInCaller, x.TypeInCaller, x.PassedValue, x.AddedOrTransformedParameterMapping ?? ParameterMapping.None);
+                clientParameter = new ClientParameter(x.NameInClient, x.TypeInClient, x.PassedValue, x.AddedOrTransformedParameterMapping ?? ParameterMapping.None);
             }
 
-            return new ActionAndCallerParameterLinked(actionParameter, callerParameter, x.IsTransformedOrAdded);
+            return new ActionAndClientParameterLinked(actionParameter, clientParameter, x.IsTransformedOrAdded);
         });
 
-        return new ActionAndCallerParametersLinked(actionAndCallerParametersLinked);
+        return new ActionAndClientParametersLinked(actionAndClientParametersLinked);
     }
 
     /// <summary>
@@ -89,26 +89,26 @@ public class ParameterProvider
     }
 
     /// <summary>
-    ///     Get parameters passed to caller.
+    ///     Get parameters passed to client.
     /// </summary>
-    /// <returns>Parameters passed to caller</returns>
-    public CallerParameters GetCallerParameters()
+    /// <returns>Parameters passed to client</returns>
+    public ClientParameters GetClientParameters()
     {
-        var callerParameters = _parameters.Select(x =>
+        var clientParameters = _parameters.Select(x =>
         {
-            CallerParameter? callerParameter;
+            ClientParameter? clientParameter;
             if (x.WasDeleted)
             {
-                callerParameter = null;
+                clientParameter = null;
             }
             else
             {
-                callerParameter = new CallerParameter(x.NameInCaller, x.TypeInCaller, x.PassedValue, x.AddedOrTransformedParameterMapping ?? ParameterMapping.None);
+                clientParameter = new ClientParameter(x.NameInClient, x.TypeInClient, x.PassedValue, x.AddedOrTransformedParameterMapping ?? ParameterMapping.None);
             }
 
-            return callerParameter;
+            return clientParameter;
         });
 
-        return new CallerParameters(callerParameters.Where(x => x != null)!);
+        return new ClientParameters(clientParameters.Where(x => x != null)!);
     }
 }

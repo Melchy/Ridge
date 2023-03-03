@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
 
-[GenerateCaller(UseHttpResponseMessageAsReturnType = true)]
-[TransformParameterInCaller(fromType: typeof(TestController.ComplexArgument), toType: typeof(void), ParameterMapping.None)]
-[TransformParameterInCaller(fromType: typeof(ILogger), toType: typeof(void), ParameterMapping.None)]
-[TransformParameterInCaller(fromType: typeof(float), toType: typeof(string), ParameterMapping.None, Optional = true, GeneratedParameterName = "renamed")]
-[AddParameterToCaller(typeof(int?), "addedParameter", ParameterMapping.None, Optional = false)]
-[AddParameterToCaller(typeof(string), "addedOptionalParameter", ParameterMapping.None, Optional = true)]
-[AddParameterToCaller(typeof(Task<string>), "addedGenericOptionalParameter", ParameterMapping.None, Optional = true)]
-[AddParameterToCaller(typeof(object), "renamed", ParameterMapping.None, Optional = true)]
+[GenerateClient(UseHttpResponseMessageAsReturnType = true)]
+[TransformActionParameter(fromType: typeof(TestController.ComplexArgument), toType: typeof(void), ParameterMapping.None)]
+[TransformActionParameter(fromType: typeof(ILogger), toType: typeof(void), ParameterMapping.None)]
+[TransformActionParameter(fromType: typeof(float), toType: typeof(string), ParameterMapping.None, Optional = true, GeneratedParameterName = "renamed")]
+[AddParameterToClient(typeof(int?), "addedParameter", ParameterMapping.None, Optional = false)]
+[AddParameterToClient(typeof(string), "addedOptionalParameter", ParameterMapping.None, Optional = true)]
+[AddParameterToClient(typeof(Task<string>), "addedGenericOptionalParameter", ParameterMapping.None, Optional = true)]
+[AddParameterToClient(typeof(object), "renamed", ParameterMapping.None, Optional = true)]
 public class ControllerWithSpecialGenerationSettings : ControllerBase
 {
     public const int DefaultValue = 1;

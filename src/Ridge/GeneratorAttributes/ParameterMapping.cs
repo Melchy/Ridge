@@ -19,7 +19,7 @@ public enum ParameterMapping
     ///     Those parameter are then mapped to Route or Query parameters using _linkGenerator.GetPathByRouteValues("",
     ///     routeParams);
     ///     where link generator is https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.routing.linkgenerator.
-    ///     Key is equivalent to the parameter name in generated caller class.
+    ///     Key is equivalent to the parameter name in generated client class.
     /// </summary>
     MapToQueryOrRouteParameter = 1,
 
@@ -30,7 +30,7 @@ public enum ParameterMapping
 
     /// <summary>
     ///     Parameter will be added as header to the request.
-    ///     Key is equivalent to the parameter name in generated caller class.
+    ///     Key is equivalent to the parameter name in generated client class.
     /// </summary>
     MapToHeader = 3,
 }

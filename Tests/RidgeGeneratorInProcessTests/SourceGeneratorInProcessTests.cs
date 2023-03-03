@@ -17,18 +17,18 @@ public class SourceGeneratorInProcessTests
 
                     namespace TestNamespace.Controller;
                     
-                    [Ridge.GeneratorAttributes.TransformParameterInCaller(fromType: typeof(float), toType: typeof(string), Ridge.GeneratorAttributes.ParameterMapping.None, Optional = true, GeneratedParameterName = "parameterName")]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller(typeof(int?), "addedParameterOptional", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = true)]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller(typeof(int), "addedParameter", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = false)]
-                    [Ridge.GeneratorAttributes.TransformParameterInCaller(fromType: typeof(int), toType: typeof(string), Ridge.GeneratorAttributes.ParameterMapping.None, GeneratedParameterName = "renamed")]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller()]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller(typeof(int))]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller(typeof(int), )]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller(typeof(int)]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller(typeof(int), "addedParameterZ", Ridge.GeneratorAttributes.ParameterMapping.None, Op)]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller(typeof(int), "addedParameterX", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = fae)]
-                    [Ridge.GeneratorAttributes.AddParameterToCaller(typeof(int), "addedParameterY", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = fae)
-                    [GenerateCaller()]
+                    [Ridge.GeneratorAttributes.TransformActionParameter(fromType: typeof(float), toType: typeof(string), Ridge.GeneratorAttributes.ParameterMapping.None, Optional = true, GeneratedParameterName = "parameterName")]
+                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int?), "addedParameterOptional", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = true)]
+                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameter", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = false)]
+                    [Ridge.GeneratorAttributes.TransformActionParameter(fromType: typeof(int), toType: typeof(string), Ridge.GeneratorAttributes.ParameterMapping.None, GeneratedParameterName = "renamed")]
+                    [Ridge.GeneratorAttributes.AddParameterToClient()]
+                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int))]
+                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), )]
+                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int)]
+                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterZ", Ridge.GeneratorAttributes.ParameterMapping.None, Op)]
+                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterX", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = fae)]
+                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterY", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = fae)
+                    [GenerateClient()]
                     public class Test
                     {
                         public MethodWithoutReturn(){}
@@ -95,7 +95,7 @@ public static class TestHelper
         List<PortableExecutableReference> references = new List<PortableExecutableReference>()
         {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(GenerateCaller).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(GenerateClient).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(ActionResult).Assembly.Location),
             MetadataReference.CreateFromFile(typeof(IActionResult).Assembly.Location),
         };
@@ -122,7 +122,7 @@ public static class TestHelper
         // var emitResult = compilation.Emit(new MemoryStream());
 
         // Create an instance of our EnumGenerator incremental source generator
-        var generator = new ControllerCallerGenerator();
+        var generator = new ControllerClientGenerator();
 
         // The GeneratorDriver is used to run our generator against a compilation
         GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);

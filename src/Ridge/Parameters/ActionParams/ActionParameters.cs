@@ -1,4 +1,4 @@
-﻿using Ridge.Parameters.CallerParams;
+﻿using Ridge.Parameters.ClientParams;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ public class ActionParameters : IEnumerable<ActionParameter>
     /// <summary>
     ///     Get first parameter by type or default.
     /// </summary>
-    /// <typeparam name="TType">Type of parameter to find. Type must match type passed to caller.</typeparam>
+    /// <typeparam name="TType">Type of parameter to find. Type must match type passed to client.</typeparam>
     /// <returns>Parameter or default.</returns>
     public ActionParameter? GetFirstParameterByTypeOrDefault<TType>()
     {
@@ -36,7 +36,7 @@ public class ActionParameters : IEnumerable<ActionParameter>
     /// <summary>
     ///     Get first parameter by type or throw exception.
     /// </summary>
-    /// <typeparam name="TType">Type of parameter to find. Type must match type passed to caller.</typeparam>
+    /// <typeparam name="TType">Type of parameter to find. Type must match type passed to client.</typeparam>
     /// <returns>Parameter.</returns>
     /// <exception cref="InvalidOperationException">Thrown when parameter with provided type is not found.</exception>
     public ActionParameter GetFirstParameterByTypeOrThrow<TType>()
@@ -53,8 +53,8 @@ public class ActionParameters : IEnumerable<ActionParameter>
     /// <summary>
     ///     Get parameters by type.
     /// </summary>
-    /// <typeparam name="TType">Type which will be used to find parameters. Type must match the type passed to caller.</typeparam>
-    /// <returns>Collection of <see cref="CallerParameter" /> with type TType.</returns>
+    /// <typeparam name="TType">Type which will be used to find parameters. Type must match the type passed to client.</typeparam>
+    /// <returns>Collection of <see cref="ClientParameter" /> with type TType.</returns>
     public IEnumerable<ActionParameter> GetParametersByType<TType>()
     {
         return _actionParameters.Where(x => x.Type == typeof(TType));

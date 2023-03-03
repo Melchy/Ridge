@@ -32,7 +32,7 @@ public class MethodToGenerate : IEquatable<MethodToGenerate>
         ParameterTransformations = parameterTransformations;
         ContainingControllerFullyQualifiedName = containingControllerFullyQualifiedName;
         _methodHash = methodHash;
-        _generatedMethod = new Lazy<string>(() => CallerMethodGenerationHelper.GenerateMethod(this, cancellationToken));
+        _generatedMethod = new Lazy<string>(() => ClientMethodGenerationHelper.GenerateMethod(this, cancellationToken));
     }
 
     public string GenerateMethod(

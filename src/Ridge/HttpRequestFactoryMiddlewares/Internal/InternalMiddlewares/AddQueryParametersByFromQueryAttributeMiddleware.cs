@@ -11,10 +11,10 @@ internal class AddQueryParametersByFromQueryAttributeMiddleware : HttpRequestFac
         IRequestFactoryContext requestFactoryContext)
     {
         var relevantParameters = requestFactoryContext.ParameterProvider
-           .GetActionAndCallerParametersLinked()
+           .GetActionAndClientParametersLinked()
            .Where(x =>
                 x.DoesParameterExistInAction() &&
-                x.DoesParameterExistsInCaller())
+                x.DoesParameterExistsInClient())
            .Where(x => !x.WasParameterAddedOrTransformed);
 
         var fromQueryParams = relevantParameters.Where(x =>

@@ -1,4 +1,4 @@
-﻿using Ridge.Parameters.CallerParams;
+﻿using Ridge.Parameters.ClientParams;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,14 +7,14 @@ using System.Linq;
 namespace Ridge.Parameters.AdditionalParams;
 
 /// <summary>
-///     Additional parameters passed to caller.
+///     Additional parameters passed to client.
 /// </summary>
 public class AdditionalParameters : IEnumerable<AdditionalParameter>
 {
     private readonly IEnumerable<AdditionalParameter> _additionalParameters;
 
     /// <summary>
-    ///     Crate new <see cref="CallerParameters" />
+    ///     Crate new <see cref="ClientParameters" />
     /// </summary>
     /// <param name="additionalParameters"></param>
     public AdditionalParameters(
@@ -91,13 +91,13 @@ public class AdditionalParameters : IEnumerable<AdditionalParameter>
     /// <exception cref="InvalidOperationException">Thrown when parameter with provided type is not found.</exception>
     public AdditionalParameter GetFirstParameterByTypeOrThrow<TType>()
     {
-        var callerParameter = GetFirstParameterByTypeOrDefault<TType>();
-        if (callerParameter == null)
+        var clientParameter = GetFirstParameterByTypeOrDefault<TType>();
+        if (clientParameter == null)
         {
             throw new InvalidOperationException($"Could not find parameter with type '{typeof(TType)}'.");
         }
 
-        return callerParameter;
+        return clientParameter;
     }
 
     /// <summary>
@@ -108,20 +108,20 @@ public class AdditionalParameters : IEnumerable<AdditionalParameter>
     /// <exception cref="InvalidOperationException">Thrown when value with provided type is not found.</exception>
     public AdditionalParameter GetFirstParameterByTypeOfValueOrThrow<TType>()
     {
-        var callerParameter = GetFirstParameterByTypeOfValueOrDefault<TType>();
-        if (callerParameter == null)
+        var clientParameter = GetFirstParameterByTypeOfValueOrDefault<TType>();
+        if (clientParameter == null)
         {
             throw new InvalidOperationException($"Could not find parameter with type '{typeof(TType)}'.");
         }
 
-        return callerParameter;
+        return clientParameter;
     }
 
     /// <summary>
     ///     Get parameters by type.
     /// </summary>
     /// <typeparam name="TType">Type which will be used to find parameters.</typeparam>
-    /// <returns>Collection of <see cref="CallerParameter" /> with type TType.</returns>
+    /// <returns>Collection of <see cref="ClientParameter" /> with type TType.</returns>
     public IEnumerable<TType> GetParametersByType<TType>()
     {
         return _additionalParameters.Where(x => x.GetType() == typeof(TType)).Cast<TType>();
@@ -131,7 +131,7 @@ public class AdditionalParameters : IEnumerable<AdditionalParameter>
     ///     Get parameters which value matches the provided type.
     /// </summary>
     /// <typeparam name="TType">Type which will be used to find parameters.</typeparam>
-    /// <returns>Collection of <see cref="CallerParameter" /> with values matching TType.</returns>
+    /// <returns>Collection of <see cref="ClientParameter" /> with values matching TType.</returns>
     public IEnumerable<AdditionalParameter> GetParametersByTypeOfValue<TType>()
     {
         return _additionalParameters.Where(x => x.Value?.GetType() == typeof(TType));

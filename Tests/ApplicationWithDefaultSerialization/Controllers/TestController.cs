@@ -6,7 +6,7 @@ namespace ApplicationWithDefaultSerialization.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[GenerateCaller]
+[GenerateClient]
 public class TestController : ControllerBase
 {
     [HttpGet("ArgumentsWithoutAttributes/{fromRoute}")]

@@ -4,7 +4,7 @@ using Ridge.GeneratorAttributes;
 namespace TestWebApplication.Controllers;
 
 [Route("[controller]")]
-[GenerateCaller]
+[GenerateClient]
 public class ControllerWithNonVirtualMethods : ControllerBase
 {
     [HttpGet("ReturnTypeInNestedClass")]

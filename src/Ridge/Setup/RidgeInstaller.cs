@@ -31,11 +31,11 @@ public static class RidgeInstaller
 
     /// <summary>
     ///     Check if application was created in test using
-    ///     RidgeCaller.
+    ///     RidgeClient.
     /// </summary>
     /// <param name="app">Application</param>
-    /// <returns>True if the app was created started from ridge caller.</returns>
-    public static bool WasApplicationCalledFromTestCaller(
+    /// <returns>True if the app was created started from ridge client.</returns>
+    public static bool WasApplicationCalledFromTestClient(
         this IApplicationBuilder app)
     {
         WasInstallerUsed = true;

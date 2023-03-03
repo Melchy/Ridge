@@ -24,7 +24,7 @@ public class TestApplicationWithDefaultSerialization
                 Str = "br",
             },
         };
-        var response = await application.TestControllerCaller.CallArgumentsWithoutAttributes(complexObject,
+        var response = await application.TestControllerClient.CallArgumentsWithoutAttributes(complexObject,
             1,
             2);
         response.Result.ComplexObject.Should().BeEquivalentTo(complexObject);
@@ -40,7 +40,7 @@ public class TestApplicationWithDefaultSerialization
     internal sealed class Application : IDisposable
     {
         public WebApplicationFactory<Program> WebApplicationFactory { get; set; }
-        public TestControllerCaller TestControllerCaller { get; set; }
+        public TestControllerClient TestControllerClient { get; set; }
 
         public Application(
             WebApplicationFactory<Program> webApplicationFactory)
@@ -50,7 +50,7 @@ public class TestApplicationWithDefaultSerialization
                 x.LogWriter = new NunitLogWriter();
                 x.ThrowExceptionInsteadOfReturning500 = true;
             });
-            TestControllerCaller = new TestControllerCaller(WebApplicationFactory.CreateClient(), WebApplicationFactory.Services);
+            TestControllerClient = new TestControllerClient(WebApplicationFactory.CreateClient(), WebApplicationFactory.Services);
         }
 
         public void Dispose()

@@ -19,13 +19,13 @@ internal class AddTransformedOrAddedParametersMiddleware : HttpRequestFactoryMid
         IRequestFactoryContext requestFactoryContext)
     {
         var parameters = requestFactoryContext.ParameterProvider
-           .GetActionAndCallerParametersLinked()
-           .Where(x => x.DoesParameterExistsInCaller())
+           .GetActionAndClientParametersLinked()
+           .Where(x => x.DoesParameterExistsInClient())
            .Where(x => x.WasParameterAddedOrTransformed);
 
         foreach (var parameter in parameters)
         {
-            var mapping = parameter.CallerParameter!.AddedOrTransformedParameterMapping;
+            var mapping = parameter.ClientParameter!.AddedOrTransformedParameterMapping;
             if (mapping == null)
             {
                 continue;
@@ -38,7 +38,7 @@ internal class AddTransformedOrAddedParametersMiddleware : HttpRequestFactoryMid
 
             if (mapping == ParameterMapping.MapToBody)
             {
-                requestFactoryContext.Body = parameter.CallerParameter.Value;
+                requestFactoryContext.Body = parameter.ClientParameter.Value;
             }
             else if (mapping == ParameterMapping.MapToHeader)
             {

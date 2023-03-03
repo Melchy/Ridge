@@ -25,10 +25,10 @@ internal class AddHeadersByFromHeaderAttributeMiddleware : HttpRequestFactoryMid
         ParameterProvider parameterProvider)
     {
         var relevantParameters = parameterProvider
-           .GetActionAndCallerParametersLinked()
+           .GetActionAndClientParametersLinked()
            .Where(x =>
                 x.DoesParameterExistInAction() &&
-                x.DoesParameterExistsInCaller())
+                x.DoesParameterExistsInClient())
            .Where(x => !x.WasParameterAddedOrTransformed);
 
         var fromHeadParams = relevantParameters.Where(x =>

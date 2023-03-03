@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Ridge.Parameters.ActionAndCallerParams;
+using Ridge.Parameters.ActionAndClientParams;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +9,14 @@ namespace Ridge.HttpRequestFactoryMiddlewares.Internal;
 internal static class ParameterAnalyzer
 {
     public static string GetAttributeNamePropertyOrParameterName(
-        ActionAndCallerParameterLinked actionAndCallerParameterLinked)
+        ActionAndClientParameterLinked actionAndClientParameterLinked)
     {
-        if (actionAndCallerParameterLinked.ActionParameter == null)
+        if (actionAndClientParameterLinked.ActionParameter == null)
         {
-            return actionAndCallerParameterLinked.CallerParameter!.Name;
+            return actionAndClientParameterLinked.ClientParameter!.Name;
         }
 
-        var parameter = actionAndCallerParameterLinked.ActionParameter.ParameterInfo;
+        var parameter = actionAndClientParameterLinked.ActionParameter.ParameterInfo;
 
         var modelNameProvider = (IModelNameProvider?)parameter.GetCustomAttributes(typeof(IModelNameProvider), true).FirstOrDefault();
         if (modelNameProvider == null)
@@ -34,11 +34,11 @@ internal static class ParameterAnalyzer
     }
 
     public static IEnumerable<(string Key, string? Value)> AnalyzeHeader(
-        ActionAndCallerParameterLinked headerParameter)
+        ActionAndClientParameterLinked headerParameter)
     {
         List<(string Key, string? Value)> resultHeaders = new();
         var parameterNameInRequest = GetAttributeNamePropertyOrParameterName(headerParameter);
-        var parameterValue = headerParameter.CallerParameter!.Value;
+        var parameterValue = headerParameter.ClientParameter!.Value;
 
         if (parameterValue == null)
         {
@@ -69,12 +69,12 @@ internal static class ParameterAnalyzer
     }
 
     public static IDictionary<string, object?> AnalyzeQueryOrRouteParameters(
-        IEnumerable<ActionAndCallerParameterLinked> actionAndCallerParametersLinked)
+        IEnumerable<ActionAndClientParameterLinked> actionAndClientParametersLinked)
     {
         IDictionary<string, object?> routeDataDictionary = new Dictionary<string, object?>();
-        foreach (var controllerAndCallerParameterLinked in actionAndCallerParametersLinked)
+        foreach (var controllerAndClientParameterLinked in actionAndClientParametersLinked)
         {
-            var queryOrRouteParameters = AnalyzeQueryOrRouteParameter(controllerAndCallerParameterLinked);
+            var queryOrRouteParameters = AnalyzeQueryOrRouteParameter(controllerAndClientParameterLinked);
             foreach (var queryOrRouteParameter in queryOrRouteParameters)
             {
                 routeDataDictionary[queryOrRouteParameter.Key] = queryOrRouteParameter.Value;
@@ -85,21 +85,21 @@ internal static class ParameterAnalyzer
     }
 
     public static IEnumerable<(string Key, object? Value)> AnalyzeQueryOrRouteParameter(
-        ActionAndCallerParameterLinked actionAndCallerParameterLinked)
+        ActionAndClientParameterLinked actionAndClientParameterLinked)
     {
         var result = new List<(string Key, object? Value)>();
 
         string parameterNameInRequest;
-        if (actionAndCallerParameterLinked.ActionParameter == null)
+        if (actionAndClientParameterLinked.ActionParameter == null)
         {
-            parameterNameInRequest = actionAndCallerParameterLinked.CallerParameter!.Name;
+            parameterNameInRequest = actionAndClientParameterLinked.ClientParameter!.Name;
         }
         else
         {
-            parameterNameInRequest = GetAttributeNamePropertyOrParameterName(actionAndCallerParameterLinked);
+            parameterNameInRequest = GetAttributeNamePropertyOrParameterName(actionAndClientParameterLinked);
         }
 
-        var value = actionAndCallerParameterLinked.CallerParameter!.Value;
+        var value = actionAndClientParameterLinked.ClientParameter!.Value;
         if (value == null)
         {
             result.Add((parameterNameInRequest, value));

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace RidgeSourceGenerator.GenerationHelpers;
 
-public static class CallerMethodGenerationHelper
+public static class ClientMethodGenerationHelper
 {
     public static string GenerateMethod(
         MethodToGenerate methodToGenerate,
@@ -116,17 +116,17 @@ public static class CallerMethodGenerationHelper
 
             if (!parameterAndTransformationInfo.WasDeleted)
             {
-                sb.Append($"@{parameterAndTransformationInfo.NameInCaller},");
+                sb.Append($"@{parameterAndTransformationInfo.NameInClient},");
             }
             else
             {
                 sb.Append("null,");
             }
 
-            sb.AppendLine($"typeof({parameterAndTransformationInfo.TypeInCaller.ToDisplayString(NullableFlowState.NotNull)}), " +
-                          $"\"{parameterAndTransformationInfo.NameInCaller}\", " +
+            sb.AppendLine($"typeof({parameterAndTransformationInfo.TypeInClient.ToDisplayString(NullableFlowState.NotNull)}), " +
+                          $"\"{parameterAndTransformationInfo.NameInClient}\", " +
                           $"{parameterAndTransformationInfo.WasDeleted.ToString().ToLower()}, " +
-                          $"{parameterAndTransformationInfo.IsOptionalInCaller.ToString().ToLower()}, " +
+                          $"{parameterAndTransformationInfo.IsOptionalInClient.ToString().ToLower()}, " +
                           $"{parameterAndTransformationInfo.IsTransformedOrAdded.ToString().ToLower()}," +
                           "methodName," +
                           "actionParameters),");
@@ -136,17 +136,17 @@ public static class CallerMethodGenerationHelper
 
         if (methodToGenerate.UseHttpResponseMessageAsReturnType)
         {
-            sb.Append(@"            return await _applicationCaller.CallActionWithHttpResponseMessageResult<");
+            sb.Append(@"            return await _applicationClient.CallActionWithHttpResponseMessageResult<");
         }
         else
         {
             if (returnType == null)
             {
-                sb.Append(@"            return await _applicationCaller.CallAction<");
+                sb.Append(@"            return await _applicationClient.CallAction<");
             }
             else
             {
-                sb.Append(@$"           return await _applicationCaller.CallAction<{returnType},");
+                sb.Append(@$"           return await _applicationClient.CallAction<{returnType},");
             }
         }
 
@@ -213,7 +213,7 @@ public static class CallerMethodGenerationHelper
                 continue;
             }
 
-            if (parameter.IsOptionalInCaller)
+            if (parameter.IsOptionalInClient)
             {
                 string defaultValue;
                 string type;
@@ -221,11 +221,11 @@ public static class CallerMethodGenerationHelper
                 if (parameter.IsTransformedOrAdded)
                 {
                     defaultValue = "default";
-                    type = parameter.TypeInCaller.ToDisplayString(NullableFlowState.MaybeNull);
+                    type = parameter.TypeInClient.ToDisplayString(NullableFlowState.MaybeNull);
                 }
                 else
                 {
-                    type = parameter.TypeInCaller.ToDisplayString();
+                    type = parameter.TypeInClient.ToDisplayString();
                     if (parameter.OriginalParameterSymbol!.HasExplicitDefaultValue)
                     {
                         if (parameter.OriginalParameterSymbol!.ExplicitDefaultValue == null)
@@ -251,11 +251,11 @@ public static class CallerMethodGenerationHelper
                     }
                 }
 
-                stringBuilderForOptionalParameters.Append($@"{type} @{parameter.NameInCaller} = {defaultValue}, ");
+                stringBuilderForOptionalParameters.Append($@"{type} @{parameter.NameInClient} = {defaultValue}, ");
             }
             else
             {
-                sb.Append($@"{parameter.TypeInCaller} @{parameter.NameInCaller}, ");
+                sb.Append($@"{parameter.TypeInClient} @{parameter.NameInClient}, ");
             }
         }
     }

@@ -1,26 +1,26 @@
 ﻿using Ridge.Parameters.ActionParams;
-using Ridge.Parameters.CallerParams;
+using Ridge.Parameters.ClientParams;
 
-namespace Ridge.Parameters.ActionAndCallerParams;
+namespace Ridge.Parameters.ActionAndClientParams;
 
 /// <summary>
-///     Represents action and caller parameter linked together.
+///     Represents action and client parameter linked together.
 /// </summary>
-public class ActionAndCallerParameterLinked
+public class ActionAndClientParameterLinked
 {
     /// <summary>
-    ///     Creates new <see cref="ActionAndCallerParameterLinked" />
+    ///     Creates new <see cref="ActionAndClientParameterLinked" />
     /// </summary>
     /// <param name="actionParameter">Parameter from action.</param>
-    /// <param name="callerParameter">Parameter from caller.</param>
+    /// <param name="clientParameter">Parameter from client.</param>
     /// <param name="wasParameterAddedOrTransformed">True if ridge source generator transformed or added the parameter.</param>
-    public ActionAndCallerParameterLinked(
+    public ActionAndClientParameterLinked(
         ActionParameter? actionParameter,
-        CallerParameter? callerParameter,
+        ClientParameter? clientParameter,
         bool wasParameterAddedOrTransformed)
     {
         ActionParameter = actionParameter;
-        CallerParameter = callerParameter;
+        ClientParameter = clientParameter;
         WasParameterAddedOrTransformed = wasParameterAddedOrTransformed;
     }
 
@@ -30,9 +30,9 @@ public class ActionAndCallerParameterLinked
     public ActionParameter? ActionParameter { get; }
 
     /// <summary>
-    ///     Parameter from caller.
+    ///     Parameter from client.
     /// </summary>
-    public CallerParameter? CallerParameter { get; }
+    public ClientParameter? ClientParameter { get; }
 
     /// <summary>
     ///     True if ridge source generator transformed or added the parameter.
@@ -50,12 +50,12 @@ public class ActionAndCallerParameterLinked
     }
 
     /// <summary>
-    ///     True if parameter exists in caller.
-    ///     Parameter might not exist in caller when it was removed using source generator.
+    ///     True if parameter exists in client.
+    ///     Parameter might not exist in client when it was removed using source generator.
     /// </summary>
-    /// <returns>True if parameter exists in caller.</returns>
-    public bool DoesParameterExistsInCaller()
+    /// <returns>True if parameter exists in client.</returns>
+    public bool DoesParameterExistsInClient()
     {
-        return CallerParameter != null;
+        return ClientParameter != null;
     }
 }

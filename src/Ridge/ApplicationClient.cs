@@ -20,7 +20,7 @@ namespace Ridge;
 /// <summary>
 ///     Helpers used to simplify generated code.
 /// </summary>
-public class ApplicationCaller
+public class ApplicationClient
 {
     private readonly HttpClient _httpClient;
     private readonly IServiceProvider _serviceProvider;
@@ -29,11 +29,11 @@ public class ApplicationCaller
     private readonly RidgeLogger _ridgeLogger;
 
     /// <summary>
-    /// Create application caller.
+    /// Create application client.
     /// </summary>
     /// <param name="httpClient">Http client used to call server.</param>
     /// <param name="serviceProvider">Application service provider.</param>
-    public ApplicationCaller(
+    public ApplicationClient(
         HttpClient httpClient,
         IServiceProvider serviceProvider)
     {
@@ -45,7 +45,7 @@ public class ApplicationCaller
         if (options == null)
         {
             throw new InvalidOperationException($"Ridge options not found. Did you forget to call {nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)}?" +
-                                                $"To {nameof(ApplicationCaller)} it is necessary to call {nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)} first.");
+                                                $"To {nameof(ApplicationClient)} it is necessary to call {nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)} first.");
         }
 
         _httpRequestFactoryMiddlewareBuilder = _serviceProvider.GetRequiredService<HttpRequestFactoryMiddlewareBuilder>();
@@ -58,7 +58,7 @@ public class ApplicationCaller
     /// </summary>
     /// <param name="methodName">Controller method for which the request will be generated.</param>
     /// <param name="callParameters">Argument types of controller method.</param>
-    /// <param name="additionalParameters">Additional parameters passed to caller.</param>
+    /// <param name="additionalParameters">Additional parameters passed to client.</param>
     /// <param name="parameterAndTransformationInfo">Information about parameters and transformations of parameters.</param>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <typeparam name="TReturn">Return type</typeparam>
@@ -86,7 +86,7 @@ public class ApplicationCaller
     /// </summary>
     /// <param name="methodName">Controller method for which the request will be generated.</param>
     /// <param name="callParameters">Argument types of controller method.</param>
-    /// <param name="additionalParameters">Additional parameters passed to caller.</param>
+    /// <param name="additionalParameters">Additional parameters passed to client.</param>
     /// <param name="parameterAndTransformationInfo">Information about parameters and transformations of parameters.</param>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <returns>Returns the response from server.</returns>
@@ -114,7 +114,7 @@ public class ApplicationCaller
     /// </summary>
     /// <param name="methodName">Controller method for which the request will be generated.</param>
     /// <param name="callParameters">Argument types of controller method.</param>
-    /// <param name="additionalParameters">Additional parameters passed to caller.</param>
+    /// <param name="additionalParameters">Additional parameters passed to client.</param>
     /// <param name="parameterAndTransformationInfo">Information about parameters and transformations of parameters.</param>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <returns>Returns the response from server.</returns>

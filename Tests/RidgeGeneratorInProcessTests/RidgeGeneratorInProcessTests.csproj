@@ -20,53 +20,6 @@
 
     </ItemGroup>
     <ItemGroup>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess#Test_Caller.g.received.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess#Test_Caller.g.verified.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess#Test_Caller_GeneralMethods.g.received.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess#Test_Caller_GeneralMethods.g.verified.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess#Test_TestCaller.g.received.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess#Test_TestCaller.g.verified.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess.DotNet6_0#Test_Caller.g.received.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess.DotNet7_0#Test_Caller.g.received.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-        <None Include="SourceGeneratorInProcessTests.TestSourceGeneratorInProcess.DotNet7_0#Test_Caller_GeneralMethods.g.received.cs">
-            <ParentExtension>.cs</ParentExtension>
-            <ParentFile>SourceGeneratorInProcessTests</ParentFile>
-            <DependentUpon>SourceGeneratorInProcessTests.cs</DependentUpon>
-        </None>
-    </ItemGroup>
-    <ItemGroup>
         <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj"/>
         <ProjectReference Include="..\..\src\Ridge\Ridge.csproj"/>
     </ItemGroup>
