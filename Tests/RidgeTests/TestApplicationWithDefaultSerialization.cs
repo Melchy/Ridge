@@ -3,6 +3,7 @@ using ApplicationWithDefaultSerialization.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
+using Ridge.LogWriter;
 using System;
 using System.Threading.Tasks;
 
@@ -44,8 +45,12 @@ public class TestApplicationWithDefaultSerialization
         public Application(
             WebApplicationFactory<Program> webApplicationFactory)
         {
-            WebApplicationFactory = webApplicationFactory.AddNUnitLogger().AddExceptionCatching();
-            TestControllerCaller = new TestControllerCaller(WebApplicationFactory.CreateRidgeClient());
+            WebApplicationFactory = webApplicationFactory.WithRidge(x =>
+            {
+                x.LogWriter = new NunitLogWriter();
+                x.ThrowExceptionInsteadOfReturning500 = true;
+            });
+            TestControllerCaller = new TestControllerCaller(WebApplicationFactory.CreateClient(), WebApplicationFactory.Services);
         }
 
         public void Dispose()

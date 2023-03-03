@@ -1,25 +1,29 @@
-﻿using Ridge.LogWriter;
+﻿using Microsoft.Extensions.Options;
+using Ridge.Setup;
 using System;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ridge.DelegationHandlers;
+namespace Ridge.LogWriter.Internal;
 
-internal class LogRequestDelegationHandler : DelegatingHandler
+internal class RidgeLogger
 {
-    private readonly ILogWriter _logger;
+    private readonly ILogWriter? _logger;
 
-    public LogRequestDelegationHandler(
-        ILogWriter logger)
+    public RidgeLogger(
+        IOptions<RidgeOptions>? ridgeOptions)
     {
-        _logger = logger;
+        _logger = ridgeOptions?.Value.LogWriter;
     }
 
-    protected override async Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken)
+    public async Task LogRequest(
+        HttpRequestMessage request)
     {
+        if (_logger == null)
+        {
+            return;
+        }
+        
         var requestBody = request.Content;
         var requestBodyAsString = requestBody == null ? null : await requestBody.ReadAsStringAsync();
         _logger.WriteLine("Request:");
@@ -28,9 +32,16 @@ internal class LogRequestDelegationHandler : DelegatingHandler
         _logger.WriteLine("Body:");
         _logger.WriteLine($"{requestBodyAsString}");
         _logger.WriteLine("");
+    }
 
-        var response = await base.SendAsync(request, cancellationToken);
-
+    public async Task LogResponse(
+        HttpResponseMessage response)
+    {
+        if (_logger == null)
+        {
+            return;
+        }
+        
         var responseBodyAsString = await response.Content.ReadAsStringAsync();
         _logger.WriteLine("Response:");
         _logger.WriteLine($"Time when response was received: {DateTime.Now.ToString("HH:mm:ss:fff")}");
@@ -38,7 +49,5 @@ internal class LogRequestDelegationHandler : DelegatingHandler
         _logger.WriteLine("Body:");
         _logger.WriteLine($"{responseBodyAsString}");
         _logger.WriteLine("");
-
-        return response;
     }
 }

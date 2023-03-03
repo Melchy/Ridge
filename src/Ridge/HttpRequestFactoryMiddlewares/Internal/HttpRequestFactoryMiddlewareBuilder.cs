@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Options;
 using Ridge.HttpRequestFactoryMiddlewares.Internal.InternalMiddlewares;
-using Ridge.Parameters.CustomParams;
 using Ridge.Serialization;
+using Ridge.Setup;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,14 +15,31 @@ namespace Ridge.HttpRequestFactoryMiddlewares.Internal;
 /// </summary>
 internal class HttpRequestFactoryMiddlewareBuilder
 {
-    private List<HttpRequestFactoryMiddleware> _requestFactoryMiddleware { get; } = new();
+    private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
+    private readonly LinkGenerator _linkGenerator;
+    private readonly SerializerProvider _serializerProvider;
+    private readonly List<HttpRequestFactoryMiddleware> _requestFactoryMiddleware;
 
-    internal HttpRequestFactoryMiddleware BuildRequestFactoryMiddleware(
+    public HttpRequestFactoryMiddlewareBuilder(
         IActionDescriptorCollectionProvider actionDescriptorCollectionProvider,
         LinkGenerator linkGenerator,
-        IRequestResponseSerializer requestResponseSerializer)
+        SerializerProvider serializerProvider,
+        IOptions<RidgeOptions> ridgeOptions)
     {
-        var setHttpMethodAreaAndBaseUrlGenerationParametersMiddleware = new SetHttpMethodAreaAndBaseUrlGenerationParametersMiddleware(actionDescriptorCollectionProvider);
+        ArgumentNullException.ThrowIfNull(actionDescriptorCollectionProvider);
+        ArgumentNullException.ThrowIfNull(linkGenerator);
+        ArgumentNullException.ThrowIfNull(serializerProvider);
+        ArgumentNullException.ThrowIfNull(ridgeOptions);
+
+        _actionDescriptorCollectionProvider = actionDescriptorCollectionProvider;
+        _linkGenerator = linkGenerator;
+        _serializerProvider = serializerProvider;
+        _requestFactoryMiddleware = ridgeOptions.Value.HttpRequestFactoryMiddlewares;
+    }
+
+    public HttpRequestFactoryMiddleware BuildRequestFactoryMiddleware()
+    {
+        var setHttpMethodAreaAndBaseUrlGenerationParametersMiddleware = new SetHttpMethodAreaAndBaseUrlGenerationParametersMiddleware(_actionDescriptorCollectionProvider);
         var addParametersWithoutAnyAttribute = new AddParametersWithoutAnyAttributeMiddleware();
 
 
@@ -30,9 +49,9 @@ internal class HttpRequestFactoryMiddlewareBuilder
         var addQueryParametersByFromQueryMiddleware = new AddQueryParametersByFromQueryAttributeMiddleware();
         var addRouteParametersByFromRouteMiddleware = new AddRouteParametersByFromRouteAttributeMiddleware();
         var addTransformedOrAddedParametersMiddleware = new AddTransformedOrAddedParametersMiddleware();
-        
-       
-        var finalMiddleware = new FinalHttpRequestMiddleware(linkGenerator, requestResponseSerializer);
+
+
+        var finalMiddleware = new FinalHttpRequestMiddleware(_linkGenerator, _serializerProvider.GetSerializer());
 
         var requestFactoryMiddlewareArray = _requestFactoryMiddleware
            .Prepend(addValuesFromKnownCustomParametersMiddleware) // 8 custom parameters
@@ -66,27 +85,5 @@ internal class HttpRequestFactoryMiddlewareBuilder
         {
             _requestFactoryMiddleware.Add(httpRequestFactoryMiddleware);
         }
-    }
-
-    /// <summary>
-    ///     Add headers to request. This method actually adds <see cref="HttpRequestFactoryMiddleware" /> which adds the
-    ///     headers.
-    /// </summary>
-    /// <param name="headers">Headers to add.</param>
-    public void AddHeaders(
-        IEnumerable<HttpHeaderParameter> headers)
-    {
-        foreach (var header in headers)
-        {
-            AddHeader(header.Key, header.Value);
-        }
-    }
-
-    private void AddHeader(
-        string key,
-        string? value)
-    {
-        var addHeaderTransformer = new AddHeaderHttpMiddleware(key, value);
-        _requestFactoryMiddleware.Add(addHeaderTransformer);
     }
 }

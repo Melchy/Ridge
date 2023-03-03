@@ -23,8 +23,12 @@ public class ParameterProviderTests
     {
         using var application = CreateApplication();
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
-        var applicationFactory = application.WebApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
-        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateRidgeClient())
+        using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
+        {
+            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+        });
+
+        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateClient(), applicationFactory.Services)
            .CallActionWithOptionalParameter("test",
                 "test",
                 new[]
@@ -72,9 +76,12 @@ public class ParameterProviderTests
     {
         using var application = CreateApplication();
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
-        var applicationFactory = application.WebApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
-        applicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
-        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateRidgeClient())
+        using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
+        {
+            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+        });
+
+        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateClient(), applicationFactory.Services)
            .CallActionWithOptionalParameter("test",
                 "test",
                 new[]
@@ -127,14 +134,16 @@ public class ParameterProviderTests
     {
         using var application = CreateApplication();
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
-        var applicationFactory = application.WebApplicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
-        applicationFactory.AddHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
+        using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
+        {
+            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+        });
         var customParameters = new[]
         {
             new CustomParameter("optionalParameterString", "OptionalParameter"),
             new CustomParameter("optionalParameterInt", 2),
         };
-        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateRidgeClient())
+        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateClient(), applicationFactory.Services)
            .CallSimpleGet(null,
                 customParameters: customParameters);
 
