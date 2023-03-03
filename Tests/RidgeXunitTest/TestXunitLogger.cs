@@ -32,7 +32,6 @@ public class XunitLoggerTests
     {
         var webAppFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            x.ThrowExceptionInsteadOfReturning500 = true;
             x.LogWriter = new XunitLogWriter(_testOutputHelper);
         });
 

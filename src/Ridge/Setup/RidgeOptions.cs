@@ -11,13 +11,6 @@ namespace Ridge.Setup;
 public class RidgeOptions
 {
     /// <summary>
-    ///     Ridge will catch exception thrown by server and rethrow them in test
-    ///     as regular exception with correct call stack. When you set this value to true then you
-    ///     need too use app.ThrowExceptionInsteadOfReturning500(); see docs for mor information.
-    /// </summary>
-    public bool ThrowExceptionInsteadOfReturning500 { get; set; } = false;
-
-    /// <summary>
     ///     <see cref="HttpRequestFactoryMiddleware" /> which will be used in pipeline to create
     ///     HttpRequestMessage.
     /// </summary>

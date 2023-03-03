@@ -48,7 +48,6 @@ public class TestApplicationWithDefaultSerialization
             WebApplicationFactory = webApplicationFactory.WithRidge(x =>
             {
                 x.LogWriter = new NunitLogWriter();
-                x.ThrowExceptionInsteadOfReturning500 = true;
             });
             TestControllerClient = new TestControllerClient(WebApplicationFactory.CreateClient(), WebApplicationFactory.Services);
         }
