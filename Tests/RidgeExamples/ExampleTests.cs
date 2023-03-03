@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
 using Ridge.HttpRequestFactoryMiddlewares;
-using Ridge.Parameters.CustomParams;
+using Ridge.Parameters.AdditionalParams;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -114,34 +114,34 @@ public class ExampleTests
     }
 
     [Test]
-    public async Task CustomParameter()
+    public async Task AdditionalParameter()
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
             x.ThrowExceptionInsteadOfReturning500 = true;
-            x.HttpRequestFactoryMiddlewares.Add(new AddHeaderFromCustomParameters());
+            x.HttpRequestFactoryMiddlewares.Add(new AddHeaderFromAdditionalParameters());
         });
 
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerCaller = new ExamplesControllerCaller(ridgeHttpClient, webApplicationFactory.Services);
 
         // action returns all passed headers
-        var response = await examplesControllerCaller.CallReturnAllHeaders(customParameters: new CustomParameter("exampleHeader", "exampleHeaderValue"));
+        var response = await examplesControllerCaller.CallReturnAllHeaders(additionalParameters: new AdditionalParameter("exampleHeader", "exampleHeaderValue"));
 
         Assert.AreEqual("exampleHeaderValue", response.Result.First(x => x.key == "exampleHeader").value);
     }
 }
 
-public class AddHeaderFromCustomParameters : HttpRequestFactoryMiddleware
+public class AddHeaderFromAdditionalParameters : HttpRequestFactoryMiddleware
 {
     public override Task<HttpRequestMessage> CreateHttpRequest(
         IRequestFactoryContext requestFactoryContext)
     {
-        var customParameters = requestFactoryContext.ParameterProvider.GetCustomParameters();
+        var additionalParameters = requestFactoryContext.ParameterProvider.GetAdditionalParameters();
 
-        foreach (var customParameter in customParameters)
+        foreach (var additionalParameter in additionalParameters)
         {
-            requestFactoryContext.Headers.Add(customParameter.Name, customParameter.Value?.ToString());
+            requestFactoryContext.Headers.Add(additionalParameter.Name, additionalParameter.Value?.ToString());
         }
 
         return base.CreateHttpRequest(requestFactoryContext);

@@ -43,7 +43,7 @@ internal class HttpRequestFactoryMiddlewareBuilder
         var addParametersWithoutAnyAttribute = new AddParametersWithoutAnyAttributeMiddleware();
 
 
-        var addValuesFromKnownCustomParametersMiddleware = new AddValuesFromKnownCustomParametersMiddleware();
+        var addValuesFromKnownAdditionalParametersMiddleware = new AddValuesFromKnownAdditionalParametersMiddleware();
         var addBodyByFromBodyMiddleware = new AddBodyByFromBodyAttributeMiddleware();
         var addHeadersByFromHeader = new AddHeadersByFromHeaderAttributeMiddleware();
         var addQueryParametersByFromQueryMiddleware = new AddQueryParametersByFromQueryAttributeMiddleware();
@@ -54,7 +54,7 @@ internal class HttpRequestFactoryMiddlewareBuilder
         var finalMiddleware = new FinalHttpRequestMiddleware(_linkGenerator, _serializerProvider.GetSerializer());
 
         var requestFactoryMiddlewareArray = _requestFactoryMiddleware
-           .Prepend(addValuesFromKnownCustomParametersMiddleware) // 8 custom parameters
+           .Prepend(addValuesFromKnownAdditionalParametersMiddleware) // 8 additional parameters
            .Prepend(addTransformedOrAddedParametersMiddleware) // 7 Transformed or added parameters
            .Prepend(addRouteParametersByFromRouteMiddleware) // 6
            .Prepend(addQueryParametersByFromQueryMiddleware) // 5

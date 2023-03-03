@@ -1,9 +1,9 @@
-namespace Ridge.Parameters.CustomParams;
+namespace Ridge.Parameters.AdditionalParams;
 
 /// <summary>
 ///     Represents http header.
 /// </summary>
-public class HttpHeaderParameter : CustomParameter
+public class HttpHeaderParameter : AdditionalParameter
 {
     /// <summary>
     ///     Header key.

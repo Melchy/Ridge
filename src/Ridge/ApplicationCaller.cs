@@ -5,7 +5,7 @@ using Ridge.ExceptionHandling;
 using Ridge.HttpRequestFactoryMiddlewares.Internal;
 using Ridge.LogWriter.Internal;
 using Ridge.Parameters;
-using Ridge.Parameters.CustomParams;
+using Ridge.Parameters.AdditionalParams;
 using Ridge.Response;
 using Ridge.Setup;
 using System;
@@ -58,7 +58,7 @@ public class ApplicationCaller
     /// </summary>
     /// <param name="methodName">Controller method for which the request will be generated.</param>
     /// <param name="callParameters">Argument types of controller method.</param>
-    /// <param name="customParameters">Custom parameters passed to caller.</param>
+    /// <param name="additionalParameters">Additional parameters passed to caller.</param>
     /// <param name="parameterAndTransformationInfo">Information about parameters and transformations of parameters.</param>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <typeparam name="TReturn">Return type</typeparam>
@@ -67,7 +67,7 @@ public class ApplicationCaller
     public async Task<HttpCallResponse<TReturn>> CallAction<TReturn, TController>(
         string methodName,
         Type[] callParameters,
-        CustomParameter[] customParameters,
+        AdditionalParameter[] additionalParameters,
         IEnumerable<RawParameterAndTransformationInfo> parameterAndTransformationInfo)
     {
         var callId = Guid.NewGuid();
@@ -75,7 +75,7 @@ public class ApplicationCaller
             methodName,
             callId,
             callParameters,
-            customParameters,
+            additionalParameters,
             parameterAndTransformationInfo);
 
         return await _httpResponseCallFactory.CreateControllerCallResult<TReturn>(result);
@@ -86,7 +86,7 @@ public class ApplicationCaller
     /// </summary>
     /// <param name="methodName">Controller method for which the request will be generated.</param>
     /// <param name="callParameters">Argument types of controller method.</param>
-    /// <param name="customParameters">Custom parameters passed to caller.</param>
+    /// <param name="additionalParameters">Additional parameters passed to caller.</param>
     /// <param name="parameterAndTransformationInfo">Information about parameters and transformations of parameters.</param>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <returns>Returns the response from server.</returns>
@@ -94,7 +94,7 @@ public class ApplicationCaller
     public async Task<HttpCallResponse> CallAction<TController>(
         string methodName,
         Type[] callParameters,
-        CustomParameter[] customParameters,
+        AdditionalParameter[] additionalParameters,
         IEnumerable<RawParameterAndTransformationInfo> parameterAndTransformationInfo)
     {
         var callId = Guid.NewGuid();
@@ -102,7 +102,7 @@ public class ApplicationCaller
             methodName,
             callId,
             callParameters,
-            customParameters,
+            additionalParameters,
             parameterAndTransformationInfo);
 
         return await _httpResponseCallFactory.CreateControllerCallResult(result);
@@ -114,7 +114,7 @@ public class ApplicationCaller
     /// </summary>
     /// <param name="methodName">Controller method for which the request will be generated.</param>
     /// <param name="callParameters">Argument types of controller method.</param>
-    /// <param name="customParameters">Custom parameters passed to caller.</param>
+    /// <param name="additionalParameters">Additional parameters passed to caller.</param>
     /// <param name="parameterAndTransformationInfo">Information about parameters and transformations of parameters.</param>
     /// <typeparam name="TController">Controller to be called</typeparam>
     /// <returns>Returns the response from server.</returns>
@@ -122,7 +122,7 @@ public class ApplicationCaller
     public async Task<HttpResponseMessage> CallActionWithHttpResponseMessageResult<TController>(
         string methodName,
         Type[] callParameters,
-        CustomParameter[] customParameters,
+        AdditionalParameter[] additionalParameters,
         IEnumerable<RawParameterAndTransformationInfo> parameterAndTransformationInfo)
     {
         var callId = Guid.NewGuid();
@@ -130,7 +130,7 @@ public class ApplicationCaller
             methodName,
             callId,
             callParameters,
-            customParameters,
+            additionalParameters,
             parameterAndTransformationInfo);
         return result;
     }
@@ -139,7 +139,7 @@ public class ApplicationCaller
         string methodName,
         Guid callId,
         Type[] actionParameters,
-        CustomParameter[] customParameters,
+        AdditionalParameter[] additionalParameters,
         IEnumerable<RawParameterAndTransformationInfo> parameterAndTransformationInfo)
     {
         var controllerType = typeof(TController);
@@ -149,7 +149,7 @@ public class ApplicationCaller
             throw new InvalidOperationException($"Method with name {methodName} not found in class {controllerType.FullName}.");
         }
 
-        var parameterProvider = new ParameterProvider(parameterAndTransformationInfo, customParameters.Where(x => x != null)!);
+        var parameterProvider = new ParameterProvider(parameterAndTransformationInfo, additionalParameters.Where(x => x != null)!);
 
         var requestFactoryMiddleware = _httpRequestFactoryMiddlewareBuilder.BuildRequestFactoryMiddleware();
 

@@ -1,9 +1,9 @@
-﻿namespace Ridge.Parameters.CustomParams;
+﻿namespace Ridge.Parameters.AdditionalParams;
 
 /// <summary>
 ///     Represents body.
 /// </summary>
-public class BodyParameter : CustomParameter
+public class BodyParameter : AdditionalParameter
 {
     /// <summary>
     ///     Create <see cref="BodyParameter" />.

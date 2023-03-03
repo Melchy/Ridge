@@ -5,8 +5,8 @@ using Ridge.GeneratorAttributes;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.Parameters;
 using Ridge.Parameters.ActionParams;
+using Ridge.Parameters.AdditionalParams;
 using Ridge.Parameters.CallerParams;
-using Ridge.Parameters.CustomParams;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -130,7 +130,7 @@ public class ParameterProviderTests
     }
 
     [Test]
-    public async Task CustomParameterProviderIsSetUpCorrectly()
+    public async Task AdditionalParameterProviderIsSetUpCorrectly()
     {
         using var application = CreateApplication();
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
@@ -138,19 +138,19 @@ public class ParameterProviderTests
         {
             x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
         });
-        var customParameters = new[]
+        var additionalParameters = new[]
         {
-            new CustomParameter("optionalParameterString", "OptionalParameter"),
-            new CustomParameter("optionalParameterInt", 2),
+            new AdditionalParameter("optionalParameterString", "OptionalParameter"),
+            new AdditionalParameter("optionalParameterInt", 2),
         };
         var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateClient(), applicationFactory.Services)
            .CallSimpleGet(null,
-                customParameters: customParameters);
+                additionalParameters: additionalParameters);
 
-        testRequestFactoryMiddleware.ParameterProvider!.GetCustomParameters().Should().HaveCount(2);
-        testRequestFactoryMiddleware.ParameterProvider!.GetCustomParameters()
+        testRequestFactoryMiddleware.ParameterProvider!.GetAdditionalParameters().Should().HaveCount(2);
+        testRequestFactoryMiddleware.ParameterProvider!.GetAdditionalParameters()
            .Should()
-           .Equal(customParameters,
+           .Equal(additionalParameters,
                 (
                     x,
                     y) => x.Name == y.Name && x.Value == y.Value);

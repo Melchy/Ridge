@@ -21,7 +21,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
-using Ridge.Parameters.CustomParams;
+using Ridge.Parameters.AdditionalParams;
 namespace TestNamespace.Controller
 {
     /// <summary>
@@ -46,7 +46,7 @@ namespace TestNamespace.Controller
                 /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.TokenRemoved" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallTokenRemoved(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallTokenRemoved(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.TokenRemoved);
             var actionParameters = new Type[] {
@@ -60,13 +60,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo" />. 
         /// </summary> 
-        public async Task<HttpCallResponse<string>> CallFoo(System.Threading.Tasks.Task<string> @a, bool @b, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse<string>> CallFoo(System.Threading.Tasks.Task<string> @a, bool @b, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo);
             var actionParameters = new Type[] {
@@ -82,13 +82,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo1" />. 
         /// </summary> 
-        public async Task<HttpCallResponse<string>> CallFoo1(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse<string>> CallFoo1(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo1);
             var actionParameters = new Type[] {
@@ -100,13 +100,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo2" />. 
         /// </summary> 
-        public async Task<HttpCallResponse<string>> CallFoo2(int @addedParameter, int @addedParameterX, int @addedParameterY, string? @renamed = default, string? @renamed1 = default, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse<string>> CallFoo2(int @addedParameter, int @addedParameterX, int @addedParameterY, string? @renamed = default, string? @renamed1 = default, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo2);
             var actionParameters = new Type[] {
@@ -122,13 +122,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+           return await _applicationCaller.CallAction<string,TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo3" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallFoo3(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallFoo3(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo3);
             var actionParameters = new Type[] {
@@ -140,13 +140,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo4" />. 
         /// </summary> 
-        public async Task<HttpCallResponse<int>> CallFoo4(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse<int>> CallFoo4(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo4);
             var actionParameters = new Type[] {
@@ -158,13 +158,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-           return await _applicationCaller.CallAction<int,TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+           return await _applicationCaller.CallAction<int,TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo5" />. 
         /// </summary> 
-        public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> CallFoo5(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> CallFoo5(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo5);
             var actionParameters = new Type[] {
@@ -176,13 +176,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-           return await _applicationCaller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+           return await _applicationCaller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo6" />. 
         /// </summary> 
-        public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> CallFoo6(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse<TestNamespace.Controller.Foo<int>>> CallFoo6(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo6);
             var actionParameters = new Type[] {
@@ -196,13 +196,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-           return await _applicationCaller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+           return await _applicationCaller.CallAction<TestNamespace.Controller.Foo<int>,TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo7" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallFoo7(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallFoo7(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo7);
             var actionParameters = new Type[] {
@@ -214,13 +214,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo8" />. 
         /// </summary> 
-        public async Task<HttpCallResponse<int>> CallFoo8(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse<int>> CallFoo8(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo8);
             var actionParameters = new Type[] {
@@ -232,13 +232,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-           return await _applicationCaller.CallAction<int,TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+           return await _applicationCaller.CallAction<int,TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo9" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallFoo9(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallFoo9(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo9);
             var actionParameters = new Type[] {
@@ -250,13 +250,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.Foo20" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallFoo20(int[] @b, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallFoo20(int[] @b, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.Foo20);
             var actionParameters = new Type[] {
@@ -270,13 +270,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallEventFoo(string @event, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallEventFoo(string @event, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.EventFoo);
             var actionParameters = new Type[] {
@@ -290,13 +290,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo5" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallEventFoo5(string @a, string @a, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallEventFoo5(string @a, string @a, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.EventFoo5);
             var actionParameters = new Type[] {
@@ -312,13 +312,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo6" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallEventFoo6(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallEventFoo6(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.EventFoo6);
             var actionParameters = new Type[] {
@@ -330,13 +330,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo7" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallEventFoo7(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallEventFoo7(int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.EventFoo7);
             var actionParameters = new Type[] {
@@ -348,13 +348,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo8" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallEventFoo8(string @a, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallEventFoo8(string @a, int @addedParameter, int @addedParameterX, int @addedParameterY, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.EventFoo8);
             var actionParameters = new Type[] {
@@ -368,13 +368,13 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
         /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.EventFoo12" />. 
         /// </summary> 
-        public async Task<HttpCallResponse> CallEventFoo12(int @addedParameter, int @addedParameterX, int @addedParameterY, string? @parameterName = default, int? @addedParameterOptional = default, params CustomParameter[] customParameters)
+        public async Task<HttpCallResponse> CallEventFoo12(int @addedParameter, int @addedParameterX, int @addedParameterY, string? @parameterName = default, int? @addedParameterOptional = default, params AdditionalParameter[] additionalParameters)
         {
             var methodName = nameof(TestNamespace.Controller.Test.EventFoo12);
             var actionParameters = new Type[] {
@@ -388,7 +388,7 @@ namespace TestNamespace.Controller
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterX,typeof(int), "addedParameterX", false, false, true,methodName,actionParameters),
                 RawParameterAndTransformationInfo.Create<TestNamespace.Controller.Test>(null,null,null,0,@addedParameterY,typeof(int), "addedParameterY", false, false, true,methodName,actionParameters),
             };
-            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, customParameters, parametersAndTransformations);
+            return await _applicationCaller.CallAction<TestNamespace.Controller.Test>(methodName, actionParameters, additionalParameters, parametersAndTransformations);
         }
 
  }
