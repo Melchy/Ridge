@@ -33,12 +33,15 @@ namespace TestNamespace.Controller
         /// <summary>
         /// Creates controller caller. 
         /// </summary>
-        /// <param name="ridgeHttpClient">
+        /// <param name="httpClient">
         ///     HttpClient which will be used to call application.
         /// </param>
-        public TestCaller(RidgeHttpClient ridgeHttpClient)
+        /// <param name="serviceProvider">
+        ///     Application serviceProvider.
+        /// </param>
+        public TestCaller(HttpClient httpClient, IServiceProvider serviceProvider)
         {
-            _applicationCaller = new ApplicationCaller(ridgeHttpClient);
+            _applicationCaller = new ApplicationCaller(httpClient, serviceProvider);
         }
                 /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.TokenRemoved" />. 

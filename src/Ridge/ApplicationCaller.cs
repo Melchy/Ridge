@@ -1,13 +1,12 @@
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Ridge.ExceptionHandling;
 using Ridge.HttpRequestFactoryMiddlewares.Internal;
+using Ridge.LogWriter.Internal;
 using Ridge.Parameters;
 using Ridge.Parameters.CustomParams;
 using Ridge.Response;
-using Ridge.Serialization;
 using Ridge.Setup;
 using System;
 using System.Collections.Generic;
@@ -23,16 +22,35 @@ namespace Ridge;
 /// </summary>
 public class ApplicationCaller
 {
-    private readonly RidgeHttpClient _ridgeHttpClient;
+    private readonly HttpClient _httpClient;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly HttpRequestFactoryMiddlewareBuilder _httpRequestFactoryMiddlewareBuilder;
+    private readonly HttpResponseCallFactory _httpResponseCallFactory;
+    private readonly RidgeLogger _ridgeLogger;
 
     /// <summary>
     /// Create application caller.
     /// </summary>
-    /// <param name="ridgeHttpClient">Http client used to call server.</param>
+    /// <param name="httpClient">Http client used to call server.</param>
+    /// <param name="serviceProvider">Application service provider.</param>
     public ApplicationCaller(
-        RidgeHttpClient ridgeHttpClient)
+        HttpClient httpClient,
+        IServiceProvider serviceProvider)
     {
-        _ridgeHttpClient = ridgeHttpClient;
+        _httpClient = httpClient;
+        _serviceProvider = serviceProvider;
+
+        var options = _serviceProvider.GetService<IOptions<RidgeOptions>>()?.Value;
+
+        if (options == null)
+        {
+            throw new InvalidOperationException($"Ridge options not found. Did you forget to call {nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)}?" +
+                                                $"To {nameof(ApplicationCaller)} it is necessary to call {nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)} first.");
+        }
+
+        _httpRequestFactoryMiddlewareBuilder = _serviceProvider.GetRequiredService<HttpRequestFactoryMiddlewareBuilder>();
+        _ridgeLogger = _serviceProvider.GetRequiredService<RidgeLogger>();
+        _httpResponseCallFactory = _serviceProvider.GetRequiredService<HttpResponseCallFactory>();
     }
     
     /// <summary>
@@ -60,9 +78,7 @@ public class ApplicationCaller
             customParameters,
             parameterAndTransformationInfo);
 
-        var serializer = SerializerProvider.GetSerializer(_ridgeHttpClient.ServiceProvider, _ridgeHttpClient.RequestResponseSerializer);
-        var httpResponseCallFactory = new HttpResponseCallFactory(serializer);
-        return await httpResponseCallFactory.CreateControllerCallResult<TReturn>(result);
+        return await _httpResponseCallFactory.CreateControllerCallResult<TReturn>(result);
     }
 
     /// <summary>
@@ -88,9 +104,8 @@ public class ApplicationCaller
             callParameters,
             customParameters,
             parameterAndTransformationInfo);
-        var serializer = SerializerProvider.GetSerializer(_ridgeHttpClient.ServiceProvider, _ridgeHttpClient.RequestResponseSerializer);
-        var httpResponseCallFactory = new HttpResponseCallFactory(serializer);
-        return await httpResponseCallFactory.CreateControllerCallResult(result);
+
+        return await _httpResponseCallFactory.CreateControllerCallResult(result);
     }
 
 
@@ -134,24 +149,22 @@ public class ApplicationCaller
             throw new InvalidOperationException($"Method with name {methodName} not found in class {controllerType.FullName}.");
         }
 
-        var serializer = SerializerProvider.GetSerializer(_ridgeHttpClient.ServiceProvider, _ridgeHttpClient.RequestResponseSerializer);
         var parameterProvider = new ParameterProvider(parameterAndTransformationInfo, customParameters.Where(x => x != null)!);
 
-        var requestFactoryMiddleware = _ridgeHttpClient.HttpRequestFactoryMiddlewareBuilder.BuildRequestFactoryMiddleware(
-            _ridgeHttpClient.ServiceProvider.GetRequiredService<IActionDescriptorCollectionProvider>(),
-            _ridgeHttpClient.ServiceProvider.GetRequiredService<LinkGenerator>(),
-            serializer
-        );
+        var requestFactoryMiddleware = _httpRequestFactoryMiddlewareBuilder.BuildRequestFactoryMiddleware();
 
         var requestFactoryContext = new RequestFactoryContext(
             methodInfo,
             parameterProvider,
             callId);
+ 
         using var request = await requestFactoryMiddleware.CreateHttpRequest(requestFactoryContext);
 
-        var response = await _ridgeHttpClient.HttpClient.SendAsync(request);
+        await _ridgeLogger.LogRequest(request);
+        var response = await _httpClient.SendAsync(request);
+        await _ridgeLogger.LogResponse(response);
 
-        var exceptionManager = _ridgeHttpClient.ServiceProvider.GetService<ExceptionManager>();
+        var exceptionManager = _serviceProvider.GetService<ExceptionManager>();
         if (exceptionManager != null)
         {
             exceptionManager.CheckIfExceptionOccuredAndThrowIfItDid(callId.ToString());
@@ -161,8 +174,8 @@ public class ApplicationCaller
             if (RidgeInstaller.WasInstallerUsed)
             {
                 throw new InvalidOperationException(
-                    $"You have used '{nameof(RidgeInstaller)}' and didn't call '{nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.AddExceptionCatching)}' " +
-                    $"which is invalid.  Please call '{nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.AddExceptionCatching)}' and then use returned " +
+                    $"You have used '{nameof(RidgeInstaller)}' and didn't set '{nameof(RidgeOptions)}.{nameof(RidgeOptions.ThrowExceptionInsteadOfReturning500)}' to true" +
+                    $"which is invalid.  Please call '{nameof(RidgeOptions)}.{nameof(RidgeOptions.ThrowExceptionInsteadOfReturning500)}' to true and then use returned " +
                     $"'{nameof(WebApplicationFactory<object>)}' to create request.");
             }
         }

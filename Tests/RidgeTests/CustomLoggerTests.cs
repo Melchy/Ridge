@@ -36,9 +36,13 @@ public class CustomLoggerTests
         public Application(
             WebApplicationFactory<Program> ridgeApplicationFactory)
         {
-            RidgeApplicationFactory = ridgeApplicationFactory.AddCustomLogger(CustomLogger).AddExceptionCatching();
-            var ridgeHttpClient = RidgeApplicationFactory.CreateRidgeClient();
-            TestControllerCaller = new TestControllerCaller(ridgeHttpClient);
+            RidgeApplicationFactory = ridgeApplicationFactory.WithRidge(x =>
+            {
+                x.LogWriter = CustomLogger;
+                x.ThrowExceptionInsteadOfReturning500 = true;
+            });
+            var ridgeHttpClient = RidgeApplicationFactory.CreateClient();
+            TestControllerCaller = new TestControllerCaller(ridgeHttpClient, RidgeApplicationFactory.Services);
         }
 
         public void Dispose()

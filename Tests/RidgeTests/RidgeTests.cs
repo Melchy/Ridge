@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using NUnit.Framework;
 using Ridge.DelegationHandlers;
 using Ridge.HttpRequestFactoryMiddlewares;
+using Ridge.LogWriter;
 using Ridge.Parameters;
 using Ridge.Parameters.CustomParams;
 using Ridge.Response;
@@ -307,14 +308,12 @@ public class RidgeTests
     public async Task RequestCanBeAlteredUsingGlobalBuilder()
     {
         using var application = CreateApplication();
+        var client = application.WebApplicationFactory.CreateClient();
+        client.DefaultRequestHeaders.Add("foo", "foo");
+        client.DefaultRequestHeaders.Add("header1", "header1");
+        client.DefaultRequestHeaders.Add("header2", "header2");
 
-        var app = application.WebApplicationFactory.AddHeader(
-            new HttpHeaderParameter("foo", "foo"),
-            new HttpHeaderParameter("header1", "header1"),
-            new HttpHeaderParameter("header2", "header2")
-        );
-
-        var response = await new TestControllerCaller(app.CreateRidgeClient()).CallMethodReturningHeaders();
+        var response = await new TestControllerCaller(client, application.WebApplicationFactory.Services).CallMethodReturningHeaders();
         response.Result["foo"].First().Should().Be("foo");
         response.Result["header1"].First().Should().Be("header1");
         response.Result["header2"].First().Should().Be("header2");
@@ -382,30 +381,14 @@ public class RidgeTests
     }
 
     [Test]
-    public async Task CustomDelegationHandler()
-    {
-        using var application = CreateApplication();
-
-        var testCaller = new TestControllerCaller(
-            application.WebApplicationFactory.CreateRidgeClient(
-                delegatingHandlers: new ListSeparatedByCommasDelegationHandler(
-                    new[]
-                    {
-                        1,
-                        1,
-                        1,
-                    })));
-        var result =
-            await testCaller.CallCustomBinder(null!, ListSeparatedByCommasDelegationHandler.UseThisHandler());
-        result.Result.Should().AllBeEquivalentTo(1);
-    }
-
-    [Test]
     public async Task PreModelBinderTest()
     {
         using var application = CreateApplication();
-        var applicationFactory = application.WebApplicationFactory.AddHttpRequestFactoryMiddleware(new TestObjectAddHttpRequestFactoryMiddleware());
-        var testCaller = new TestControllerCaller(applicationFactory.CreateRidgeClient());
+        var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
+        {
+            x.HttpRequestFactoryMiddlewares.Add(new TestObjectAddHttpRequestFactoryMiddleware());
+        });
+        var testCaller = new TestControllerCaller(applicationFactory.CreateClient(), applicationFactory.Services);
 
         var result = await testCaller.CallCustomBinderFullObject(
             new TestController.CountryCodeBinded()
@@ -420,8 +403,7 @@ public class RidgeTests
     public async Task TaskCancellationTokenIsRemoved()
     {
         using var application = CreateApplication();
-        var testCaller = new TestControllerCaller(application.WebApplicationFactory.CreateRidgeClient());
-        var result = await testCaller.CallTaskCancellationTokenIsRemoved();
+        var result = await application.TestControllerCaller.CallTaskCancellationTokenIsRemoved();
         result.Result.Should().BeEquivalentTo("ok");
     }
 
@@ -429,12 +411,14 @@ public class RidgeTests
     public async Task OrderOfRequestFactoryMiddlewaresIsTheSame()
     {
         using var application = CreateApplication();
-        var app = application.WebApplicationFactory
-           .AddHttpRequestFactoryMiddleware(new HttpRequestFactoryMiddlewareOrder(1))
-           .AddHttpRequestFactoryMiddleware(new HttpRequestFactoryMiddlewareOrder(2), new HttpRequestFactoryMiddlewareOrder(3))
-           .AddHttpRequestFactoryMiddleware(new HttpRequestFactoryMiddlewareOrder(4));
-
-        var testCaller = new TestControllerCaller(app.CreateRidgeClient());
+        var app = application.WebApplicationFactory.WithRidge(x =>
+        {
+            x.HttpRequestFactoryMiddlewares.Add(new HttpRequestFactoryMiddlewareOrder(1));
+            x.HttpRequestFactoryMiddlewares.Add(new HttpRequestFactoryMiddlewareOrder(2));
+            x.HttpRequestFactoryMiddlewares.Add(new HttpRequestFactoryMiddlewareOrder(3));
+            x.HttpRequestFactoryMiddlewares.Add(new HttpRequestFactoryMiddlewareOrder(4));
+        });
+        var testCaller = new TestControllerCaller(app.CreateClient(), app.Services);
         var result = await testCaller.CallReturnsBody("");
         result.Result.Should().BeEquivalentTo("1234");
     }
@@ -585,16 +569,20 @@ internal sealed class Application : IDisposable
     public TransformedParametersWithDefaultMappingControllerCaller TransformedParametersWithDefaultMappingControllerCaller { get; }
     
     public Application(
-        WebApplicationFactory<Program> ridgeApplicationFactory)
+        WebApplicationFactory<Program> webApplicationFactory)
     {
-        WebApplicationFactory = ridgeApplicationFactory.AddNUnitLogger().AddExceptionCatching();
-        var ridgeHttpClient = WebApplicationFactory.CreateRidgeClient();
-        TestControllerCaller = new TestControllerCaller(ridgeHttpClient);
-        ControllerInAreaCaller = new ControllerInAreaCaller(ridgeHttpClient);
-        ControllerWithoutAttributeRoutingCaller = new ControllerWithoutAttributeRoutingCaller(ridgeHttpClient);
-        ControllerWithSpecialGenerationSettingsCaller = new ControllerWithSpecialGenerationSettingsCaller(ridgeHttpClient);
-        AddedParametersWithDefaultMappingControllerCaller = new AddedParametersWithDefaultMappingControllerCaller(ridgeHttpClient);
-        TransformedParametersWithDefaultMappingControllerCaller = new TransformedParametersWithDefaultMappingControllerCaller(ridgeHttpClient);
+        WebApplicationFactory = webApplicationFactory.WithRidge(x =>
+        {
+            x.LogWriter = new NunitLogWriter();
+            x.ThrowExceptionInsteadOfReturning500 = true;
+        });
+        var httpClient = WebApplicationFactory.CreateClient();
+        TestControllerCaller = new TestControllerCaller(httpClient, WebApplicationFactory.Services);
+        ControllerInAreaCaller = new ControllerInAreaCaller(httpClient, WebApplicationFactory.Services);
+        ControllerWithoutAttributeRoutingCaller = new ControllerWithoutAttributeRoutingCaller(httpClient, WebApplicationFactory.Services);
+        ControllerWithSpecialGenerationSettingsCaller = new ControllerWithSpecialGenerationSettingsCaller(httpClient, WebApplicationFactory.Services);
+        AddedParametersWithDefaultMappingControllerCaller = new AddedParametersWithDefaultMappingControllerCaller(httpClient, WebApplicationFactory.Services);
+        TransformedParametersWithDefaultMappingControllerCaller = new TransformedParametersWithDefaultMappingControllerCaller(httpClient, WebApplicationFactory.Services);
     }
 
     public void Dispose()

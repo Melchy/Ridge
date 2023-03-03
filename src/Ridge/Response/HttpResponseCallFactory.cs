@@ -1,4 +1,5 @@
 ﻿using Ridge.Serialization;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -9,9 +10,10 @@ internal class HttpResponseCallFactory
     private readonly IRequestResponseSerializer _serializer;
 
     public HttpResponseCallFactory(
-        IRequestResponseSerializer serializer)
+        SerializerProvider serializerProvider)
     {
-        _serializer = serializer;
+        ArgumentNullException.ThrowIfNull(serializerProvider);
+        _serializer = serializerProvider.GetSerializer();
     }
 
     public async Task<HttpCallResponse<TReturn>> CreateControllerCallResult<TReturn>(
