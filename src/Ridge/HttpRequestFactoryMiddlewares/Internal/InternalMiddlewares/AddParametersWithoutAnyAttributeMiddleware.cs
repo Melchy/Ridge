@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ridge.Parameters;
-using Ridge.Parameters.ActionAndCallerParams;
+using Ridge.Parameters.ActionAndClientParams;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -33,14 +33,14 @@ internal class AddParametersWithoutAnyAttributeMiddleware : HttpRequestFactoryMi
         IRequestFactoryContext requestFactoryContext)
     {
         var relevantParameters = requestFactoryContext.ParameterProvider
-           .GetActionAndCallerParametersLinked()
-           .Where(x => x.DoesParameterExistsInCaller() && x.DoesParameterExistInAction())
+           .GetActionAndClientParametersLinked()
+           .Where(x => x.DoesParameterExistsInClient() && x.DoesParameterExistInAction())
            .Where(x => !x.WasParameterAddedOrTransformed);
 
         var potentialBodyArgumentWithoutFromAttribute = GetParametersWithoutMvcAttributes(relevantParameters)
            .Where(x =>
                 !GeneralHelpers.IsSimpleType(x.ActionParameter!.Type))
-           .Select(x => x.CallerParameter!.Value);
+           .Select(x => x.ClientParameter!.Value);
 
         if (potentialBodyArgumentWithoutFromAttribute.Any())
         {
@@ -54,10 +54,10 @@ internal class AddParametersWithoutAnyAttributeMiddleware : HttpRequestFactoryMi
         ParameterProvider parameterProvider)
     {
         var relevantParameters = parameterProvider
-           .GetActionAndCallerParametersLinked()
+           .GetActionAndClientParametersLinked()
            .Where(x =>
                 x.DoesParameterExistInAction() &&
-                x.DoesParameterExistsInCaller())
+                x.DoesParameterExistsInClient())
            .Where(x => !x.WasParameterAddedOrTransformed);
 
         // With these arguments we can not decide if they should be bound fromQuery or fromRoute
@@ -68,10 +68,10 @@ internal class AddParametersWithoutAnyAttributeMiddleware : HttpRequestFactoryMi
         return ParameterAnalyzer.AnalyzeQueryOrRouteParameters(argumentsWhichMayBeFromQueryOrFromRouteAttribute);
     }
 
-    private static IEnumerable<ActionAndCallerParameterLinked> GetParametersWithoutMvcAttributes(
-        IEnumerable<ActionAndCallerParameterLinked> controllerAndCallerParametersLinked)
+    private static IEnumerable<ActionAndClientParameterLinked> GetParametersWithoutMvcAttributes(
+        IEnumerable<ActionAndClientParameterLinked> controllerAndClientParametersLinked)
     {
-        return controllerAndCallerParametersLinked.Where(x =>
+        return controllerAndClientParametersLinked.Where(x =>
         {
             if (x.ActionParameter == null)
             {

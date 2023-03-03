@@ -15,7 +15,7 @@ public class CustomLoggerTests
     public async Task CustomLogger()
     {
         using var application = CreateApplication();
-        var response = await application.TestControllerCaller.CallMethodReturningBody();
+        var response = await application.TestControllerClient.CallMethodReturningBody();
         application.CustomLogger.LoggedMessage.Should().Contain("Request").And.Contain("Response");
     }
 
@@ -30,7 +30,7 @@ public class CustomLoggerTests
     internal sealed class Application : IDisposable
     {
         public WebApplicationFactory<Program> RidgeApplicationFactory { get; set; }
-        public TestControllerCaller TestControllerCaller { get; }
+        public TestControllerClient TestControllerClient { get; }
         public CustomLogger CustomLogger = new();
 
         public Application(
@@ -42,7 +42,7 @@ public class CustomLoggerTests
                 x.ThrowExceptionInsteadOfReturning500 = true;
             });
             var ridgeHttpClient = RidgeApplicationFactory.CreateClient();
-            TestControllerCaller = new TestControllerCaller(ridgeHttpClient, RidgeApplicationFactory.Services);
+            TestControllerClient = new TestControllerClient(ridgeHttpClient, RidgeApplicationFactory.Services);
         }
 
         public void Dispose()

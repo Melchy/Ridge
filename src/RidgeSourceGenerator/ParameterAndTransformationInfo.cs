@@ -9,20 +9,20 @@ public struct ParameterAndTransformationInfo
         string? originalName,
         IParameterSymbol? originalParameterSymbol,
         bool? originalIsOptional,
-        ITypeSymbol typeInCaller,
-        string nameInCaller,
+        ITypeSymbol typeInClient,
+        string nameInClient,
         bool wasDeleted,
-        bool isOptionalInCaller,
+        bool isOptionalInClient,
         bool isTransformedOrAdded,
         ParameterMapping? addedOrTransformedParameterMapping)
     {
         OriginalName = originalName;
         OriginalParameterSymbol = originalParameterSymbol;
         OriginalIsOptional = originalIsOptional;
-        TypeInCaller = typeInCaller;
-        NameInCaller = nameInCaller;
+        TypeInClient = typeInClient;
+        NameInClient = nameInClient;
         WasDeleted = wasDeleted;
-        IsOptionalInCaller = isOptionalInCaller;
+        IsOptionalInClient = isOptionalInClient;
         IsTransformedOrAdded = isTransformedOrAdded;
         AddedOrTransformedParameterMapping = addedOrTransformedParameterMapping;
     }
@@ -30,10 +30,10 @@ public struct ParameterAndTransformationInfo
     public string? OriginalName { get; }
     public IParameterSymbol? OriginalParameterSymbol { get; }
     public bool? OriginalIsOptional { get; }
-    public ITypeSymbol TypeInCaller { get; }
-    public string NameInCaller { get; }
+    public ITypeSymbol TypeInClient { get; }
+    public string NameInClient { get; }
     public bool WasDeleted { get; }
-    public bool IsOptionalInCaller { get; }
+    public bool IsOptionalInClient { get; }
     public bool IsTransformedOrAdded { get; }
     public ParameterMapping? AddedOrTransformedParameterMapping { get; }
 

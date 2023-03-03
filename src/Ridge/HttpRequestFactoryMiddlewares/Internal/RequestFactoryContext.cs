@@ -38,7 +38,7 @@ internal class RequestFactoryContext : IRequestFactoryContext
     public bool RequestHasBody { get; set; }
 
     public IDictionary<string, object?> UrlGenerationParameters { get; set; } = new Dictionary<string, object?>();
-    public string HttpContentType { get; set; } = "application/json";
+    public string HttpContentType { get; } = "application/json";
     public HttpRequestHeaders Headers { get; set; } = new HttpRequestMessage().Headers;
     public string HttpMethod { get; set; } = "GET";
 }

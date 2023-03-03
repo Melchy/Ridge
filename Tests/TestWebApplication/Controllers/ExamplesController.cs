@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
 
-[GenerateCaller]
-[AddParameterToCaller(typeof(string), "GeneratedParameter", ParameterMapping.MapToQueryOrRouteParameter, Optional = true)]
-[TransformParameterInCaller(fromType: typeof(CountryCode), toType: typeof(string), ParameterMapping.MapToQueryOrRouteParameter)]
+[GenerateClient]
+[AddParameterToClient(typeof(string), "GeneratedParameter", ParameterMapping.MapToQueryOrRouteParameter, Optional = true)]
+[TransformActionParameter(fromType: typeof(CountryCode), toType: typeof(string), ParameterMapping.MapToQueryOrRouteParameter)]
 public class ExamplesController : Controller
 {
     [HttpGet("ReadQueryParameterFromHttpContext")]

@@ -103,13 +103,8 @@ internal class FinalHttpRequestMiddleware : HttpRequestFactoryMiddleware
         object? content,
         IRequestResponseSerializer serializer)
     {
-        if (contentType == "application/json")
-        {
-            var serializedContent = serializer.Serialize(content);
-            return new StringContent(serializedContent!, Encoding.UTF8, contentType);
-        }
-
-        throw new InvalidOperationException($"Unsupported content type {contentType}");
+        var serializedContent = serializer.Serialize(content) ?? "null";
+        return new StringContent(serializedContent, Encoding.UTF8, contentType);
     }
 
     private string CreateUri(

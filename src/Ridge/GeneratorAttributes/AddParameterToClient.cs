@@ -3,17 +3,17 @@
 namespace Ridge.GeneratorAttributes;
 
 /// <summary>
-///     Adds parameter to caller methods
+///     Adds parameter to client methods
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class AddParameterToCaller : Attribute
+public sealed class AddParameterToClient : Attribute
 {
     /// <summary>
     /// </summary>
-    /// <param name="parameterType">Type of the parameter in the caller.</param>
-    /// <param name="parameterName">Name of the parameter in caller.</param>
+    /// <param name="parameterType">Type of the parameter in the client.</param>
+    /// <param name="parameterName">Name of the parameter in client.</param>
     /// <param name="parameterMapping">Select how to map the parameter when creating request.</param>
-    public AddParameterToCaller(
+    public AddParameterToClient(
         Type parameterType,
         string parameterName,
         ParameterMapping parameterMapping)
@@ -25,12 +25,12 @@ public sealed class AddParameterToCaller : Attribute
 
 
     /// <summary>
-    ///     Type of the parameter in the caller.
+    ///     Type of the parameter in the client.
     /// </summary>
     public Type ParameterType { get; }
 
     /// <summary>
-    ///     Name of the parameter in caller.
+    ///     Name of the parameter in client.
     /// </summary>
     public string ParameterName { get; }
 

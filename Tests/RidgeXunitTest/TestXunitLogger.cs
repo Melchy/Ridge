@@ -24,7 +24,7 @@ public class XunitLoggerTests
     public async Task TestXunitLogger()
     {
         using var application = CreateApplication();
-        var response = await application.ControllerInAreaCaller.CallIndex();
+        var response = await application.ControllerInAreaClient.CallIndex();
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
@@ -46,13 +46,13 @@ internal sealed class Application : IDisposable
 {
     public WebApplicationFactory<Program> WebApplicationFactory { get; set; }
 
-    public ControllerInAreaCaller ControllerInAreaCaller { get; set; }
+    public ControllerInAreaClient ControllerInAreaClient { get; set; }
 
     public Application(
         WebApplicationFactory<Program> webApplicationFactory)
     {
         WebApplicationFactory = webApplicationFactory;
-        ControllerInAreaCaller = new ControllerInAreaCaller(WebApplicationFactory.CreateClient(), webApplicationFactory.Services);
+        ControllerInAreaClient = new ControllerInAreaClient(WebApplicationFactory.CreateClient(), webApplicationFactory.Services);
     }
 
     public void Dispose()

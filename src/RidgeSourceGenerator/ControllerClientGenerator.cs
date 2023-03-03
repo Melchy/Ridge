@@ -9,7 +9,7 @@ using System.Text;
 namespace RidgeSourceGenerator;
 
 [Generator]
-public class ControllerCallerGenerator : IIncrementalGenerator
+public class ControllerClientGenerator : IIncrementalGenerator
 {
     public void Initialize(
         IncrementalGeneratorInitializationContext context)
@@ -67,7 +67,7 @@ public class ControllerCallerGenerator : IIncrementalGenerator
     private static bool IsMainCorrectAttribute(
         string? name)
     {
-        if (name is "GenerateCaller" or "GenerateCallerAttribute")
+        if (name is "GenerateClient" or "GenerateClientAttribute")
         {
             return true;
         }
@@ -106,11 +106,11 @@ public class ControllerCallerGenerator : IIncrementalGenerator
         
         
         StringBuilder sb = new StringBuilder(2048);
-        var result = ControllerCallerGenerationHelper.GenerateExtensionClass(sb,
+        var result = ControllerClientGenerationHelper.GenerateExtensionClass(sb,
             controllerAndMethods.ControllerToGenerate,
             generatedMethods!,
             context.CancellationToken);
-        context.AddSource(controllerAndMethods.ControllerToGenerate.Name + "_Caller.g.cs", SourceText.From(result, Encoding.UTF8));
+        context.AddSource(controllerAndMethods.ControllerToGenerate.Name + "_Client.g.cs", SourceText.From(result, Encoding.UTF8));
     }
 
 
@@ -143,11 +143,11 @@ public class ControllerCallerGenerator : IIncrementalGenerator
 
         var typeTransformerAttributes = attributes
            .Where(x => x.AttributeClass is not IErrorTypeSymbol)
-           .Where(x => x.AttributeClass?.Name is "TransformParameterInCaller" or "TransformParameterInCallerAttribute");
+           .Where(x => x.AttributeClass?.Name is "TransformActionParameter" or "TransformActionParameterAttribute");
 
         var addParameterAttributes = attributes
            .Where(x => x.AttributeClass is not IErrorTypeSymbol)
-           .Where(x => x.AttributeClass?.Name is "AddParameterToCaller" or "AddParameterToCallerAttribute");
+           .Where(x => x.AttributeClass?.Name is "AddParameterToClient" or "AddParameterToClientAttribute");
 
         cancellationToken.ThrowIfCancellationRequested();
 

@@ -14,7 +14,7 @@ namespace Ridge.HttpRequestFactoryMiddlewares;
 public interface IRequestFactoryContext
 {
     /// <summary>
-    ///     Contains caller and controller parameters and arguments information.
+    ///     Contains client and action parameters and arguments information.
     /// </summary>
     ParameterProvider ParameterProvider { get; }
 
@@ -53,7 +53,7 @@ public interface IRequestFactoryContext
     /// <summary>
     ///     Http content type.
     /// </summary>
-    string HttpContentType { get; set; }
+    string HttpContentType { get; }
 
     /// <summary>
     ///     Http headers.

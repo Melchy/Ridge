@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
 
-[GenerateCaller]
-[TransformParameterInCaller(typeof(string), typeof(string), ParameterMapping.MapToQueryOrRouteParameter)]
-[TransformParameterInCaller(typeof(TestEnum), typeof(TestEnum), ParameterMapping.MapToQueryOrRouteParameter)]
-[TransformParameterInCaller(typeof(int), typeof(int), ParameterMapping.MapToHeader)]
-[TransformParameterInCaller(typeof(double), typeof(double), ParameterMapping.MapToBody)]
+[GenerateClient]
+[TransformActionParameter(typeof(string), typeof(string), ParameterMapping.MapToQueryOrRouteParameter)]
+[TransformActionParameter(typeof(TestEnum), typeof(TestEnum), ParameterMapping.MapToQueryOrRouteParameter)]
+[TransformActionParameter(typeof(int), typeof(int), ParameterMapping.MapToHeader)]
+[TransformActionParameter(typeof(double), typeof(double), ParameterMapping.MapToBody)]
 public class TransformedParametersWithDefaultMappingController : ControllerBase
 {
     [HttpGet("transformation/{route}")]

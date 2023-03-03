@@ -25,8 +25,8 @@ internal class AddBodyByFromBodyAttributeMiddleware : HttpRequestFactoryMiddlewa
         ParameterProvider parameterProvider)
     {
         var relevantParameters = parameterProvider
-           .GetActionAndCallerParametersLinked()
-           .Where(x => x.DoesParameterExistsInCaller() && x.DoesParameterExistInAction())
+           .GetActionAndClientParametersLinked()
+           .Where(x => x.DoesParameterExistsInClient() && x.DoesParameterExistInAction())
            .Where(x => !x.WasParameterAddedOrTransformed);
 
         var parametersWithFromBody = relevantParameters.Where(
@@ -41,7 +41,7 @@ internal class AddBodyByFromBodyAttributeMiddleware : HttpRequestFactoryMiddlewa
 
         if (parametersWithFromBody.Any())
         {
-            return (parametersWithFromBody.First().CallerParameter!.Value, true);
+            return (parametersWithFromBody.First().ClientParameter!.Value, true);
         }
 
         return (null, false);

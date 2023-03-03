@@ -37,7 +37,7 @@ public static class Startup
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
 
-        if (app.WasApplicationCalledFromTestCaller())
+        if (app.WasApplicationCalledFromTestClient())
         {
             app.ThrowExceptionInsteadOfReturning500();
         }

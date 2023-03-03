@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
 
-[GenerateCaller]
+[GenerateClient]
 [Route("[controller]")]
-[AddParameterToCaller(typeof(string), "parameterToRoute", ParameterMapping.MapToQueryOrRouteParameter)]
-[AddParameterToCaller(typeof(string), "parameterToQuery", ParameterMapping.MapToQueryOrRouteParameter)]
-[AddParameterToCaller(typeof(ComplexObject), "parameterToBody", ParameterMapping.MapToBody)]
-[AddParameterToCaller(typeof(string), "parameterToHeader", ParameterMapping.MapToHeader)]
+[AddParameterToClient(typeof(string), "parameterToRoute", ParameterMapping.MapToQueryOrRouteParameter)]
+[AddParameterToClient(typeof(string), "parameterToQuery", ParameterMapping.MapToQueryOrRouteParameter)]
+[AddParameterToClient(typeof(ComplexObject), "parameterToBody", ParameterMapping.MapToBody)]
+[AddParameterToClient(typeof(string), "parameterToHeader", ParameterMapping.MapToHeader)]
 public class AddedParametersWithDefaultMappingController : ControllerBase
 {
     [HttpGet("GetWithBody/{parameterToRoute}")]

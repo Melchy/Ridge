@@ -3,23 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ridge.Parameters.CallerParams;
+namespace Ridge.Parameters.ClientParams;
 
 /// <summary>
-///     Represents collection of caller parameters.
+///     Represents collection of client parameters.
 /// </summary>
-public class CallerParameters : IEnumerable<CallerParameter>
+public class ClientParameters : IEnumerable<ClientParameter>
 {
-    private readonly IEnumerable<CallerParameter> _callerParameters;
+    private readonly IEnumerable<ClientParameter> _clientParameters;
 
     /// <summary>
-    ///     Creates new <see cref="CallerParameters" />
+    ///     Creates new <see cref="ClientParameters" />
     /// </summary>
-    /// <param name="callerParameters">Parameters.</param>
-    public CallerParameters(
-        IEnumerable<CallerParameter> callerParameters)
+    /// <param name="clientParameters">Parameters.</param>
+    public ClientParameters(
+        IEnumerable<ClientParameter> clientParameters)
     {
-        _callerParameters = callerParameters;
+        _clientParameters = clientParameters;
     }
 
     /// <summary>
@@ -27,10 +27,10 @@ public class CallerParameters : IEnumerable<CallerParameter>
     /// </summary>
     /// <param name="parameterName">Name of parameter to find.</param>
     /// <returns>Parameter or default value.</returns>
-    public CallerParameter? GetParameterByNameOrDefault(
+    public ClientParameter? GetParameterByNameOrDefault(
         string parameterName)
     {
-        return _callerParameters.FirstOrDefault(x => x.Name == parameterName);
+        return _clientParameters.FirstOrDefault(x => x.Name == parameterName);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public class CallerParameters : IEnumerable<CallerParameter>
     /// <param name="parameterName">Name of parameter to find.</param>
     /// <returns>Parameter.</returns>
     /// <exception cref="InvalidOperationException">Thrown when parameter is not found.</exception>
-    public CallerParameter GetParameterByNameOrThrow(
+    public ClientParameter GetParameterByNameOrThrow(
         string parameterName)
     {
         var parameter = GetParameterByNameOrDefault(parameterName);
@@ -54,38 +54,38 @@ public class CallerParameters : IEnumerable<CallerParameter>
     /// <summary>
     ///     Get first parameter by type or default.
     /// </summary>
-    /// <typeparam name="TType">Type of parameter to find. Type must match type passed to caller.</typeparam>
+    /// <typeparam name="TType">Type of parameter to find. Type must match type passed to client.</typeparam>
     /// <returns>Parameter or default.</returns>
-    public CallerParameter? GetFirstParameterByTypeOrDefault<TType>()
+    public ClientParameter? GetFirstParameterByTypeOrDefault<TType>()
     {
-        return _callerParameters.FirstOrDefault(x => x.Type == typeof(TType));
+        return _clientParameters.FirstOrDefault(x => x.Type == typeof(TType));
     }
 
     /// <summary>
     ///     Get first parameter by type or throw exception.
     /// </summary>
-    /// <typeparam name="TType">Type of parameter to find. Type must match type passed to caller.</typeparam>
+    /// <typeparam name="TType">Type of parameter to find. Type must match type passed to client.</typeparam>
     /// <returns>Parameter.</returns>
     /// <exception cref="InvalidOperationException">Thrown when parameter with provided type is not found.</exception>
-    public CallerParameter GetFirstParameterByTypeOrThrow<TType>()
+    public ClientParameter GetFirstParameterByTypeOrThrow<TType>()
     {
-        var callerParameter = GetFirstParameterByTypeOrDefault<TType>();
-        if (callerParameter == null)
+        var clientParameter = GetFirstParameterByTypeOrDefault<TType>();
+        if (clientParameter == null)
         {
             throw new InvalidOperationException($"Could not find parameter with type '{typeof(TType)}'.");
         }
 
-        return callerParameter;
+        return clientParameter;
     }
 
     /// <summary>
     ///     Get parameters by type.
     /// </summary>
-    /// <typeparam name="TType">Type which will be used to find parameters. Type must match the type passed to caller.</typeparam>
-    /// <returns>Collection of <see cref="CallerParameter" /> with type TType.</returns>
-    public IEnumerable<CallerParameter> GetParametersByType<TType>()
+    /// <typeparam name="TType">Type which will be used to find parameters. Type must match the type passed to client.</typeparam>
+    /// <returns>Collection of <see cref="ClientParameter" /> with type TType.</returns>
+    public IEnumerable<ClientParameter> GetParametersByType<TType>()
     {
-        return _callerParameters.Where(x => x.Type == typeof(TType));
+        return _clientParameters.Where(x => x.Type == typeof(TType));
     }
 
     /// <summary>
@@ -151,9 +151,9 @@ public class CallerParameters : IEnumerable<CallerParameter>
 
 
     /// <inheritdoc />
-    public IEnumerator<CallerParameter> GetEnumerator()
+    public IEnumerator<ClientParameter> GetEnumerator()
     {
-        return _callerParameters.GetEnumerator();
+        return _clientParameters.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

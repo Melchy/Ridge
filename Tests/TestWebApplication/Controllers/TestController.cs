@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace TestWebApplication.Controllers;
 
-[GenerateCaller]
+[GenerateClient]
 [Route("[controller]")]
 public class TestController : ControllerBase
 {

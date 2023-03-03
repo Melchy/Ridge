@@ -15,10 +15,10 @@ public class RawParameterAndTransformationInfo
         Type? originalType,
         bool? originalIsOptional,
         object? passedValue,
-        Type typeInCaller,
-        string nameInCaller,
+        Type typeInClient,
+        string nameInClient,
         bool wasDeleted,
-        bool isOptionalInCaller,
+        bool isOptionalInClient,
         bool isTransformedOrAdded,
         ParameterInfo? originalParameterInfo,
         ParameterMapping? addedOrTransformedParameterMapping)
@@ -27,10 +27,10 @@ public class RawParameterAndTransformationInfo
         OriginalType = originalType;
         OriginalIsOptional = originalIsOptional;
         PassedValue = passedValue;
-        TypeInCaller = typeInCaller;
-        NameInCaller = nameInCaller;
+        TypeInClient = typeInClient;
+        NameInClient = nameInClient;
         WasDeleted = wasDeleted;
-        IsOptionalInCaller = isOptionalInCaller;
+        IsOptionalInClient = isOptionalInClient;
         IsTransformedOrAdded = isTransformedOrAdded;
         OriginalParameterInfo = originalParameterInfo;
         AddedOrTransformedParameterMapping = addedOrTransformedParameterMapping;
@@ -57,14 +57,14 @@ public class RawParameterAndTransformationInfo
     public object? PassedValue { get; }
 
     /// <summary>
-    ///     TypeInCaller
+    ///     TypeInClient
     /// </summary>
-    public Type TypeInCaller { get; }
+    public Type TypeInClient { get; }
 
     /// <summary>
-    ///     NameInCaller
+    ///     NameInClient
     /// </summary>
-    public string NameInCaller { get; }
+    public string NameInClient { get; }
 
     /// <summary>
     ///     WasDeleted
@@ -72,9 +72,9 @@ public class RawParameterAndTransformationInfo
     public bool WasDeleted { get; }
 
     /// <summary>
-    ///     IsOptionalInCaller
+    ///     IsOptionalInClient
     /// </summary>
-    public bool IsOptionalInCaller { get; }
+    public bool IsOptionalInClient { get; }
 
     /// <summary>
     ///     IsTransformedOrAdded
@@ -99,10 +99,10 @@ public class RawParameterAndTransformationInfo
     /// <param name="originalType">originalType</param>
     /// <param name="originalIsOptional">originalIsOptional</param>
     /// <param name="passedValue">passedValue</param>
-    /// <param name="typeInCaller">typeInCaller</param>
-    /// <param name="nameInCaller">nameInCaller</param>
+    /// <param name="typeInClient">typeInClient</param>
+    /// <param name="nameInClient">nameInClient</param>
     /// <param name="wasDeleted">wasDeleted</param>
-    /// <param name="isOptionalInCaller">isOptionalInCaller</param>
+    /// <param name="isOptionalInClient">isOptionalInClient</param>
     /// <param name="isTransformedOrAdded">isTransformedOrAdded</param>
     /// <param name="actionParametersTypes">actionParametersTypes</param>
     /// <param name="addedOrTransformedParameterMapping">Information about mapping for transformed or added parameters.</param>
@@ -114,10 +114,10 @@ public class RawParameterAndTransformationInfo
         bool? originalIsOptional,
         int? addedOrTransformedParameterMapping,
         object? passedValue,
-        Type typeInCaller,
-        string nameInCaller,
+        Type typeInClient,
+        string nameInClient,
         bool wasDeleted,
-        bool isOptionalInCaller,
+        bool isOptionalInClient,
         bool isTransformedOrAdded,
         string methodName,
         Type[] actionParametersTypes)
@@ -134,10 +134,10 @@ public class RawParameterAndTransformationInfo
             originalType,
             originalIsOptional,
             passedValue,
-            typeInCaller,
-            nameInCaller,
+            typeInClient,
+            nameInClient,
             wasDeleted,
-            isOptionalInCaller,
+            isOptionalInClient,
             isTransformedOrAdded,
             actionParameterInfo,
             (ParameterMapping?)addedOrTransformedParameterMapping);

@@ -6,7 +6,7 @@ using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.Parameters;
 using Ridge.Parameters.ActionParams;
 using Ridge.Parameters.AdditionalParams;
-using Ridge.Parameters.CallerParams;
+using Ridge.Parameters.ClientParams;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -28,7 +28,7 @@ public class ParameterProviderTests
             x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
         });
 
-        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateClient(), applicationFactory.Services)
+        var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
            .CallActionWithOptionalParameter("test",
                 "test",
                 new[]
@@ -72,7 +72,7 @@ public class ParameterProviderTests
 
 
     [Test]
-    public async Task ParameterProviderCallerParametersAreCorrectlySetUp()
+    public async Task ParameterProviderClientParametersAreCorrectlySetUp()
     {
         using var application = CreateApplication();
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
@@ -81,7 +81,7 @@ public class ParameterProviderTests
             x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
         });
 
-        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateClient(), applicationFactory.Services)
+        var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
            .CallActionWithOptionalParameter("test",
                 "test",
                 new[]
@@ -95,37 +95,37 @@ public class ParameterProviderTests
                 addedOptionalParameter: "addedOptionalParameter",
                 defaultStruct: DateTime.MinValue);
 
-        testRequestFactoryMiddleware.ParameterProvider!.GetCallerParameters().Should().HaveCount(18);
+        testRequestFactoryMiddleware.ParameterProvider!.GetClientParameters().Should().HaveCount(18);
         testRequestFactoryMiddleware.ParameterProvider!
-           .GetCallerParameters()
+           .GetClientParameters()
            .OrderBy(x => x.Name)
            .Should()
            .BeEquivalentTo(new[]
             {
-                new CallerParameter("test2", typeof(string), "test", ParameterMapping.None),
-                new CallerParameter("test3", typeof(string), "test", ParameterMapping.None),
-                new CallerParameter("test",
+                new ClientParameter("test2", typeof(string), "test", ParameterMapping.None),
+                new ClientParameter("test3", typeof(string), "test", ParameterMapping.None),
+                new ClientParameter("test",
                     typeof(string[]),
                     new[]
                     {
                         "test",
                     },
                     ParameterMapping.None),
-                new CallerParameter("addedParameter", typeof(int?), 1, ParameterMapping.None),
-                new CallerParameter("renamed", typeof(string), "renamedParamter", ParameterMapping.None),
-                new CallerParameter("renamed1", typeof(string), "renamedParamter1", ParameterMapping.None),
-                new CallerParameter("optionalWithoutTransformation", typeof(string), "optionalWithoutTransformation", ParameterMapping.None),
-                new CallerParameter("optionalChar", typeof(char), 'z', ParameterMapping.None),
-                new CallerParameter("optionalEnum", typeof(TestEnum), TestEnum.Value, ParameterMapping.None),
-                new CallerParameter("optionalInt", typeof(int), 1, ParameterMapping.None),
-                new CallerParameter("optionalDouble", typeof(double), 2.3, ParameterMapping.None),
-                new CallerParameter("optionalWithFullDefault", typeof(int), 0, ParameterMapping.None),
-                new CallerParameter("defaultConst", typeof(int), 1, ParameterMapping.None),
-                new CallerParameter("defaultStruct", typeof(DateTime), default(DateTime), ParameterMapping.None),
-                new CallerParameter("optional", typeof(int), 0, ParameterMapping.None),
-                new CallerParameter("addedOptionalParameter", typeof(string), "addedOptionalParameter", ParameterMapping.None),
-                new CallerParameter("addedGenericOptionalParameter", typeof(Task<string>), null, ParameterMapping.None),
-                new CallerParameter("renamed2", typeof(object), null, ParameterMapping.None),
+                new ClientParameter("addedParameter", typeof(int?), 1, ParameterMapping.None),
+                new ClientParameter("renamed", typeof(string), "renamedParamter", ParameterMapping.None),
+                new ClientParameter("renamed1", typeof(string), "renamedParamter1", ParameterMapping.None),
+                new ClientParameter("optionalWithoutTransformation", typeof(string), "optionalWithoutTransformation", ParameterMapping.None),
+                new ClientParameter("optionalChar", typeof(char), 'z', ParameterMapping.None),
+                new ClientParameter("optionalEnum", typeof(TestEnum), TestEnum.Value, ParameterMapping.None),
+                new ClientParameter("optionalInt", typeof(int), 1, ParameterMapping.None),
+                new ClientParameter("optionalDouble", typeof(double), 2.3, ParameterMapping.None),
+                new ClientParameter("optionalWithFullDefault", typeof(int), 0, ParameterMapping.None),
+                new ClientParameter("defaultConst", typeof(int), 1, ParameterMapping.None),
+                new ClientParameter("defaultStruct", typeof(DateTime), default(DateTime), ParameterMapping.None),
+                new ClientParameter("optional", typeof(int), 0, ParameterMapping.None),
+                new ClientParameter("addedOptionalParameter", typeof(string), "addedOptionalParameter", ParameterMapping.None),
+                new ClientParameter("addedGenericOptionalParameter", typeof(Task<string>), null, ParameterMapping.None),
+                new ClientParameter("renamed2", typeof(object), null, ParameterMapping.None),
             }.OrderBy(x => x.Name));
     }
 
@@ -143,7 +143,7 @@ public class ParameterProviderTests
             new AdditionalParameter("optionalParameterString", "OptionalParameter"),
             new AdditionalParameter("optionalParameterInt", 2),
         };
-        var response = await new ControllerWithSpecialGenerationSettingsCaller(applicationFactory.CreateClient(), applicationFactory.Services)
+        var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
            .CallSimpleGet(null,
                 additionalParameters: additionalParameters);
 

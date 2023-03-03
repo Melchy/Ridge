@@ -8,10 +8,10 @@ namespace Ridge.GeneratorAttributes;
 ///     Add to controller to indicate that class can be tested using strongly typed integration tests.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
-public sealed class GenerateCaller : Attribute
+public sealed class GenerateClient : Attribute
 {
     /// <summary>
-    ///     When this value is true then the generated callers return <see cref="HttpResponseMessage" />.
+    ///     When this value is true then the generated client return <see cref="HttpResponseMessage" />.
     ///     When false then the generated classes returns <see cref="HttpCallResponse{TResult}" /> or
     ///     <see cref="HttpCallResponse" />.
     /// </summary>

@@ -7,7 +7,7 @@ namespace Ridge.GeneratorAttributes;
 ///     If you want to remove parameter from action use typeof(void).
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class TransformParameterInCaller : Attribute
+public sealed class TransformActionParameter : Attribute
 {
     /// <summary>
     /// </summary>
@@ -17,7 +17,7 @@ public sealed class TransformParameterInCaller : Attribute
     ///     action use typeof(void).
     /// </param>
     /// <param name="parameterMapping">Select how to map the parameter when creating request.</param>
-    public TransformParameterInCaller(
+    public TransformActionParameter(
         Type fromType,
         Type toType,
         ParameterMapping parameterMapping)

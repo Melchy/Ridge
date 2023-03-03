@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ridge.Parameters;
-using Ridge.Parameters.CallerParams;
+using Ridge.Parameters.ClientParams;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -26,10 +26,10 @@ internal class AddRouteParametersByFromRouteAttributeMiddleware : HttpRequestFac
         ParameterProvider parameterProvider)
     {
         var relevantParameters = parameterProvider
-           .GetActionAndCallerParametersLinked()
+           .GetActionAndClientParametersLinked()
            .Where(x =>
                 x.DoesParameterExistInAction() &&
-                x.DoesParameterExistsInCaller())
+                x.DoesParameterExistsInClient())
            .Where(x => !x.WasParameterAddedOrTransformed);
 
         var fromRouteParams = relevantParameters.Where(x =>
@@ -38,14 +38,14 @@ internal class AddRouteParametersByFromRouteAttributeMiddleware : HttpRequestFac
         IDictionary<string, object?> routeDataDictionary = new Dictionary<string, object?>();
         foreach (var fromRouteParam in fromRouteParams)
         {
-            CallerParameter callerParameter = fromRouteParam.CallerParameter!;
+            ClientParameter clientParameter = fromRouteParam.ClientParameter!;
             var parameterNameInRequest = ParameterAnalyzer.GetAttributeNamePropertyOrParameterName(fromRouteParam);
-            if (callerParameter.Value == null)
+            if (clientParameter.Value == null)
             {
                 continue;
             }
 
-            routeDataDictionary[parameterNameInRequest] = callerParameter.Value;
+            routeDataDictionary[parameterNameInRequest] = clientParameter.Value;
         }
 
         return routeDataDictionary;

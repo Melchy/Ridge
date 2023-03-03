@@ -1,21 +1,21 @@
 ﻿using Ridge.GeneratorAttributes;
 using System;
 
-namespace Ridge.Parameters.CallerParams;
+namespace Ridge.Parameters.ClientParams;
 
 /// <summary>
-///     Represents parameter passed to caller.
+///     Represents parameter passed to client.
 /// </summary>
-public class CallerParameter
+public class ClientParameter
 {
     /// <summary>
-    ///     Create new <see cref="CallerParameter" />.
+    ///     Create new <see cref="ClientParameter" />.
     /// </summary>
     /// <param name="name">Name</param>
     /// <param name="type">Type</param>
     /// <param name="value">Value</param>
     /// <param name="addedOrTransformedParameterMapping">Select how to map the parameter when creating request.</param>
-    public CallerParameter(
+    public ClientParameter(
         string name,
         Type type,
         object? value,
