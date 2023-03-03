@@ -39,7 +39,6 @@ public class CustomLoggerTests
             RidgeApplicationFactory = ridgeApplicationFactory.WithRidge(x =>
             {
                 x.LogWriter = CustomLogger;
-                x.ThrowExceptionInsteadOfReturning500 = true;
             });
             var ridgeHttpClient = RidgeApplicationFactory.CreateClient();
             TestControllerClient = new TestControllerClient(ridgeHttpClient, RidgeApplicationFactory.Services);

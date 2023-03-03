@@ -19,10 +19,7 @@ public class ExampleTests
     public async Task CallControllerUsingRidge()
     {
         // Create WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
-        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x =>
-        {
-            x.ThrowExceptionInsteadOfReturning500 = true;
-        });
+        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
         // create http client
         var client = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(client, webApplicationFactory.Services);
@@ -55,7 +52,7 @@ public class ExampleTests
     [Test]
     public async Task ThrowExceptionTest()
     {
-        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x => x.ThrowExceptionInsteadOfReturning500 = true);
+        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
         // notice use of AddExceptionCatching()
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
@@ -76,7 +73,6 @@ public class ExampleTests
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            x.ThrowExceptionInsteadOfReturning500 = true;
             x.HttpRequestFactoryMiddlewares.Add(new AddHeaderHttpRequestFactoryMiddleware("exampleHeader", "exampleHeaderValue"));
         });
         var ridgeHttpClient = webApplicationFactory.CreateClient();
@@ -90,7 +86,7 @@ public class ExampleTests
     [Test]
     public async Task ParameterAddedByRidge()
     {
-        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x => x.ThrowExceptionInsteadOfReturning500 = true);
+        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
 
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
@@ -103,7 +99,7 @@ public class ExampleTests
     [Test]
     public async Task CustomModelBinderTest()
     {
-        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x => x.ThrowExceptionInsteadOfReturning500 = true);
+        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
 
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
@@ -118,7 +114,6 @@ public class ExampleTests
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            x.ThrowExceptionInsteadOfReturning500 = true;
             x.HttpRequestFactoryMiddlewares.Add(new AddHeaderFromAdditionalParameters());
         });
 

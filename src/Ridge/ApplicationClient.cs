@@ -23,10 +23,10 @@ namespace Ridge;
 public class ApplicationClient
 {
     private readonly HttpClient _httpClient;
-    private readonly IServiceProvider _serviceProvider;
     private readonly HttpRequestFactoryMiddlewareBuilder _httpRequestFactoryMiddlewareBuilder;
     private readonly HttpResponseCallFactory _httpResponseCallFactory;
     private readonly RidgeLogger _ridgeLogger;
+    private readonly ExceptionManager _exceptionManager;
 
     /// <summary>
     /// Create application client.
@@ -38,9 +38,8 @@ public class ApplicationClient
         IServiceProvider serviceProvider)
     {
         _httpClient = httpClient;
-        _serviceProvider = serviceProvider;
 
-        var options = _serviceProvider.GetService<IOptions<RidgeOptions>>()?.Value;
+        var options = serviceProvider.GetService<IOptions<RidgeOptions>>()?.Value;
 
         if (options == null)
         {
@@ -48,9 +47,10 @@ public class ApplicationClient
                                                 $"To {nameof(ApplicationClient)} it is necessary to call {nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)} first.");
         }
 
-        _httpRequestFactoryMiddlewareBuilder = _serviceProvider.GetRequiredService<HttpRequestFactoryMiddlewareBuilder>();
-        _ridgeLogger = _serviceProvider.GetRequiredService<RidgeLogger>();
-        _httpResponseCallFactory = _serviceProvider.GetRequiredService<HttpResponseCallFactory>();
+        _httpRequestFactoryMiddlewareBuilder = serviceProvider.GetRequiredService<HttpRequestFactoryMiddlewareBuilder>();
+        _ridgeLogger = serviceProvider.GetRequiredService<RidgeLogger>();
+        _httpResponseCallFactory = serviceProvider.GetRequiredService<HttpResponseCallFactory>();
+        _exceptionManager = serviceProvider.GetRequiredService<ExceptionManager>();
     }
     
     /// <summary>
@@ -164,22 +164,8 @@ public class ApplicationClient
         var response = await _httpClient.SendAsync(request);
         await _ridgeLogger.LogResponse(response);
 
-        var exceptionManager = _serviceProvider.GetService<ExceptionManager>();
-        if (exceptionManager != null)
-        {
-            exceptionManager.CheckIfExceptionOccuredAndThrowIfItDid(callId.ToString());
-        }
-        else
-        {
-            if (RidgeInstaller.WasInstallerUsed)
-            {
-                throw new InvalidOperationException(
-                    $"You have used '{nameof(RidgeInstaller)}' and didn't set '{nameof(RidgeOptions)}.{nameof(RidgeOptions.ThrowExceptionInsteadOfReturning500)}' to true" +
-                    $"which is invalid.  Please call '{nameof(RidgeOptions)}.{nameof(RidgeOptions.ThrowExceptionInsteadOfReturning500)}' to true and then use returned " +
-                    $"'{nameof(WebApplicationFactory<object>)}' to create request.");
-            }
-        }
-        
+
+        _exceptionManager.CheckIfExceptionOccuredAndThrowIfItDid(callId.ToString());
         return response;
     }
 }

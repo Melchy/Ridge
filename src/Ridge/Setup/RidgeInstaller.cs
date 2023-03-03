@@ -14,8 +14,6 @@ namespace Ridge.Setup;
 /// </summary>
 public static class RidgeInstaller
 {
-    internal static bool WasInstallerUsed { get; set; }
-    
     /// <summary>
     ///     Adds middleware which saves exceptions when application is called from test using ridge.
     ///     This middleware allows ridge to rethrow exceptions instead of returning 5xx code.
@@ -25,7 +23,6 @@ public static class RidgeInstaller
     public static IApplicationBuilder ThrowExceptionInsteadOfReturning500(
         this IApplicationBuilder applicationBuilder)
     {
-        WasInstallerUsed = true;
         return applicationBuilder.UseMiddleware<ExceptionSavingMiddleware>();
     }
 
@@ -38,7 +35,6 @@ public static class RidgeInstaller
     public static bool WasApplicationCalledFromTestClient(
         this IApplicationBuilder app)
     {
-        WasInstallerUsed = true;
         var configuration = app.ApplicationServices.GetService<IConfiguration>();
         if (configuration?["Ridge:IsTestCall"] == "true")
         {
