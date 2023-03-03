@@ -581,7 +581,7 @@ internal sealed class Application : IDisposable
     {
         WebApplicationFactory = webApplicationFactory.WithRidge(x =>
         {
-            x.LogWriter = new NunitLogWriter();
+            x.UseNunitLogWriter();
         });
         var httpClient = WebApplicationFactory.CreateClient();
         TestControllerClient = new TestControllerClient(httpClient, WebApplicationFactory.Services);

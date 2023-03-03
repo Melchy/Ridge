@@ -32,7 +32,7 @@ public class XunitLoggerTests
     {
         var webAppFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            x.LogWriter = new XunitLogWriter(_testOutputHelper);
+            x.UseXunitLogWriter(_testOutputHelper);
         });
 
         return new Application(
