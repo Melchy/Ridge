@@ -8,22 +8,22 @@ namespace Ridge.Parameters.ActionAndCallerParams;
 /// </summary>
 public class ActionAndCallerParametersLinked : IEnumerable<ActionAndCallerParameterLinked>
 {
-    private readonly IEnumerable<ActionAndCallerParameterLinked> _controllerAndCallerParametersLinked;
+    private readonly IEnumerable<ActionAndCallerParameterLinked> _actionAndCallerParametersLinked;
 
     /// <summary>
     ///     Crate new <see cref="ActionAndCallerParameterLinked" />.
     /// </summary>
-    /// <param name="controllerAndCallerParametersLinked"></param>
+    /// <param name="actionAndCallerParametersLinked"></param>
     public ActionAndCallerParametersLinked(
-        IEnumerable<ActionAndCallerParameterLinked> controllerAndCallerParametersLinked)
+        IEnumerable<ActionAndCallerParameterLinked> actionAndCallerParametersLinked)
     {
-        _controllerAndCallerParametersLinked = controllerAndCallerParametersLinked;
+        _actionAndCallerParametersLinked = actionAndCallerParametersLinked;
     }
 
     /// <inheritdoc />
     public IEnumerator<ActionAndCallerParameterLinked> GetEnumerator()
     {
-        return _controllerAndCallerParametersLinked.GetEnumerator();
+        return _actionAndCallerParametersLinked.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

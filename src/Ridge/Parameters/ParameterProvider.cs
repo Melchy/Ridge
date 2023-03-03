@@ -9,7 +9,7 @@ using System.Linq;
 namespace Ridge.Parameters;
 
 /// <summary>
-///     This class can be used to get controller and action parameters.
+///     This class can be used to get action and caller parameters.
 /// </summary>
 public class ParameterProvider
 {
@@ -42,9 +42,9 @@ public class ParameterProvider
     ///     Get collection of Action and Caller parameters linked.
     /// </summary>
     /// <returns>Action and caller parameters linked.</returns>
-    public ActionAndCallerParametersLinked GetControllerAndCallerParametersLinked()
+    public ActionAndCallerParametersLinked GetActionAndCallerParametersLinked()
     {
-        var controllerAndCallerParametersLinked = _parameters.Select(x =>
+        var actionAndCallerParametersLinked = _parameters.Select(x =>
         {
             ActionParameter? actionParameter = null;
             CallerParameter? callerParameter;
@@ -65,7 +65,7 @@ public class ParameterProvider
             return new ActionAndCallerParameterLinked(actionParameter, callerParameter, x.IsTransformedOrAdded);
         });
 
-        return new ActionAndCallerParametersLinked(controllerAndCallerParametersLinked);
+        return new ActionAndCallerParametersLinked(actionAndCallerParametersLinked);
     }
 
     /// <summary>

@@ -4,14 +4,14 @@ using Ridge.Parameters.CallerParams;
 namespace Ridge.Parameters.ActionAndCallerParams;
 
 /// <summary>
-///     Represents controller and caller parameter linked together.
+///     Represents action and caller parameter linked together.
 /// </summary>
 public class ActionAndCallerParameterLinked
 {
     /// <summary>
     ///     Creates new <see cref="ActionAndCallerParameterLinked" />
     /// </summary>
-    /// <param name="actionParameter">Parameter from controller.</param>
+    /// <param name="actionParameter">Parameter from action.</param>
     /// <param name="callerParameter">Parameter from caller.</param>
     /// <param name="wasParameterAddedOrTransformed">True if ridge source generator transformed or added the parameter.</param>
     public ActionAndCallerParameterLinked(
@@ -25,7 +25,7 @@ public class ActionAndCallerParameterLinked
     }
 
     /// <summary>
-    ///     Parameter from controller.
+    ///     Parameter from action.
     /// </summary>
     public ActionParameter? ActionParameter { get; }
 
@@ -40,11 +40,11 @@ public class ActionAndCallerParameterLinked
     public bool WasParameterAddedOrTransformed { get; }
 
     /// <summary>
-    ///     True if parameter exists in controller.
-    ///     Parameter might not exist in controller when it was added using source generator.
+    ///     True if parameter exists in action.
+    ///     Parameter might not exist in action when it was added using source generator.
     /// </summary>
-    /// <returns>True if parameter exists in controller.</returns>
-    public bool DoesParameterExistInController()
+    /// <returns>True if parameter exists in action.</returns>
+    public bool DoesParameterExistInAction()
     {
         return ActionParameter != null;
     }
