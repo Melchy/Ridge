@@ -47,7 +47,7 @@ public class TestApplicationWithDefaultSerialization
         {
             WebApplicationFactory = webApplicationFactory.WithRidge(x =>
             {
-                x.LogWriter = new NunitLogWriter();
+                x.UseNunitLogWriter();
             });
             TestControllerClient = new TestControllerClient(WebApplicationFactory.CreateClient(), WebApplicationFactory.Services);
         }
