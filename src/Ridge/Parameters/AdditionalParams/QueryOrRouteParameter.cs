@@ -1,9 +1,9 @@
-﻿namespace Ridge.Parameters.CustomParams;
+﻿namespace Ridge.Parameters.AdditionalParams;
 
 /// <summary>
 ///     Represents query parameter.
 /// </summary>
-public class QueryOrRouteParameter : CustomParameter
+public class QueryOrRouteParameter : AdditionalParameter
 {
     /// <summary>
     ///     Create <see cref="QueryOrRouteParameter" />.

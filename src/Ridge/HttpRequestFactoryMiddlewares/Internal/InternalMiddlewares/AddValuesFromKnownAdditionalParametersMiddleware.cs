@@ -1,27 +1,27 @@
-using Ridge.Parameters.CustomParams;
+using Ridge.Parameters.AdditionalParams;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Ridge.HttpRequestFactoryMiddlewares.Internal.InternalMiddlewares;
 
-internal class AddValuesFromKnownCustomParametersMiddleware : HttpRequestFactoryMiddleware
+internal class AddValuesFromKnownAdditionalParametersMiddleware : HttpRequestFactoryMiddleware
 {
     public override Task<HttpRequestMessage> CreateHttpRequest(
         IRequestFactoryContext requestFactoryContext)
     {
-        var customParameters = requestFactoryContext.ParameterProvider.GetCustomParameters();
-        ProcessHeaderParameter(requestFactoryContext, customParameters);
-        ProcessBodyParameter(requestFactoryContext, customParameters);
-        ProcessQueryOrRouteParameters(requestFactoryContext, customParameters);
+        var additionalParameters = requestFactoryContext.ParameterProvider.GetAdditionalParameters();
+        ProcessHeaderParameter(requestFactoryContext, additionalParameters);
+        ProcessBodyParameter(requestFactoryContext, additionalParameters);
+        ProcessQueryOrRouteParameters(requestFactoryContext, additionalParameters);
         return base.CreateHttpRequest(requestFactoryContext);
     }
 
     private static void ProcessHeaderParameter(
         IRequestFactoryContext requestFactoryContext,
-        CustomParameters customParameters)
+        AdditionalParameters additionalParameters)
     {
-        var httpHeaders = customParameters
+        var httpHeaders = additionalParameters
            .GetParametersByType<HttpHeaderParameter>();
 
         foreach (var httpHeader in httpHeaders)
@@ -32,9 +32,9 @@ internal class AddValuesFromKnownCustomParametersMiddleware : HttpRequestFactory
 
     private static void ProcessBodyParameter(
         IRequestFactoryContext requestFactoryContext,
-        CustomParameters customParameters)
+        AdditionalParameters additionalParameters)
     {
-        var bodyParameters = customParameters
+        var bodyParameters = additionalParameters
            .GetParametersByType<BodyParameter>();
 
         if (bodyParameters.Any())
@@ -45,9 +45,9 @@ internal class AddValuesFromKnownCustomParametersMiddleware : HttpRequestFactory
 
     private static void ProcessQueryOrRouteParameters(
         IRequestFactoryContext requestFactoryContext,
-        CustomParameters customParameters)
+        AdditionalParameters additionalParameters)
     {
-        var queryOrRouteParameters = customParameters
+        var queryOrRouteParameters = additionalParameters
            .GetParametersByType<QueryOrRouteParameter>();
 
         foreach (var queryOrRouteParameter in queryOrRouteParameters)

@@ -150,13 +150,13 @@ public static class CallerMethodGenerationHelper
             }
         }
 
-        sb.AppendLine($"{methodToGenerate.ContainingControllerFullyQualifiedName}>(methodName, actionParameters, customParameters, parametersAndTransformations);");
+        sb.AppendLine($"{methodToGenerate.ContainingControllerFullyQualifiedName}>(methodName, actionParameters, additionalParameters, parametersAndTransformations);");
     }
 
     private static void AddRidgeParameters(
         StringBuilder sb)
     {
-        sb.AppendLine(@"params CustomParameter[] customParameters)");
+        sb.AppendLine(@"params AdditionalParameter[] additionalParameters)");
     }
 
     private static string? AddReturnType(

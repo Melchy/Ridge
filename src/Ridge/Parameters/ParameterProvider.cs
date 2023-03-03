@@ -1,8 +1,8 @@
 ﻿using Ridge.GeneratorAttributes;
 using Ridge.Parameters.ActionAndCallerParams;
 using Ridge.Parameters.ActionParams;
+using Ridge.Parameters.AdditionalParams;
 using Ridge.Parameters.CallerParams;
-using Ridge.Parameters.CustomParams;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,28 +14,28 @@ namespace Ridge.Parameters;
 public class ParameterProvider
 {
     private readonly IEnumerable<RawParameterAndTransformationInfo> _parameters;
-    private readonly IEnumerable<CustomParameter> _customParameters;
+    private readonly IEnumerable<AdditionalParameter> _additionalParameters;
 
     /// <summary>
     ///     Crate new <see cref="ParameterProvider" />.
     /// </summary>
     /// <param name="parameters">Raw parameters from generator.</param>
-    /// <param name="customParameters">Custom parameters.</param>
+    /// <param name="additionalParameters">Additional parameters.</param>
     public ParameterProvider(
         IEnumerable<RawParameterAndTransformationInfo> parameters,
-        IEnumerable<CustomParameter> customParameters)
+        IEnumerable<AdditionalParameter> additionalParameters)
     {
         _parameters = parameters;
-        _customParameters = customParameters;
+        _additionalParameters = additionalParameters;
     }
 
     /// <summary>
-    ///     Get collection of custom parameters passed to caller.
+    ///     Get collection of additional parameters passed to caller.
     /// </summary>
-    /// <returns>Collection of custom parameters.</returns>
-    public CustomParameters GetCustomParameters()
+    /// <returns>Collection of additional parameters.</returns>
+    public AdditionalParameters GetAdditionalParameters()
     {
-        return new CustomParameters(_customParameters);
+        return new AdditionalParameters(_additionalParameters);
     }
 
     /// <summary>

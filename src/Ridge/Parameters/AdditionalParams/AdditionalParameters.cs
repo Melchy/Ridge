@@ -4,23 +4,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ridge.Parameters.CustomParams;
+namespace Ridge.Parameters.AdditionalParams;
 
 /// <summary>
-///     Custom parameter passed to caller.
+///     Additional parameters passed to caller.
 /// </summary>
-public class CustomParameters : IEnumerable<CustomParameter>
+public class AdditionalParameters : IEnumerable<AdditionalParameter>
 {
-    private readonly IEnumerable<CustomParameter> _customParameters;
+    private readonly IEnumerable<AdditionalParameter> _additionalParameters;
 
     /// <summary>
     ///     Crate new <see cref="CallerParameters" />
     /// </summary>
-    /// <param name="customParameters"></param>
-    public CustomParameters(
-        IEnumerable<CustomParameter> customParameters)
+    /// <param name="additionalParameters"></param>
+    public AdditionalParameters(
+        IEnumerable<AdditionalParameter> additionalParameters)
     {
-        _customParameters = customParameters;
+        _additionalParameters = additionalParameters;
     }
 
     /// <summary>
@@ -28,10 +28,10 @@ public class CustomParameters : IEnumerable<CustomParameter>
     /// </summary>
     /// <param name="parameterName">Name of parameter to find.</param>
     /// <returns>Parameter or default value.</returns>
-    public CustomParameter? GetParameterByNameOrDefault(
+    public AdditionalParameter? GetParameterByNameOrDefault(
         string parameterName)
     {
-        return _customParameters.FirstOrDefault(x => x.Name == parameterName);
+        return _additionalParameters.FirstOrDefault(x => x.Name == parameterName);
     }
 
     /// <summary>
@@ -40,13 +40,13 @@ public class CustomParameters : IEnumerable<CustomParameter>
     /// <param name="parameterName">Name of parameter to find.</param>
     /// <returns>Parameter.</returns>
     /// <exception cref="InvalidOperationException">Thrown when parameter is not found.</exception>
-    public CustomParameter GetParameterByNameOrThrow(
+    public AdditionalParameter GetParameterByNameOrThrow(
         string parameterName)
     {
         var parameter = GetParameterByNameOrDefault(parameterName);
         if (parameter == null)
         {
-            throw new InvalidOperationException($"Could not find custom parameter with name '{parameterName}'.");
+            throw new InvalidOperationException($"Could not find additional parameter with name '{parameterName}'.");
         }
 
         return parameter;
@@ -56,11 +56,11 @@ public class CustomParameters : IEnumerable<CustomParameter>
     ///     Get all parameters with given name.
     /// </summary>
     /// <param name="parameterName">Name used to find the parameters.</param>
-    /// <returns>Collection of <see cref="CustomParameter" /> with provided name.</returns>
-    public IEnumerable<CustomParameter> GetParametersByName(
+    /// <returns>Collection of <see cref="AdditionalParameter" /> with provided name.</returns>
+    public IEnumerable<AdditionalParameter> GetParametersByName(
         string parameterName)
     {
-        return _customParameters.Where(x => x.Name == parameterName);
+        return _additionalParameters.Where(x => x.Name == parameterName);
     }
 
     /// <summary>
@@ -68,9 +68,9 @@ public class CustomParameters : IEnumerable<CustomParameter>
     /// </summary>
     /// <typeparam name="TType">Type of parameter to find.</typeparam>
     /// <returns>Parameter or default.</returns>
-    public CustomParameter? GetFirstParameterByTypeOrDefault<TType>()
+    public AdditionalParameter? GetFirstParameterByTypeOrDefault<TType>()
     {
-        return _customParameters.FirstOrDefault(x => x.GetType() == typeof(TType));
+        return _additionalParameters.FirstOrDefault(x => x.GetType() == typeof(TType));
     }
 
     /// <summary>
@@ -78,9 +78,9 @@ public class CustomParameters : IEnumerable<CustomParameter>
     /// </summary>
     /// <typeparam name="TType">Type of value to find.</typeparam>
     /// <returns>Parameter or default.</returns>
-    public CustomParameter? GetFirstParameterByTypeOfValueOrDefault<TType>()
+    public AdditionalParameter? GetFirstParameterByTypeOfValueOrDefault<TType>()
     {
-        return _customParameters.FirstOrDefault(x => x.Value?.GetType() == typeof(TType));
+        return _additionalParameters.FirstOrDefault(x => x.Value?.GetType() == typeof(TType));
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public class CustomParameters : IEnumerable<CustomParameter>
     /// <typeparam name="TType">Type of parameter to find.</typeparam>
     /// <returns>Parameter.</returns>
     /// <exception cref="InvalidOperationException">Thrown when parameter with provided type is not found.</exception>
-    public CustomParameter GetFirstParameterByTypeOrThrow<TType>()
+    public AdditionalParameter GetFirstParameterByTypeOrThrow<TType>()
     {
         var callerParameter = GetFirstParameterByTypeOrDefault<TType>();
         if (callerParameter == null)
@@ -106,7 +106,7 @@ public class CustomParameters : IEnumerable<CustomParameter>
     /// <typeparam name="TType">Type of value to find.</typeparam>
     /// <returns>Parameter.</returns>
     /// <exception cref="InvalidOperationException">Thrown when value with provided type is not found.</exception>
-    public CustomParameter GetFirstParameterByTypeOfValueOrThrow<TType>()
+    public AdditionalParameter GetFirstParameterByTypeOfValueOrThrow<TType>()
     {
         var callerParameter = GetFirstParameterByTypeOfValueOrDefault<TType>();
         if (callerParameter == null)
@@ -124,7 +124,7 @@ public class CustomParameters : IEnumerable<CustomParameter>
     /// <returns>Collection of <see cref="CallerParameter" /> with type TType.</returns>
     public IEnumerable<TType> GetParametersByType<TType>()
     {
-        return _customParameters.Where(x => x.GetType() == typeof(TType)).Cast<TType>();
+        return _additionalParameters.Where(x => x.GetType() == typeof(TType)).Cast<TType>();
     }
 
     /// <summary>
@@ -132,9 +132,9 @@ public class CustomParameters : IEnumerable<CustomParameter>
     /// </summary>
     /// <typeparam name="TType">Type which will be used to find parameters.</typeparam>
     /// <returns>Collection of <see cref="CallerParameter" /> with values matching TType.</returns>
-    public IEnumerable<CustomParameter> GetParametersByTypeOfValue<TType>()
+    public IEnumerable<AdditionalParameter> GetParametersByTypeOfValue<TType>()
     {
-        return _customParameters.Where(x => x.Value?.GetType() == typeof(TType));
+        return _additionalParameters.Where(x => x.Value?.GetType() == typeof(TType));
     }
 
     /// <summary>
@@ -199,9 +199,9 @@ public class CustomParameters : IEnumerable<CustomParameter>
     }
 
     /// <inheritdoc />
-    public IEnumerator<CustomParameter> GetEnumerator()
+    public IEnumerator<AdditionalParameter> GetEnumerator()
     {
-        return _customParameters.GetEnumerator();
+        return _additionalParameters.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

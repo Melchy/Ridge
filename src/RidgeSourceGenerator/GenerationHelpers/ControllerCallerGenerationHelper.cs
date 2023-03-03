@@ -40,7 +40,7 @@ public static class ControllerCallerGenerationHelper
             using System.Net.Http.Headers;
             using System.Reflection;
             using System.Threading.Tasks;
-            using Ridge.Parameters.CustomParams;
+            using Ridge.Parameters.AdditionalParams;
             """
         );
         

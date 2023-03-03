@@ -6,7 +6,7 @@ using Ridge.DelegationHandlers;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.LogWriter;
 using Ridge.Parameters;
-using Ridge.Parameters.CustomParams;
+using Ridge.Parameters.AdditionalParams;
 using Ridge.Response;
 using System;
 using System.Collections.Generic;
@@ -464,15 +464,15 @@ public class RidgeTests
 
     public class ListSeparatedByCommasDelegationHandler : DelegatingHandler
     {
-        public static CustomParameter UseThisHandler()
+        public static AdditionalParameter UseThisHandler()
         {
-            return new CustomParameter(nameof(ListSeparatedByCommasDelegationHandler), null);
+            return new AdditionalParameter(nameof(ListSeparatedByCommasDelegationHandler), null);
         }
 
         private static bool ShouldThisTransformerBeUsed(
             ParameterProvider parameterProvider)
         {
-            var useThiCallerParameter = parameterProvider.GetCustomParameters().GetParameterByNameOrDefault(nameof(ListSeparatedByCommasDelegationHandler));
+            var useThiCallerParameter = parameterProvider.GetAdditionalParameters().GetParameterByNameOrDefault(nameof(ListSeparatedByCommasDelegationHandler));
             return useThiCallerParameter != null;
         }
 
@@ -523,15 +523,15 @@ public class RidgeTests
     
     public class TestObjectAddHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
     {
-        public static CustomParameter UseThisMiddleware()
+        public static AdditionalParameter UseThisMiddleware()
         {
-            return new CustomParameter(nameof(TestObjectAddHttpRequestFactoryMiddleware), null);
+            return new AdditionalParameter(nameof(TestObjectAddHttpRequestFactoryMiddleware), null);
         }
 
         private static bool ShouldThisTransformerBeUsed(
             ParameterProvider parameterProvider)
         {
-            var useThiCallerParameter = parameterProvider.GetCustomParameters().GetParameterByNameOrDefault(nameof(TestObjectAddHttpRequestFactoryMiddleware));
+            var useThiCallerParameter = parameterProvider.GetAdditionalParameters().GetParameterByNameOrDefault(nameof(TestObjectAddHttpRequestFactoryMiddleware));
             return useThiCallerParameter != null;
         }
         
