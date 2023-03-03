@@ -25,8 +25,8 @@ internal class AddBodyByFromBodyAttributeMiddleware : HttpRequestFactoryMiddlewa
         ParameterProvider parameterProvider)
     {
         var relevantParameters = parameterProvider
-           .GetControllerAndCallerParametersLinked()
-           .Where(x => x.DoesParameterExistsInCaller() && x.DoesParameterExistInController())
+           .GetActionAndCallerParametersLinked()
+           .Where(x => x.DoesParameterExistsInCaller() && x.DoesParameterExistInAction())
            .Where(x => !x.WasParameterAddedOrTransformed);
 
         var parametersWithFromBody = relevantParameters.Where(

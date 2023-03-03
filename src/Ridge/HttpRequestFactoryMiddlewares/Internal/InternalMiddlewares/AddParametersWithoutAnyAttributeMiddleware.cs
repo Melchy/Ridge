@@ -33,8 +33,8 @@ internal class AddParametersWithoutAnyAttributeMiddleware : HttpRequestFactoryMi
         IRequestFactoryContext requestFactoryContext)
     {
         var relevantParameters = requestFactoryContext.ParameterProvider
-           .GetControllerAndCallerParametersLinked()
-           .Where(x => x.DoesParameterExistsInCaller() && x.DoesParameterExistInController())
+           .GetActionAndCallerParametersLinked()
+           .Where(x => x.DoesParameterExistsInCaller() && x.DoesParameterExistInAction())
            .Where(x => !x.WasParameterAddedOrTransformed);
 
         var potentialBodyArgumentWithoutFromAttribute = GetParametersWithoutMvcAttributes(relevantParameters)
@@ -54,9 +54,9 @@ internal class AddParametersWithoutAnyAttributeMiddleware : HttpRequestFactoryMi
         ParameterProvider parameterProvider)
     {
         var relevantParameters = parameterProvider
-           .GetControllerAndCallerParametersLinked()
+           .GetActionAndCallerParametersLinked()
            .Where(x =>
-                x.DoesParameterExistInController() &&
+                x.DoesParameterExistInAction() &&
                 x.DoesParameterExistsInCaller())
            .Where(x => !x.WasParameterAddedOrTransformed);
 

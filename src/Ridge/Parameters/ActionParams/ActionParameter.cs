@@ -4,14 +4,14 @@ using System.Reflection;
 namespace Ridge.Parameters.ActionParams;
 
 /// <summary>
-///     Represents controller parameter.
+///     Represents action parameter.
 /// </summary>
 public class ActionParameter
 {
     /// <summary>
     ///     Create new <see cref="ActionParameter" />
     /// </summary>
-    /// <param name="parameterInfo">Information about controller parameter.</param>
+    /// <param name="parameterInfo">Information about action parameter.</param>
     /// <param name="name">Name.</param>
     /// <param name="type">Type.</param>
     public ActionParameter(
@@ -25,7 +25,7 @@ public class ActionParameter
     }
 
     /// <summary>
-    ///     Information about controller parameter.
+    ///     Information about action parameter.
     /// </summary>
     public ParameterInfo ParameterInfo { get; }
 

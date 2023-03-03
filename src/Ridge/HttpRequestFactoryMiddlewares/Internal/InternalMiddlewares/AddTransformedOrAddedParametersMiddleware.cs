@@ -19,7 +19,7 @@ internal class AddTransformedOrAddedParametersMiddleware : HttpRequestFactoryMid
         IRequestFactoryContext requestFactoryContext)
     {
         var parameters = requestFactoryContext.ParameterProvider
-           .GetControllerAndCallerParametersLinked()
+           .GetActionAndCallerParametersLinked()
            .Where(x => x.DoesParameterExistsInCaller())
            .Where(x => x.WasParameterAddedOrTransformed);
 
