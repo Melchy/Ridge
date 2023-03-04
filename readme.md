@@ -37,7 +37,7 @@ public async Task CallControllerUsingRidge()
 {
     using var webApplicationFactory = 
         new WebApplicationFactory<Program>() // WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
-       .WithRidge(); // add ridge dependencies to WebApplicationFactory
+            .WithRidge(); // add ridge dependencies to WebApplicationFactory
     var client = webApplicationFactory.CreateClient(); // create http client
     var examplesControllerClient = new ExamplesControllerClient(client, webApplicationFactory.Services); // create strongly typed client
 
@@ -48,7 +48,7 @@ public async Task CallControllerUsingRidge()
 }
 ```
 
-> More examples can be found in [examples](TODO) folder.
+> Further examples can be found in [examples](TODO) folder.
 
 ## Setup
 
