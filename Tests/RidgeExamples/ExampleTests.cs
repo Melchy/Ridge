@@ -14,36 +14,32 @@ namespace RidgeExamples;
 
 public class ExampleTests
 {
-    // Test file
+    // ------------------------------------------Test.cs----------------------------------------------------------------
     [Test]
     public async Task CallControllerUsingRidge()
     {
-        // Create WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
-        using var webApplicationFactory = new WebApplicationFactory<Program>()
-           .WithRidge(); // add ridge dependencies to WebApplicationFactory
-        // create http client
-        var client = webApplicationFactory.CreateClient();
-        var examplesControllerClient = new ExamplesControllerClient(client, webApplicationFactory.Services);
+        using var webApplicationFactory =
+            new WebApplicationFactory<Program>() // WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
+               .WithRidge(); // add ridge dependencies to WebApplicationFactory
+        var client = webApplicationFactory.CreateClient(); // create http client
+        var examplesControllerClient = new ExamplesControllerClient(client, webApplicationFactory.Services); // create strongly typed client
 
-        // Ridge wraps the response in a convenient wrapper class
         var response = await examplesControllerClient.ReturnGivenNumber(10);
+    
         Assert.True(response.IsSuccessStatusCode);
-        Assert.AreEqual(10, response.Result);
-
-        // Access the http response directly
-        Assert.True(response.HttpResponseMessage.IsSuccessStatusCode);
+        Assert.AreEqual(10, response.Result); // Response is wrapped in HttpCallResponse<int>
     }
 
-    // Equivalent code without using ridge 
+    // Equivalent code without using Ridge 
     [Test]
     public async Task CallControllerWithoutRidge()
     {
-        // Create WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
-        using var webApplicationFactory = new WebApplicationFactory<Program>();
-        // create http client
-        var client = webApplicationFactory.CreateClient();
-
+        using var webApplicationFactory =
+            new WebApplicationFactory<Program>(); // WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
+        var client = webApplicationFactory.CreateClient(); // create http client
+    
         var response = await client.GetAsync("/returnGivenNumber/?input=10");
+    
         Assert.True(response.IsSuccessStatusCode);
         var responseAsString = await response.Content.ReadAsStringAsync();
         Assert.AreEqual(10, JsonSerializer.Deserialize<int>(responseAsString));
