@@ -18,13 +18,14 @@ public class ExampleTests
     [Test]
     public async Task CallControllerUsingRidge()
     {
-        // Create WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-5.0#basic-tests-with-the-default-webapplicationfactory
-        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
+        // Create WebApplicationFactory - https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests
+        using var webApplicationFactory = new WebApplicationFactory<Program>()
+           .WithRidge(); // add ridge dependencies to WebApplicationFactory
         // create http client
         var client = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(client, webApplicationFactory.Services);
 
-        // Ridge wraps the HttpResponseMessage in a convenient wrapper class
+        // Ridge wraps the response in a convenient wrapper class
         var response = await examplesControllerClient.ReturnGivenNumber(10);
         Assert.True(response.IsSuccessStatusCode);
         Assert.AreEqual(10, response.Result);

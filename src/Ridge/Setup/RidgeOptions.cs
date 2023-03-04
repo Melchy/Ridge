@@ -22,9 +22,9 @@ public class RidgeOptions
     public ILogWriter? LogWriter { get; set; } = null;
 
     /// <summary>
-    ///     Custom request response serializer. If no serializer is provided then
+    ///     Sets request/response serializer which will be used by ridge. If no serializer is provided then
     ///     ridge uses Json.Net or System.Text.Json based on application settings.
-    ///     If Ridge can not determine which serializer your application uses then
+    ///     If Ridge can not determine which serializer application uses then
     ///     System.Text.Json is used as default.
     /// </summary>
     public IRequestResponseSerializer? RequestResponseSerializer { get; set; } = null;
