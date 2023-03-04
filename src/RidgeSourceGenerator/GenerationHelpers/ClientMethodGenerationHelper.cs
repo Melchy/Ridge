@@ -49,7 +49,7 @@ public static class ClientMethodGenerationHelper
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        sb.Append($" Call{publicMethod.Name}(");
+        sb.Append($" {publicMethod.Name}(");
 
         var stringBuilderForOptionalParameters = new StringBuilder();
         var transformedParameters = ParameterTransformationService.GetTransformation(

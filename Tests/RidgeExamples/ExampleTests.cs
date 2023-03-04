@@ -25,7 +25,7 @@ public class ExampleTests
         var examplesControllerClient = new ExamplesControllerClient(client, webApplicationFactory.Services);
 
         // Ridge wraps the HttpResponseMessage in a convenient wrapper class
-        var response = await examplesControllerClient.CallReturnGivenNumber(10);
+        var response = await examplesControllerClient.ReturnGivenNumber(10);
         Assert.True(response.IsSuccessStatusCode);
         Assert.AreEqual(10, response.Result);
 
@@ -59,7 +59,7 @@ public class ExampleTests
 
         try
         {
-            _ = await examplesControllerClient.CallThrowException();
+            _ = await examplesControllerClient.ThrowException();
         }
         catch (InvalidOperationException e)
         {
@@ -79,7 +79,7 @@ public class ExampleTests
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
 
         // controller finds header by it's name and returns it's value
-        var response = await examplesControllerClient.CallReturnHeader(headerName: "exampleHeader");
+        var response = await examplesControllerClient.ReturnHeader(headerName: "exampleHeader");
         Assert.AreEqual("exampleHeaderValue", response.Result);
     }
 
@@ -92,7 +92,7 @@ public class ExampleTests
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
 
         // controller finds header by it's name and returns it's value
-        var response = await examplesControllerClient.CallReadQueryParameterFromHttpContext(GeneratedParameter: "queryParameterValue");
+        var response = await examplesControllerClient.ReadQueryParameterFromHttpContext(GeneratedParameter: "queryParameterValue");
         Assert.AreEqual("queryParameterValue", response.Result);
     }
 
@@ -105,7 +105,7 @@ public class ExampleTests
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
 
         // controller finds header by it's name and returns it's value
-        var response = await examplesControllerClient.CallWithCustomModelBinder("cs-CZ");
+        var response = await examplesControllerClient.WithCustomModelBinder("cs-CZ");
         Assert.AreEqual("cs-CZ", response.Result);
     }
 
@@ -121,7 +121,7 @@ public class ExampleTests
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
 
         // action returns all passed headers
-        var response = await examplesControllerClient.CallReturnAllHeaders(additionalParameters: new AdditionalParameter("exampleHeader", "exampleHeaderValue"));
+        var response = await examplesControllerClient.ReturnAllHeaders(additionalParameters: new AdditionalParameter("exampleHeader", "exampleHeaderValue"));
 
         Assert.AreEqual("exampleHeaderValue", response.Result.First(x => x.key == "exampleHeader").value);
     }

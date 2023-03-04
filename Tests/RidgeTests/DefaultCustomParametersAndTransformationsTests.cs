@@ -13,7 +13,7 @@ public class ParametersAddedOrTransformedAutoMappingTests
     public async Task TestAddedParameters()
     {
         using var application = CreateApplication();
-        var response = await application.AddedParametersWithDefaultMappingControllerClient.CallDefaultAction("routeParameter",
+        var response = await application.AddedParametersWithDefaultMappingControllerClient.DefaultAction("routeParameter",
             "queryParameter",
             new ComplexObject()
             {
@@ -31,7 +31,7 @@ public class ParametersAddedOrTransformedAutoMappingTests
     public async Task TestTransformedParameters()
     {
         using var application = CreateApplication();
-        var response = await application.TransformedParametersWithDefaultMappingControllerClient.CallDefaultAction(
+        var response = await application.TransformedParametersWithDefaultMappingControllerClient.DefaultAction(
             TransformedParametersWithDefaultMappingController.TestEnum.None,
             "route",
             10,

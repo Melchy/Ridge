@@ -24,7 +24,7 @@ public class TestApplicationWithDefaultSerialization
                 Str = "br",
             },
         };
-        var response = await application.TestControllerClient.CallArgumentsWithoutAttributes(complexObject,
+        var response = await application.TestControllerClient.ArgumentsWithoutAttributes(complexObject,
             1,
             2);
         response.Result.ComplexObject.Should().BeEquivalentTo(complexObject);

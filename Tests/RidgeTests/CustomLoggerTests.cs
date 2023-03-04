@@ -15,7 +15,7 @@ public class CustomLoggerTests
     public async Task CustomLogger()
     {
         using var application = CreateApplication();
-        var response = await application.TestControllerClient.CallMethodReturningBody();
+        var response = await application.TestControllerClient.MethodReturningBody();
         application.CustomLogger.LoggedMessage.Should().Contain("Request").And.Contain("Response");
     }
 

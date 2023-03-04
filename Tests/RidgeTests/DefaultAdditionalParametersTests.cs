@@ -15,7 +15,7 @@ public class DefaultAdditionalParametersTests
     {
         using var application = CreateApplication();
 
-        var response = await application.TestControllerClient.CallMethodReturningHeaders(
+        var response = await application.TestControllerClient.MethodReturningHeaders(
             new HttpHeaderParameter("key", "value"),
             new HttpHeaderParameter("key2", "value2"));
 
@@ -28,7 +28,7 @@ public class DefaultAdditionalParametersTests
     {
         using var application = CreateApplication();
 
-        var response = await application.TestControllerClient.CallMethodReturningBody(new BodyParameter("test"));
+        var response = await application.TestControllerClient.MethodReturningBody(new BodyParameter("test"));
 
         // aditional " are added because json body contains " when sending string
         response.Result.Should().Be("\"test\"");
@@ -39,7 +39,7 @@ public class DefaultAdditionalParametersTests
     {
         using var application = CreateApplication();
 
-        var response = await application.TestControllerClient.CallRouteAndQueryParameters(
+        var response = await application.TestControllerClient.RouteAndQueryParameters(
             new QueryOrRouteParameter("queryParameter", "query"),
             new QueryOrRouteParameter("routeParameter", "route"));
 

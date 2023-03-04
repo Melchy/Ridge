@@ -24,7 +24,7 @@ public class XunitLoggerTests
     public async Task TestXunitLogger()
     {
         using var application = CreateApplication();
-        var response = await application.ControllerInAreaClient.CallIndex();
+        var response = await application.ControllerInAreaClient.Index();
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 

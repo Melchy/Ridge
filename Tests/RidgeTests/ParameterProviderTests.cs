@@ -29,7 +29,7 @@ public class ParameterProviderTests
         });
 
         var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
-           .CallActionWithOptionalParameter("test",
+           .ActionWithOptionalParameter("test",
                 "test",
                 new[]
                 {
@@ -82,7 +82,7 @@ public class ParameterProviderTests
         });
 
         var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
-           .CallActionWithOptionalParameter("test",
+           .ActionWithOptionalParameter("test",
                 "test",
                 new[]
                 {
@@ -144,7 +144,7 @@ public class ParameterProviderTests
             new AdditionalParameter("optionalParameterInt", 2),
         };
         var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
-           .CallSimpleGet(null,
+           .SimpleGet(null,
                 additionalParameters: additionalParameters);
 
         testRequestFactoryMiddleware.ParameterProvider!.GetAdditionalParameters().Should().HaveCount(2);
