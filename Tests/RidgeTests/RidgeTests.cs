@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
 using NUnit.Framework;
-using Ridge.DelegationHandlers;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.LogWriter;
 using Ridge.Parameters;
@@ -467,47 +466,6 @@ public class RidgeTests
         return new Application(
             webAppFactory
         );
-    }
-
-
-    public class ListSeparatedByCommasDelegationHandler : DelegatingHandler
-    {
-        public static AdditionalParameter UseThisHandler()
-        {
-            return new AdditionalParameter(nameof(ListSeparatedByCommasDelegationHandler), null);
-        }
-
-        private static bool ShouldThisTransformerBeUsed(
-            ParameterProvider parameterProvider)
-        {
-            var useThiClientParameter = parameterProvider.GetAdditionalParameters().GetParameterByNameOrDefault(nameof(ListSeparatedByCommasDelegationHandler));
-            return useThiClientParameter != null;
-        }
-
-        protected override async Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage httpRequestMessage,
-            CancellationToken cancellationToken)
-        {
-            var requestDescription = httpRequestMessage.GetRequestDescription();
-            if (!ShouldThisTransformerBeUsed(requestDescription.ParameterProvider))
-            {
-                return await base.SendAsync(httpRequestMessage, cancellationToken);
-            }
-
-            httpRequestMessage.RequestUri = new Uri(
-                QueryHelpers.AddQueryString(httpRequestMessage.RequestUri!.ToString(), "properties", $"{string.Join(",", _data)}"),
-                UriKind.Absolute);
-            return await base.SendAsync(httpRequestMessage, cancellationToken);
-        }
-
-
-        private readonly IEnumerable<int> _data;
-
-        public ListSeparatedByCommasDelegationHandler(
-            IEnumerable<int> data)
-        {
-            _data = data;
-        }
     }
 
     public class HttpRequestFactoryMiddlewareOrder : HttpRequestFactoryMiddleware

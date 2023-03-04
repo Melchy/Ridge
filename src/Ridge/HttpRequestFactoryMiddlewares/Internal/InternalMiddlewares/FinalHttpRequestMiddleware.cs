@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Routing;
-using Ridge.DelegationHandlers;
 using Ridge.Serialization;
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -50,14 +48,6 @@ internal class FinalHttpRequestMiddleware : HttpRequestFactoryMiddleware
             requestFactoryContext.HttpContentType,
             requestFactoryContext.Headers,
             _requestResponseSerializer);
-
-        httpRequestMessage.Options.Set(
-            new HttpRequestOptionsKey<RequestDescription>(RequestDescription.OptionsKey),
-            new RequestDescription(
-                new ReadOnlyDictionary<string, object?>(requestFactoryContext.UrlGenerationParameters),
-                requestFactoryContext.CalledControllerMethodInfo,
-                requestFactoryContext.CallId,
-                requestFactoryContext.ParameterProvider));
 
         return Task.FromResult(httpRequestMessage);
     }
