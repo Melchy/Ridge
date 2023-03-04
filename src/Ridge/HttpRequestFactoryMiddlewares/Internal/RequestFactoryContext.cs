@@ -14,16 +14,19 @@ internal class RequestFactoryContext : IRequestFactoryContext
     public RequestFactoryContext(
         MethodInfo calledControllerMethodInfo,
         ParameterProvider parameterProvider,
-        Guid callId)
+        Guid callId,
+        IServiceProvider serviceProvider)
     {
         CalledControllerMethodInfo = calledControllerMethodInfo;
         ParameterProvider = parameterProvider;
         CallId = callId;
+        ServiceProvider = serviceProvider;
     }
 
     public ParameterProvider ParameterProvider { get; }
     public Guid CallId { get; }
-    public MethodInfo CalledControllerMethodInfo { get; set; }
+    public IServiceProvider ServiceProvider { get; }
+    public MethodInfo CalledControllerMethodInfo { get; }
 
     public object? Body
     {

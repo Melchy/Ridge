@@ -64,4 +64,9 @@ public interface IRequestFactoryContext
     ///     Http method.
     /// </summary>
     string HttpMethod { get; set; }
+
+    /// <summary>
+    ///     Application service provider.
+    /// </summary>
+    IServiceProvider ServiceProvider { get; }
 }

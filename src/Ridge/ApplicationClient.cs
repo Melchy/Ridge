@@ -23,6 +23,7 @@ namespace Ridge;
 public class ApplicationClient
 {
     private readonly HttpClient _httpClient;
+    private readonly IServiceProvider _serviceProvider;
     private readonly HttpRequestFactoryMiddlewareBuilder _httpRequestFactoryMiddlewareBuilder;
     private readonly HttpResponseCallFactory _httpResponseCallFactory;
     private readonly RidgeLogger _ridgeLogger;
@@ -38,6 +39,7 @@ public class ApplicationClient
         IServiceProvider serviceProvider)
     {
         _httpClient = httpClient;
+        _serviceProvider = serviceProvider;
 
         var options = serviceProvider.GetService<IOptions<RidgeOptions>>()?.Value;
 
@@ -156,7 +158,8 @@ public class ApplicationClient
         var requestFactoryContext = new RequestFactoryContext(
             methodInfo,
             parameterProvider,
-            callId);
+            callId,
+            _serviceProvider);
  
         using var request = await requestFactoryMiddleware.CreateHttpRequest(requestFactoryContext);
 
