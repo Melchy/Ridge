@@ -1,13 +1,11 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Ridge.ExceptionHandling;
 using Ridge.HttpRequestFactoryMiddlewares.Internal;
 using Ridge.LogWriter.Internal;
 using Ridge.Parameters;
 using Ridge.Parameters.AdditionalParams;
 using Ridge.Response;
-using Ridge.Setup;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,15 +39,10 @@ public class ApplicationClient
         _httpClient = httpClient;
         _serviceProvider = serviceProvider;
 
-        var options = serviceProvider.GetService<IOptions<RidgeOptions>>()?.Value;
-
-        if (options == null)
-        {
-            throw new InvalidOperationException($"Ridge options not found. Did you forget to call {nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)}?" +
-                                                $"To {nameof(ApplicationClient)} it is necessary to call {nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)} first.");
-        }
-
-        _httpRequestFactoryMiddlewareBuilder = serviceProvider.GetRequiredService<HttpRequestFactoryMiddlewareBuilder>();
+        var httpRequestFactoryMiddlewareBuilder = serviceProvider.GetService<HttpRequestFactoryMiddlewareBuilder>();
+        _httpRequestFactoryMiddlewareBuilder = httpRequestFactoryMiddlewareBuilder ??
+                                               throw new InvalidOperationException($"Ridge middleware builder not found. Did you forget to call '{nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)}()'? " +
+                                                                                   $"To use Ridge it is necessary to call '{nameof(WebApplicationFactory<object>)}.{nameof(WebApplicationFactoryExtensions.WithRidge)}()' first.");
         _ridgeLogger = serviceProvider.GetRequiredService<RidgeLogger>();
         _httpResponseCallFactory = serviceProvider.GetRequiredService<HttpResponseCallFactory>();
         _exceptionManager = serviceProvider.GetRequiredService<ExceptionManager>();

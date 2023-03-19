@@ -2,8 +2,6 @@
 using NUnit.Framework;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.Parameters.AdditionalParams;
-using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using TestWebApplication;
@@ -30,22 +28,29 @@ public class ExampleTests
         Assert.AreEqual(10, response.Result); // Response is wrapped in HttpCallResponse<int>
     }
 
+    // [Test]
+    // public async Task ThrowExceptionTestWith500()
+    // {
+    //     using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
+    //     var httpClient = webApplicationFactory.CreateClient();
+    //     var examplesControllerClient = new ExamplesControllerClient(httpClient, webApplicationFactory.Services);
+    //     
+    //     var response = await examplesControllerClient.ActionWithError();
+    //     
+    //     Assert.True(response.IsSuccessStatusCode);
+    // }
+    
+    
     [Test]
     public async Task ThrowExceptionTest()
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
-        // notice use of AddExceptionCatching()
-        var ridgeHttpClient = webApplicationFactory.CreateClient();
-        var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
+        var httpClient = webApplicationFactory.CreateClient();
+        var examplesControllerClient = new ExamplesControllerClient(httpClient, webApplicationFactory.Services);
 
-        try
-        {
-            _ = await examplesControllerClient.ThrowException();
-        }
-        catch (InvalidOperationException e)
-        {
-            Assert.AreEqual("Exception throw", e.Message);
-        }
+        var response = await examplesControllerClient.ActionWithError();
+
+        Assert.True(response.IsSuccessStatusCode);
     }
 
 
@@ -54,40 +59,38 @@ public class ExampleTests
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(new AddHeaderHttpRequestFactoryMiddleware("exampleHeader", "exampleHeaderValue"));
+            x.HttpRequestFactoryMiddlewares.Add(new AddEnglishLanguageHeader());
         });
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
 
-        // controller finds header by it's name and returns it's value
-        var response = await examplesControllerClient.ReturnHeader(headerName: "exampleHeader");
-        Assert.AreEqual("exampleHeaderValue", response.Result);
-    }
-
-    [Test]
-    public async Task ParameterAddedByRidge()
-    {
-        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
-
-        var ridgeHttpClient = webApplicationFactory.CreateClient();
-        var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
-
-        // controller finds header by it's name and returns it's value
-        var response = await examplesControllerClient.ReadQueryParameterFromHttpContext(GeneratedParameter: "queryParameterValue");
-        Assert.AreEqual("queryParameterValue", response.Result);
+        // endpoint which returns Accept-Language header 
+        var response = await examplesControllerClient.ReturnLanguage();
+        Assert.AreEqual("en-US", response.Result);
     }
 
     [Test]
     public async Task CustomModelBinderTest()
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
-
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
 
-        // controller finds header by it's name and returns it's value
-        var response = await examplesControllerClient.WithCustomModelBinder("cs-CZ");
+        var response = await examplesControllerClient.ReturnCountryCode("cs-CZ");
         Assert.AreEqual("cs-CZ", response.Result);
+    }
+    
+    [Test]
+    public async Task ParameterAddedByRidge()
+    {
+        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
+
+        var httpClient = webApplicationFactory.CreateClient();
+        var examplesControllerCaller = new ExamplesControllerClient(httpClient, webApplicationFactory.Services);
+        
+        // controller finds header by it's name and returns it's value
+        var response = await examplesControllerCaller.ReadQueryParameterFromHttpContext(exampleParameter: "value");
+        Assert.AreEqual("value", response.Result);
     }
 
     [Test]
@@ -95,88 +98,52 @@ public class ExampleTests
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(new AddHeaderFromAdditionalParameters());
+            x.HttpRequestFactoryMiddlewares.Add(new SetAgeFromAdditionalParameter());
         });
-
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
 
-        // action returns all passed headers
-        var response = await examplesControllerClient.ReturnAllHeaders(additionalParameters: new AdditionalParameter("exampleHeader", "exampleHeaderValue"));
+        var response = await examplesControllerClient.ReadAgeFromHttpContext(additionalParameters: new AdditionalParameter("age", 10));
 
-        Assert.AreEqual("exampleHeaderValue", response.Result.First(x => x.key == "exampleHeader").value);
+        Assert.AreEqual(10, response.Result);
+    }
+
+    [Test]
+    public async Task PredefinedAdditionalParameters()
+    {
+        using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge();
+        var ridgeHttpClient = webApplicationFactory.CreateClient();
+        var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
+
+        var response = await examplesControllerClient.ReadAgeFromHttpContext(additionalParameters: new QueryOrRouteParameter("age", 10));
+
+        Assert.AreEqual(10, response.Result);
     }
 }
 
-public class AddHeaderFromAdditionalParameters : HttpRequestFactoryMiddleware
+public class SetAgeFromAdditionalParameter : HttpRequestFactoryMiddleware
 {
     public override Task<HttpRequestMessage> CreateHttpRequest(
         IRequestFactoryContext requestFactoryContext)
     {
-        var additionalParameters = requestFactoryContext.ParameterProvider.GetAdditionalParameters();
+        var ageParameter = requestFactoryContext.ParameterProvider
+           .GetAdditionalParameters()
+           .GetParameterByNameOrThrow("age")
+           .GetValueOrThrow<int>();
 
-        foreach (var additionalParameter in additionalParameters)
-        {
-            requestFactoryContext.Headers.Add(additionalParameter.Name, additionalParameter.Value?.ToString());
-        }
 
+        requestFactoryContext.UrlGenerationParameters["age"] = ageParameter.ToString();
+        
         return base.CreateHttpRequest(requestFactoryContext);
     }
 }
 
-public class CountryCodeHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
+public class AddEnglishLanguageHeader : HttpRequestFactoryMiddleware
 {
     public override Task<HttpRequestMessage> CreateHttpRequest(
         IRequestFactoryContext requestFactoryContext)
     {
-        var parameterValue = requestFactoryContext.ParameterProvider
-           .GetClientParameters()
-           .GetValueByNameOrDefault<string>("countryCode");
-        if (string.IsNullOrEmpty(parameterValue))
-        {
-            return base.CreateHttpRequest(requestFactoryContext);
-        }
-
-        requestFactoryContext.UrlGenerationParameters["countryCode"] = parameterValue;
-        return base.CreateHttpRequest(requestFactoryContext);
-    }
-}
-
-public class MapQueryParameterHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
-{
-    public override Task<HttpRequestMessage> CreateHttpRequest(
-        IRequestFactoryContext requestFactoryContext)
-    {
-        var parameterValue = requestFactoryContext.ParameterProvider
-           .GetClientParameters()
-           .GetValueByNameOrDefault<string>("GeneratedParameter");
-        if (string.IsNullOrEmpty(parameterValue))
-        {
-            return base.CreateHttpRequest(requestFactoryContext);
-        }
-
-        requestFactoryContext.UrlGenerationParameters["ExampleQueryParameter"] = parameterValue;
-        return base.CreateHttpRequest(requestFactoryContext);
-    }
-}
-
-public class AddHeaderHttpRequestFactoryMiddleware : HttpRequestFactoryMiddleware
-{
-    private readonly string _headerName;
-    private readonly string _headerValue;
-
-    public AddHeaderHttpRequestFactoryMiddleware(
-        string headerName,
-        string headerValue)
-    {
-        _headerName = headerName;
-        _headerValue = headerValue;
-    }
-
-    public override Task<HttpRequestMessage> CreateHttpRequest(
-        IRequestFactoryContext requestFactoryContext)
-    {
-        requestFactoryContext.Headers.Add(_headerName, _headerValue);
+        requestFactoryContext.Headers.Add("Accept-Language", "en-US");
         return base.CreateHttpRequest(requestFactoryContext);
     }
 }

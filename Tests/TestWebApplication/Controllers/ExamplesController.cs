@@ -1,6 +1,5 @@
 ﻿#nullable disable
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Ridge.GeneratorAttributes;
 using System;
@@ -11,23 +10,14 @@ using System.Threading.Tasks;
 namespace TestWebApplication.Controllers;
 
 [GenerateClient]
-[AddParameterToClient(typeof(string), "GeneratedParameter", ParameterMapping.MapToQueryOrRouteParameter, Optional = true)]
-[TransformActionParameter(fromType: typeof(CountryCode), toType: typeof(string), ParameterMapping.MapToQueryOrRouteParameter)]
-public class ExamplesController : Controller
+[AddParameterToClient(typeof(string), "exampleParameter", ParameterMapping.MapToQueryOrRouteParameter, Optional = true)]
+[TransformActionParameter(fromType: typeof(CountryCode), toType: typeof(string), ParameterMapping.MapToHeader)]
+public class ExamplesController : ControllerBase
 {
-    [HttpGet("ReadQueryParameterFromHttpContext")]
-    public async Task<string> ReadQueryParameterFromHttpContext()
+    [HttpGet("ReadAgeFromHttpContext")]
+    public async Task<int> ReadAgeFromHttpContext()
     {
-        return HttpContext.Request.Query["GeneratedParameter"];
-    }
-
-
-    private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
-
-    public ExamplesController(
-        IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)
-    {
-        _actionDescriptorCollectionProvider = actionDescriptorCollectionProvider;
+        return int.Parse(HttpContext.Request.Query["age"]);
     }
 
     [HttpGet("ReturnGivenNumber")]
@@ -43,10 +33,10 @@ public class ExamplesController : Controller
         return new ActionResult<IEnumerable<(string key, string value)>>(HttpContext.Request.Headers.Select(x => (x.Key, x.Value.FirstOrDefault())));
     }
 
-    [HttpGet("ThrowException")]
-    public ActionResult ThrowException()
+    [HttpGet("ActionWithError")]
+    public ActionResult ActionWithError()
     {
-        throw new InvalidOperationException("Exception throw");
+        throw new InvalidOperationException("Something went wrong unexpectedly.");
     }
 
     // notice that you don't have to use endpoint routing
@@ -69,11 +59,10 @@ public class ExamplesController : Controller
         };
     }
 
-    [HttpGet("ReturnHeader")]
-    public async Task<string> ReturnHeader(
-        string headerName)
+    [HttpGet("ReturnLanguage")]
+    public async Task<string> ReturnLanguage()
     {
-        return HttpContext.Request.Headers[headerName];
+        return HttpContext.Request.Headers["Accept-Language"];
     }
     
     [HttpGet("CallThatNeedsHeaders")]
@@ -82,8 +71,14 @@ public class ExamplesController : Controller
         return Ok();
     }
 
+    [HttpPost("ReadQueryParameterFromHttpContext")]
+    public string ReadQueryParameterFromHttpContext()
+    {
+        return HttpContext.Request.Query["exampleParameter"];
+    }
+    
     [HttpGet("CallWithCustomModelBinder")]
-    public ActionResult<string> WithCustomModelBinder(
+    public ActionResult<string> ReturnCountryCode(
         [ModelBinder(typeof(BindCountryCodeFromQueryOrHeader))] CountryCode countryCode)
     {
         return countryCode.Value;
