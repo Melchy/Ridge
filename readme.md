@@ -59,38 +59,6 @@ public async Task CallControllerUsingRidge()
 * Create instance of `*YourControllerName*Client`.
 * Create requests using `*YourControllerName*Client` instance.
 
-## Client return types
-
-Return type of the client method is determined based on the return type of action.
-The following table explains which return type is generated:
-
-| Action return type                          | Client return type          |
-|---------------------------------------------|-----------------------------|
-| `ActionResult<TResult>`                     | `HttpCallResponse<TResult>` |
-| `TResult`                                   | `HttpCallResponse<TResult>` |
-| `ActionResult`                              | `HttpCallResponse`          |
-| `IActionResult`                             | `HttpCallResponse`          |
-| `void`                                      | `HttpCallResponse`          |
-| Custom types that implement `IActionResult` | Not supported               |
-
-`HttpCallResponse` wraps `HttpResponseMessage` and contains the following helper methods:
-
-| Method name               | Description                                   |
-|---------------------------|-----------------------------------------------|
-| `IsSuccessStatusCode`     | Returns true if status code is >=200 and <300 |
-| `IsRedirectStatusCode`    | Returns true if status code is >=300 and <400 |
-| `IsClientErrorStatusCode` | Returns true if status code is >=400 and <500 |
-| `IsServerErrorStatusCode` | Returns true if status code is >=500 and <600 |
-| `ContentAsString`         | Returns response content as string            |
-| `StatusCode`              | Returns status code                           |
-| `HttpResponseMessage`     | Returns standard `HttpResponseMessage`        |
-
-`HttpCallResponse<TResult>` contains the same methods as `HttpCallResponse` and one additional:
-
-| Method name | Description                                |
-|-------------|--------------------------------------------|
-| `Result`    | Tries to deserialize response to `TResult` |
-
 ## Best practices
 
 * Use `ActionResult<T>` when possible to enable strongly typed response generation.
