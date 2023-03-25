@@ -12,8 +12,7 @@ attributes, and so on.
 ## Quick links
 
 * [Nuget package](https://www.nuget.org/packages/RidgeDotNet/)
-* [Documentation](TODO)
-* [Examples](TODO)
+* [Documentation](https://github.com/Melchy/Ridge/wiki)
 
 ## Example
 
@@ -49,8 +48,6 @@ public async Task CallControllerUsingRidge()
 }
 ```
 
-> Further examples can be found in the [examples](TODO) folder.
-
 ## Setup
 
 * Mark controller with `[GenerateClient]` attribute. This attribute tells the source generator to generate
@@ -64,22 +61,15 @@ public async Task CallControllerUsingRidge()
 * Use `ActionResult<T>` when possible to enable strongly typed response generation.
 * Use `[FromRoute]`, `[FromQuery]`, `[FromBody]`, and similar attributes when possible to ensure correct parameter
   mapping.
-* Add a logger to check generated requests and responses when necessary (TODO link).
-* Use `ThrowExceptionInsteadOfReturning500` [wiki](TODO) for improved test experience.
-
-## Customization
-
-The following list contains a quick summary of supported customizations:
-
-* Transform client parameters [wiki](TODO)
-* Add parameter to client [wiki](TODO)
-* Edit request generation pipeline [wiki](TODO)
-* Remove action parameter from client [wiki](TODO)
-* Pass additional parameters to client [wiki](TODO)
+* Add a logger to check generated requests and responses when
+  necessary (https://github.com/Melchy/Ridge/wiki/4.-Request-response-logging).
+*
+Use `ThrowExceptionInsteadOfReturning500` [wiki](https://github.com/Melchy/Ridge/wiki/3.-Exceptions-instead-of-500-status-code)
+for improved test experience.
 
 ## Wiki
 
-Full documentation can be found [in wiki](TODO).
+Full documentation can be found [in wiki](https://github.com/Melchy/Ridge/wiki).
 
 ## Features that are not currently supported
 
@@ -125,7 +115,9 @@ public class Mixed
 }
 ```
 
-If you need to use this feature then consider writing custom `HttpRequestFactoryMiddleware` [wiki](TODO) or creating an
+If you need to use this feature then consider writing
+custom `HttpRequestFactoryMiddleware` [wiki](https://github.com/Melchy/Ridge/wiki/2.-Request-creation#custom-middlewares)
+or creating an
 issue.
 
 ## Contributions
