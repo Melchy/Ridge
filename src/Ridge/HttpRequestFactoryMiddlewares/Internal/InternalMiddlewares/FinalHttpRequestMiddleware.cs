@@ -73,7 +73,8 @@ internal class FinalHttpRequestMiddleware : HttpRequestFactoryMiddleware
             if (httpMethodObject == HttpMethod.Post ||
                 httpMethodObject == HttpMethod.Get ||
                 httpMethodObject == HttpMethod.Delete ||
-                httpMethodObject == HttpMethod.Put)
+                httpMethodObject == HttpMethod.Put ||
+                httpMethodObject == HttpMethod.Patch)
             {
                 request.Content = CreateContent(contentType, body.ContentData, serializer);
             }
