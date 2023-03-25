@@ -24,7 +24,7 @@ public class TestController : ControllerBase
     }
 
     [HttpGet("GetWithBody")]
-    public virtual async Task<ActionResult<int>> HttpGetWithBody(
+    public async Task<ActionResult<int>> HttpGetWithBody(
         [FromBody] int foo)
     {
         await Task.CompletedTask;
@@ -39,62 +39,62 @@ public class TestController : ControllerBase
 
 
     [HttpPost("PostWithoutBody")]
-    public virtual async Task<ActionResult> HttpPostWithoutBody()
+    public async Task<ActionResult> HttpPostWithoutBody()
     {
         return await Task.FromResult(Ok());
     }
 
     [HttpGet]
-    public virtual async Task<ActionResult> BadRequestAsync()
+    public async Task<ActionResult> BadRequestAsync()
     {
         return await Task.FromResult(BadRequest());
     }
 
     [HttpPost]
-    public virtual async Task<ActionResult> BadRequestAction()
+    public Task<ActionResult> BadRequestAction()
     {
-        return BadRequest();
+        return Task.FromResult<ActionResult>(BadRequest());
     }
 
     [HttpPut]
-    public virtual async Task<ActionResult<int>> Return10()
+    public Task<ActionResult<int>> Return10()
     {
-        return 10;
+        return Task.FromResult<ActionResult<int>>(10);
     }
 
     [HttpDelete]
-    public virtual async Task<ActionResult<int>> ReturnAsync()
+    public async Task<ActionResult<int>> ReturnAsync()
     {
         return await Task.FromResult(10);
     }
 
     [HttpDelete("ReturnSync")]
-    public virtual ActionResult ReturnSync()
+    public ActionResult ReturnSync()
     {
         return Ok();
     }
 
     [HttpPatch]
-    public virtual async Task<ActionResult> IActionResultAsync()
+    public async Task<ActionResult> IActionResultAsync()
     {
         return await Task.FromResult(Ok());
     }
 
     [HttpOptions]
-    public virtual async Task<ActionResult> IActionResult()
+    public Task<ActionResult> IActionResult()
     {
-        return Ok();
+        return Task.FromResult<ActionResult>(Ok());
     }
 
     [HttpPost("SimpleArguments/{fromRoute}/{fromRoute2}")]
-    public virtual async Task<ActionResult<SimpleArgumentResult>> SimpleArguments(
+    public Task<ActionResult<SimpleArgumentResult>> SimpleArguments(
         [FromRoute] int fromRoute,
         [FromBody] DateTime body,
         [FromQuery] TestEnum fromQuery,
         [FromRoute] [BindRequired] long fromRoute2,
         [FromQuery] DateTime fromQuery2)
     {
-        return Ok(new SimpleArgumentResult(fromRoute, body, fromQuery, fromRoute2, fromQuery2));
+        return Task.FromResult<ActionResult<SimpleArgumentResult>>(Ok(new SimpleArgumentResult(fromRoute, body, fromQuery, fromRoute2, fromQuery2)));
     }
 
     public class SimpleArgumentResult
@@ -120,57 +120,64 @@ public class TestController : ControllerBase
         }
 
         [HttpPatch("PatchWithBody")]
-        public virtual async Task<ActionResult<ComplexObject>> PatchWithBody(
+        public Task<ActionResult<ComplexObject>> PatchWithBody(
             [FromBody] ComplexObject complexObject)
         {
-            return complexObject;
+            return Task.FromResult<ActionResult<ComplexObject>>(complexObject);
         }
     }
 
     [HttpPost("complexBody")]
-    public virtual async Task<ActionResult<ComplexArgument>> ComplexBody(
+    public Task<ActionResult<ComplexArgument>> ComplexBody(
         [FromBody] ComplexArgument body)
     {
-        return body;
+        return Task.FromResult<ActionResult<ComplexArgument>>(body);
     }
 
     [HttpHead("complexFromQuery")]
-    public virtual async Task<ActionResult<ComplexArgument>> ComplexFromQuery(
+    public Task<ActionResult<ComplexArgument>> ComplexFromQuery(
         [FromQuery(Name = "foo")] ComplexArgument fromQuery)
     {
-        return fromQuery;
+        return Task.FromResult<ActionResult<ComplexArgument>>(fromQuery);
     }
 
     [HttpPost("ComplexFromForm")]
-    public virtual async Task<ActionResult<ComplexArgument>> FromForm(
+    public Task<ActionResult<ComplexArgument>> FromForm(
         [FromForm] ComplexArgument fromRoute)
     {
-        return fromRoute;
+        return Task.FromResult<ActionResult<ComplexArgument>>(fromRoute);
     }
 
     [HttpGet("FromHeader")]
-    public virtual async Task<ActionResult<ComplexArgument>> FromHeader(
+    public Task<ActionResult<ComplexArgument>> FromHeader(
         [FromHeader] ComplexArgument fromHeader)
     {
-        return new ActionResult<ComplexArgument>(fromHeader);
+        return Task.FromResult(new ActionResult<ComplexArgument>(fromHeader));
     }
 
+    [HttpPatch("PatchWithBody")]
+    public ActionResult<ComplexObject> PatchWithBody(
+        [FromBody] ComplexObject complexObject)
+    {
+        return complexObject;
+    }
+    
     [HttpPost("FromHeaderSimple")]
-    public virtual async Task<ActionResult<int>> FromHeaderSimple(
+    public Task<ActionResult<int>> FromHeaderSimple(
         [FromHeader] int fromHeader)
     {
-        return new ActionResult<int>(fromHeader);
+        return Task.FromResult(new ActionResult<int>(fromHeader));
     }
 
     [HttpGet("FromHeaderWithArray")]
-    public virtual async Task<ActionResult<(int header1, int header2)>> FromHeaderWithArray(
+    public Task<ActionResult<(int header1, int header2)>> FromHeaderWithArray(
         [FromHeader(Name = "header")] int[] fromHeader)
     {
-        return new ActionResult<(int header1, int header2)>((fromHeader.First(), fromHeader.Skip(1).First()));
+        return Task.FromResult(new ActionResult<(int header1, int header2)>((fromHeader.First(), fromHeader.Skip(1).First())));
     }
 
     [HttpGet("Foo/{asd}")]
-    public virtual async Task<ActionResult<int>> Foo(
+    public Task<ActionResult<int>> Foo(
         [FromQuery(Name = "asd")] int foo2,
         [FromRoute(Name = "asd")] int foo)
     {
@@ -179,7 +186,7 @@ public class TestController : ControllerBase
             {
                 ["asd"] = "1",
             });
-        return result;
+        return Task.FromResult<ActionResult<int>>(result);
     }
 
     public class FooTest
@@ -194,13 +201,13 @@ public class TestController : ControllerBase
 
 
     [HttpGet("FromQueryWithNameComplexArgument")]
-    public virtual async Task<ActionResult<Test>> FromQueryWithNameComplexArgument(
+    public Task<ActionResult<Test>> FromQueryWithNameComplexArgument(
         [FromQuery(Name = "Something")] Test fromQuery)
     {
-        return new Test()
+        return Task.FromResult<ActionResult<Test>>(new Test()
         {
             Foo = fromQuery.Foo,
-        };
+        });
     }
 
     public class Test
@@ -209,48 +216,48 @@ public class TestController : ControllerBase
     }
 
     [HttpGet("FromQueryWithNameSimpleArgument")]
-    public virtual async Task<ActionResult<int>> FromQueryWithNameSimpleArgument(
+    public Task<ActionResult<int>> FromQueryWithNameSimpleArgument(
         [FromQuery(Name = "Something")] int fromQuery)
     {
-        return fromQuery;
+        return Task.FromResult<ActionResult<int>>(fromQuery);
     }
 
 
     [HttpGet("NullsTest/{route}")]
-    public virtual async Task<ActionResult<(int?, ComplexArgument?, DateTime?, string?)>> NullsTest(
+    public Task<ActionResult<(int?, ComplexArgument?, DateTime?, string?)>> NullsTest(
         int? query,
         [FromBody] ComplexArgument? body,
         [FromHeader] DateTime? header,
         [FromRoute] string? route)
     {
-        return (query, body, header, route);
+        return Task.FromResult<ActionResult<(int?, ComplexArgument?, DateTime?, string?)>>((query, body, header, route));
     }
 
 
     [HttpGet("FromRouteFromQuerySame/{route}")]
-    public virtual async Task<ActionResult> FromRouteFromQuerySameName(
+    public Task<ActionResult> FromRouteFromQuerySameName(
         [FromQuery(Name = "foo")] string foo,
         [FromRoute(Name = "foo")] string foo2)
     {
-        return Ok();
+        return Task.FromResult<ActionResult>(Ok());
     }
 
     [HttpGet("FromRouteWithNameSimpleArgument")]
-    public virtual async Task<ActionResult<int>> FromRouteWithNameSimpleArgument(
+    public Task<ActionResult<int>> FromRouteWithNameSimpleArgument(
         [FromQuery(Name = "Something")] int fromRoute)
     {
-        return fromRoute;
+        return Task.FromResult<ActionResult<int>>(fromRoute);
     }
 
     [HttpPost("FromServices")]
-    public virtual async Task<ActionResult<bool>> FromServices(
+    public Task<ActionResult<bool>> FromServices(
         [FromServices] ControllerInArea? fromServices)
     {
-        return fromServices != null;
+        return Task.FromResult<ActionResult<bool>>(fromServices != null);
     }
 
     [HttpPost("ArrayInBody")]
-    public virtual async Task<ActionResult<IEnumerable<ComplexArgument>>> ArrayInBody(
+    public async Task<ActionResult<IEnumerable<ComplexArgument>>> ArrayInBody(
         [FromBody] IEnumerable<ComplexArgument> complexArguments)
     {
         await Task.CompletedTask;
@@ -258,7 +265,7 @@ public class TestController : ControllerBase
     }
 
     [HttpPost("ArrayInFromQuery")]
-    public virtual async Task<ActionResult<IEnumerable<int>>> ArrayInFromQuery(
+    public async Task<ActionResult<IEnumerable<int>>> ArrayInFromQuery(
         [FromQuery(Name = "foo")] IEnumerable<int> array)
     {
         await Task.CompletedTask;
@@ -266,10 +273,10 @@ public class TestController : ControllerBase
     }
 
     [HttpPost("MethodReturningHeaders")]
-    public virtual async Task<ActionResult<Dictionary<string, List<string?>>>> MethodReturningHeaders()
+    public Task<ActionResult<Dictionary<string, List<string?>>>> MethodReturningHeaders()
     {
-        return HttpContext.Request.Headers.ToDictionary(x => x.Key,
-            x => x.Value.ToList());
+        return Task.FromResult<ActionResult<Dictionary<string, List<string?>>>>(HttpContext.Request.Headers.ToDictionary(x => x.Key,
+            x => x.Value.ToList()));
     }
 
     [HttpPost("MethodReturningBody")]
@@ -286,54 +293,54 @@ public class TestController : ControllerBase
     }
 
     [HttpGet("MethodThrowingInvalidOperationException")]
-    public virtual Task<ActionResult<Dictionary<string, string>>> MethodThrowingInvalidOperationException()
+    public Task<ActionResult<Dictionary<string, string>>> MethodThrowingInvalidOperationException()
     {
         throw new InvalidOperationException("Correct");
     }
 
     [HttpGet("MethodReturning500")]
-    public virtual async Task<ActionResult> MethodReturning500()
+    public Task<ActionResult> MethodReturning500()
     {
-        return StatusCode(500);
+        return Task.FromResult<ActionResult>(StatusCode(500));
     }
 
     [HttpGet("ArrayOfComplexArgumentsInFromQuery")]
-    public virtual async Task<ActionResult<IEnumerable<ComplexArgument>>> ArrayOfComplexArgumentsInFromQuery(
+    public Task<ActionResult<IEnumerable<ComplexArgument>>> ArrayOfComplexArgumentsInFromQuery(
         [FromQuery] IEnumerable<ComplexArgument> complexArguments)
     {
-        return complexArguments.ToList();
+        return Task.FromResult<ActionResult<IEnumerable<ComplexArgument>>>(complexArguments.ToList());
     }
 
     [HttpGet("ArgumentsWithoutAttributes/{fromRoute}")]
-    public virtual async Task<ActionResult<SpecialComplexObject>> ArgumentsWithoutAttributes(
+    public Task<ActionResult<SpecialComplexObject>> ArgumentsWithoutAttributes(
         ComplexObject complexObjectFromQuery,
         int fromRoute,
         int fromQuery)
     {
-        return new SpecialComplexObject()
+        return Task.FromResult<ActionResult<SpecialComplexObject>>(new SpecialComplexObject()
         {
             ComplexObject = complexObjectFromQuery,
             FromQuery = fromQuery,
             FromRoute = fromRoute,
-        };
+        });
     }
 
     [HttpGet("DefaultPropertiesInCtorTest")]
-    public virtual async Task<ActionResult<ObjectWithDefaultProperties>> DefaultPropertiesInCtorTest(
+    public Task<ActionResult<ObjectWithDefaultProperties>> DefaultPropertiesInCtorTest(
         [FromBody] ObjectWithDefaultProperties objectWithDefaultProperties)
     {
-        return objectWithDefaultProperties;
+        return Task.FromResult<ActionResult<ObjectWithDefaultProperties>>(objectWithDefaultProperties);
     }
 
     [HttpGet("CustomBinder")]
-    public virtual async Task<ActionResult<List<int>>> CustomBinder(
+    public Task<ActionResult<List<int>>> CustomBinder(
         [ModelBinder(BinderType = typeof(CommaDelimitedArrayParameterBinder))] List<int> properties)
     {
-        return properties;
+        return Task.FromResult<ActionResult<List<int>>>(properties);
     }
 
     [HttpGet("CustomBinderFullObject/{countryCode}")]
-    public virtual async Task<ActionResult<string>> CustomBinderFullObject(
+    public async Task<ActionResult<string>> CustomBinderFullObject(
         [ModelBinder(BinderType = typeof(CountryCodeBinder))] CountryCodeBinded countryCodeBinded)
     {
         await Task.CompletedTask;
@@ -398,92 +405,93 @@ public class TestController : ControllerBase
     }
 
     [HttpGet("MethodReturningVoid")]
-    public virtual async Task MethodReturningVoid()
+    public Task MethodReturningVoid()
     {
+        return Task.CompletedTask;
     }
 
     [HttpGet("AsyncMethodReturningTask")]
-    public virtual async Task MethodReturningTask()
+    public async Task MethodReturningTask()
     {
         await Task.Yield();
     }
 
     [HttpGet("TestThisIsNowGood")]
-    public virtual async Task TestThisIsNowGood()
+    public async Task TestThisIsNowGood()
     {
         await Task.Yield();
     }
 
     [HttpGet("MethodReturningTaskNotAsync")]
-    public virtual Task MethodReturningTaskNotAsync()
+    public Task MethodReturningTaskNotAsync()
     {
         return Task.CompletedTask;
     }
 
     [HttpGet("MethodReturningIncorrectTypeInTask")]
-    public virtual Task<int> MethodReturningIncorrectTypeInTask()
+    public Task<int> MethodReturningIncorrectTypeInTask()
     {
         return Task.FromResult(1);
     }
 
     [HttpGet("OverloadedAction")]
-    public virtual async Task<ActionResult> OverloadedAction()
+    public Task<ActionResult> OverloadedAction()
     {
-        return Ok();
+        return Task.FromResult<ActionResult>(Ok());
     }
 
     [HttpGet("OverloadedAction2")]
-    public virtual async Task<ActionResult> OverloadedAction(
+    public Task<ActionResult> OverloadedAction(
         int a)
     {
-        return Ok();
+        return Task.FromResult<ActionResult>(Ok());
     }
 
     [HttpGet("MethodReturningBadRequestWithTypedResult")]
-    public virtual async Task<ActionResult<int>> MethodReturningBadRequestWithTypedResult()
+    public Task<ActionResult<int>> MethodReturningBadRequestWithTypedResult()
     {
-        return BadRequest("Error");
+        return Task.FromResult<ActionResult<int>>(BadRequest("Error"));
     }
 
     [HttpGet("MehodReturningControllerCallWithoutType")]
-    public virtual async Task<ActionResult<string>> MehodReturningControllerCallWithoutType()
+    public Task<ActionResult<string>> MehodReturningControllerCallWithoutType()
     {
-        return NoContent();
+        return Task.FromResult<ActionResult<string>>(NoContent());
     }
 
     [HttpGet("MethodNotReturningActionResult")]
-    public virtual async Task<int> MethodNotReturningActionResult()
+    public Task<int> MethodNotReturningActionResult()
     {
-        return 1;
+        return Task.FromResult(1);
     }
 
     [HttpGet("SyncThrow")]
-    public virtual ActionResult SyncThrow()
+    public ActionResult SyncThrow()
     {
         throw new InvalidOperationException("Error");
     }
 
     [HttpGet("SyncNotReturningActionResult")]
-    public virtual int SyncNotReturningActionResult()
+    public int SyncNotReturningActionResult()
     {
         return 1;
     }
 
     [HttpGet("ReturnSyncWithResult")]
-    public virtual ActionResult<string> ReturnSyncWithResult()
+    public ActionResult<string> ReturnSyncWithResult()
     {
         return "ok";
     }
 
     [HttpGet("TaskCancellationTokenIsRemoved")]
-    public virtual ActionResult<string> TaskCancellationTokenIsRemoved(
+    public ActionResult<string> TaskCancellationTokenIsRemoved(
         CancellationToken cancellationToken)
     {
         return "ok";
     }
 
     [HttpGet("ReturnsBody")]
-    public virtual ActionResult<string> ReturnsBody(
+    public ActionResult<string> ReturnsBody(
         [FromBody] string fromBody)
     {
         return fromBody;

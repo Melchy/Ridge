@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.WebUtilities;
 using NUnit.Framework;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.LogWriter;
@@ -12,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using TestWebApplication;
 using TestWebApplication.Controllers;
@@ -185,6 +183,14 @@ public class RidgeTests
         result.Result.Should().Be(1);
     }
 
+    [Test]
+    public async Task HttpPatchWithBody()
+    {
+        using var application = CreateApplication();
+        var response = await application.TestControllerClient.PatchWithBody(new ComplexObject() {Str = "test"});
+        response.Result.Str.Should().Be("test");
+    }
+    
     [Test]
     public async Task NameInFromQueryAttributeIsSupportedForComplexArgument()
     {

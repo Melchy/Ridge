@@ -19,13 +19,13 @@ public class ControllerWithSpecialGenerationSettings : ControllerBase
     public const int DefaultValue = 1;
     
     [HttpGet]
-    public async Task<ActionResult<string>> SimpleGet()
+    public Task<ActionResult<string>> SimpleGet()
     {
-        return "return";
+        return Task.FromResult<ActionResult<string>>("return");
     }
 
     [HttpGet]
-    public async Task<ActionResult<string>> TypeTransformation(
+    public ActionResult<string> TypeTransformation(
         TestController.ComplexArgument complexArgument,
         ILogger logger,
         float a)
@@ -34,7 +34,7 @@ public class ControllerWithSpecialGenerationSettings : ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<int?>> ActionWithOptionalParameter(
+    public ActionResult<int?> ActionWithOptionalParameter(
         string test2,
         float floatToBeMadeOptionalString,
         string test3,

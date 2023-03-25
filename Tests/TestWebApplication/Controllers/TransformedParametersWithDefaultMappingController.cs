@@ -12,13 +12,13 @@ namespace TestWebApplication.Controllers;
 public class TransformedParametersWithDefaultMappingController : ControllerBase
 {
     [HttpGet("transformation/{route}")]
-    public async Task<ActionResult<(string fromRouteParameter, TestEnum fromQueryParameter, double body, int fromHeaderParameter)>> DefaultAction(
+    public Task<ActionResult<(string fromRouteParameter, TestEnum fromQueryParameter, double body, int fromHeaderParameter)>> DefaultAction(
         [FromQuery] TestEnum query,
         [FromRoute] string route,
         [FromHeader] int header,
         [FromBody] double body)
     {
-        return (route, query, body, header);
+        return Task.FromResult<ActionResult<(string fromRouteParameter, TestEnum fromQueryParameter, double body, int fromHeaderParameter)>>((route, query, body, header));
     }
 
     public enum TestEnum

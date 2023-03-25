@@ -12,9 +12,9 @@ public class ControllerWithoutAttributeRouting : ControllerBase
         return await Task.FromResult(Ok());
     }
 
-    public virtual async Task<ActionResult> Test(
+    public virtual Task<ActionResult> Test(
         object obje)
     {
-        return Ok();
+        return Task.FromResult<ActionResult>(Ok());
     }
 }

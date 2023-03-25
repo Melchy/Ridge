@@ -15,7 +15,7 @@ namespace TestWebApplication.Controllers;
 public class ExamplesController : ControllerBase
 {
     [HttpGet("ReadAgeFromHttpContext")]
-    public async Task<int> ReadAgeFromHttpContext()
+    public int ReadAgeFromHttpContext()
     {
         return int.Parse(HttpContext.Request.Query["age"]);
     }
@@ -60,7 +60,7 @@ public class ExamplesController : ControllerBase
     }
 
     [HttpGet("ReturnLanguage")]
-    public async Task<string> ReturnLanguage()
+    public string ReturnLanguage()
     {
         return HttpContext.Request.Headers["Accept-Language"];
     }
