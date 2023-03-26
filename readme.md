@@ -67,9 +67,9 @@ public async Task CallControllerUsingRidge()
   mapping.
 * Add a logger to check generated requests and responses when
   necessary (https://github.com/Melchy/Ridge/wiki/4.-Request-response-logging).
-*
-Use `ThrowExceptionInsteadOfReturning500` [wiki](https://github.com/Melchy/Ridge/wiki/3.-Exceptions-instead-of-500-status-code)
-for improved test experience.
+* Use [`ThrowExceptionInsteadOfReturning500`](https://github.com/Melchy/Ridge/wiki/3.-Exceptions-instead-of-500-status-code)
+  for improved test experience.
+
 
 ## Wiki
 
