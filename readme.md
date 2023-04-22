@@ -84,7 +84,7 @@ Full documentation can be found [in the wiki](https://github.com/Melchy/Ridge/wi
 * `[FromForm]` attributes
 * Actions returning custom implementation of `IActionResult`.
 
-### Default request mapping improvements
+### Mappings that are not supported by default
 
 Ridge supports a wide range of parameter mappings, but some special cases are currently not supported by default. 
 Known unsupported mappings are the following:
