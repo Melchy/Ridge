@@ -95,7 +95,8 @@ Known unsupported mappings are the following:
 Example of `[FromQuery]` with an array of complex arguments:
 
 ```csharp
-public virtual ActionResult NotSupported([FromQuery] IEnumerable<ComplexArgument> complexArguments){
+public virtual ActionResult NotSupported([FromQuery] IEnumerable<ComplexArgument> complexArguments)
+{
    //..
 }
 ```
@@ -103,7 +104,8 @@ public virtual ActionResult NotSupported([FromQuery] IEnumerable<ComplexArgument
 Example of complex types with `[FromXXX]` attributes on properties:
 
 ```csharp
-public virtual ActionResult NotSupported(Mixed mixed){
+public virtual ActionResult NotSupported(Mixed mixed)
+{
    //..
 }
 
