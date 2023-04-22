@@ -1,21 +1,17 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Builder;
 
-namespace TestWebApplication
+namespace TestWebApplication;
+
+public class Program
 {
-    public static class Program
+    private static void Main(
+        string[] args)
     {
-        public static void Main(
-            string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(
-            string[] args)
-        {
-            return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
-        }
+        var builder = WebApplication.CreateBuilder(args);
+        Startup.SetupServices(builder.Services, builder.Configuration);
+        var app = builder.Build();
+        Startup.SetupPipeline(app, app.Environment);
+        Startup.SetupEndpoints(app);
+        app.Run();
     }
 }

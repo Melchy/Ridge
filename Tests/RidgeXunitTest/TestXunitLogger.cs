@@ -1,7 +1,5 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Ridge.CallResult.Controller.Extensions;
-using Ridge.Interceptor.InterceptorFactory;
 using Ridge.LogWriter;
 using System;
 using System.Threading.Tasks;
@@ -10,56 +8,55 @@ using TestWebApplication.Controllers;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace RidgeXunitTest
+namespace RidgeXunitTest;
+
+public class XunitLoggerTests
 {
-    public class XunitLoggerTests
+    public XunitLoggerTests(
+        ITestOutputHelper testOutputHelper)
     {
-        public XunitLoggerTests(
-            ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
-
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        [Fact]
-        public async Task TestXunitLogger()
-        {
-            using var application = CreateApplication();
-            var testController = application.ControllerFactory.CreateController<ControllerInArea>();
-            var result = await testController.Index();
-            result.IsSuccessStatusCode().Should().BeTrue();
-        }
-
-        public Application CreateApplication()
-        {
-            var webAppFactory = new WebApplicationFactory<Startup>();
-            var client = webAppFactory.CreateClient();
-
-            return new Application(
-                webAppFactory,
-                new ControllerFactory(client, webAppFactory.Services, new XunitLogWriter(_testOutputHelper))
-            );
-        }
+        _testOutputHelper = testOutputHelper;
     }
 
-    public sealed class Application : IDisposable
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    [Fact]
+    public async Task TestXunitLogger()
     {
-        public WebApplicationFactory<Startup> WebApplicationFactory { get; set; }
-        public ControllerFactory ControllerFactory { get; set; }
+        using var application = CreateApplication();
+        var response = await application.ControllerInAreaClient.Index();
+        response.IsSuccessStatusCode.Should().BeTrue();
+    }
 
-        public Application(
-            WebApplicationFactory<Startup> webApplicationFactory,
-            ControllerFactory controllerFactory)
+    internal Application CreateApplication()
+    {
+        var webAppFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            WebApplicationFactory = webApplicationFactory;
-            ControllerFactory = controllerFactory;
-        }
+            x.UseXunitLogWriter(_testOutputHelper);
+        });
 
-        public void Dispose()
-        {
-            WebApplicationFactory?.Dispose();
-            GC.SuppressFinalize(this);
-        }
+        return new Application(
+            webAppFactory
+        );
+    }
+}
+
+internal sealed class Application : IDisposable
+{
+    public WebApplicationFactory<Program> WebApplicationFactory { get; set; }
+
+    public ControllerInAreaClient ControllerInAreaClient { get; set; }
+
+    public Application(
+        WebApplicationFactory<Program> webApplicationFactory)
+    {
+        WebApplicationFactory = webApplicationFactory;
+        ControllerInAreaClient = new ControllerInAreaClient(WebApplicationFactory.CreateClient(), webApplicationFactory.Services);
+    }
+
+    public void Dispose()
+    {
+        WebApplicationFactory?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

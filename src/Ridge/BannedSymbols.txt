@@ -1,2 +1,0 @@
-P:Microsoft.AspNetCore.Mvc.ActionResult`1.Result;Don't use this property with Ridge. Use Extension method GetResult() instead.
-P:Microsoft.AspNetCore.Mvc.ActionResult`1.Value;Don't use this property with Ridge. Use Extension method GetResult() instead.

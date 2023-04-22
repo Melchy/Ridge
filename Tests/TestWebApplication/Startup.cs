@@ -1,65 +1,63 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ridge.Setup;
 
-namespace TestWebApplication
+namespace TestWebApplication;
+
+public static class Startup
 {
-    public class Startup
+    public static void SetupServices(
+        IServiceCollection services,
+        IConfiguration configuration)
     {
-        public IConfiguration Configuration { get; }
+        services.AddControllers()
+           .ConfigureApiBehaviorOptions(options => options.SuppressInferBindingSourcesForParameters = true)
+           .AddControllersAsServices()
+           .AddNewtonsoftJson();
+        services.AddTransient<object>();
+        services.AddSwaggerGen();
+    }
 
-        public Startup(
-            IConfiguration configuration)
+    public static void SetupPipeline(
+        WebApplication app,
+        IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
         {
-            Configuration = configuration;
+            app.UseDeveloperExceptionPage();
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(
-            IServiceCollection services)
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
         {
-            services.AddControllers()
-                .ConfigureApiBehaviorOptions(options => options.SuppressInferBindingSourcesForParameters = true)
-                .AddControllersAsServices()
-                .AddNewtonsoftJson();
-            services.AddSwaggerGen();
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        });
+
+        if (app.WasApplicationCalledFromTestClient())
+        {
+            app.ThrowExceptionInsteadOfReturning500();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(
-            IApplicationBuilder app,
-            IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+        app.UseHttpsRedirection();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
-            app.UseRidgeImprovedExceptions();
-            app.UseHttpsRedirection();
+        app.UseRouting();
 
-            app.UseRouting();
+        app.UseAuthorization();
+    }
 
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapControllerRoute(
-                    name: "complexExample",
-                    "{controller}/{action}/{fromRoute}/");
-                endpoints.MapControllerRoute(
-                    name: "foo",
-                    "{controller}/{action}/");
-            });
-        }
+    public static void SetupEndpoints(
+        IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapControllers();
+        endpoints.MapControllerRoute(
+            name: "complexExample",
+            "{controller}/ComplexExample/{fromRoute}/");
+        endpoints.MapControllerRoute(
+            name: "foo",
+            "{controller}/{action}/");
     }
 }

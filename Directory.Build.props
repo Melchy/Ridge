@@ -5,6 +5,5 @@
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <WarningsNotAsErrors>CS0618</WarningsNotAsErrors>
         <NoWarn>NETSDK1138</NoWarn>
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
 </Project>

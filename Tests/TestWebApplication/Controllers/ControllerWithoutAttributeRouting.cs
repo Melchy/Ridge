@@ -1,13 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Ridge.GeneratorAttributes;
 using System.Threading.Tasks;
 
-namespace TestWebApplication.Controllers
+namespace TestWebApplication.Controllers;
+
+[GenerateClient]
+public class ControllerWithoutAttributeRouting : ControllerBase
 {
-    public class ControllerWithoutAttributeRouting : ControllerBase
+    public virtual async Task<ActionResult> HttpGetWithoutBody()
     {
-        public virtual async Task<ActionResult> HttpGetWithoutBody()
-        {
-            return await Task.FromResult(Ok());
-        }
+        return await Task.FromResult(Ok());
+    }
+
+    public virtual Task<ActionResult> Test(
+        object obje)
+    {
+        return Task.FromResult<ActionResult>(Ok());
     }
 }

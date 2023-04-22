@@ -1,17 +1,17 @@
 ﻿using NUnit.Framework;
 
-namespace Ridge.LogWriter
+namespace Ridge.LogWriter;
+
+/// <summary>
+///     Nunit logger which uses TestContext.Out.WriteLine. See
+///     https://docs.nunit.org/articles/nunit/writing-tests/TestContext.html#out.
+/// </summary>
+public class NunitLogWriter : ILogWriter
 {
-    /// <summary>
-    ///     Nunit console logger. Which uses TestContext.WriteLine.
-    /// </summary>
-    public class NunitLogWriter : ILogWriter
+    /// <inheritdoc />
+    public void WriteLine(
+        string text)
     {
-        /// <inheritdoc />
-        public void WriteLine(
-            string text)
-        {
-            TestContext.WriteLine(text);
-        }
+        TestContext.Out.WriteLine(text);
     }
 }

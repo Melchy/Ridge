@@ -3,8 +3,6 @@ name: Release
 on:
     push:
         tags:
-            - '*.*.*'
-        branches-ignore:
             - '*'
 jobs:
     deploy:
@@ -14,7 +12,7 @@ jobs:
             -   name: Setup .NET Core
                 uses: actions/setup-dotnet@v1
                 with:
-                    dotnet-version: 6.0.100
+                    dotnet-version: 7.0.100
             -   name: Build with dotnet
                 run: |
                     cd src/Ridge
