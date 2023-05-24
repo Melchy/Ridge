@@ -496,6 +496,12 @@ public class TestController : ControllerBase
     {
         return fromBody;
     }
+    
+    [HttpGet("ExceptionToBeRethrown")]
+    public ActionResult ExceptionToBeRethrown()
+    {
+        throw new ExceptionToBeRethrown();
+    }
 }
 
 public class CountryCodeBinder : IModelBinder
@@ -551,6 +557,8 @@ public class CommaDelimitedArrayParameterBinder : IModelBinder
 
         return Task.CompletedTask;
     }
-    
-    
+}
+
+public class ExceptionToBeRethrown : Exception
+{
 }

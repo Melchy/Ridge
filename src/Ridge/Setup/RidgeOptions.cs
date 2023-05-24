@@ -1,6 +1,7 @@
 ﻿using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.LogWriter;
 using Ridge.Serialization;
+using System;
 using System.Collections.Generic;
 
 namespace Ridge.Setup;
@@ -28,4 +29,10 @@ public class RidgeOptions
     ///     System.Text.Json is used as default.
     /// </summary>
     public IRequestResponseSerializer? RequestResponseSerializer { get; set; } = null;
+
+    /// <summary>
+    ///    Filter which can be used to decide if exception should be saved or not.
+    ///    When filter returns true exception is rethrown instead of returning response.
+    /// </summary>
+    public Func<Exception, bool>? ExceptionRethrowFilter { get; set; } = null;
 }

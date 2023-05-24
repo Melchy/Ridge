@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
+using Ridge.ExceptionHandling;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.LogWriter;
 using Ridge.Parameters;
@@ -465,6 +466,16 @@ public class RidgeTests
                 },
                 1);
     }
+    
+    [Test]
+    public async Task ExceptionFilterTest()
+    {
+        using var application = CreateApplication();
+        var response = await application.TestControllerClient
+           .ExceptionToBeRethrown();
+        
+        response.IsServerErrorStatusCode.Should().BeTrue();
+    }
 
     internal static Application CreateApplication()
     {
@@ -546,6 +557,7 @@ internal sealed class Application : IDisposable
         WebApplicationFactory = webApplicationFactory.WithRidge(x =>
         {
             x.UseNunitLogWriter();
+            x.UseExceptionRethrowFilter((e) => e is ExceptionToBeRethrown ? false : true);
         });
         var httpClient = WebApplicationFactory.CreateClient();
         TestControllerClient = new TestControllerClient(httpClient, WebApplicationFactory.Services);
