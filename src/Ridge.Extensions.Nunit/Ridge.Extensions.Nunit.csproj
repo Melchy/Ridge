@@ -36,5 +36,7 @@
         <PackageReference Include="NUnit" Version="3.6.0"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     </ItemGroup>
-
+    <ItemGroup>
+        <None Include="..\..\ridge.png" Pack="true" PackagePath="" />
+    </ItemGroup>
 </Project>
