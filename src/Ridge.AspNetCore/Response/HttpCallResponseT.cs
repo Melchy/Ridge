@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 
 namespace Ridge.AspNetCore.Response;
-
+// TODO edit pipeline
 /// <inheritdoc />
 public class HttpCallResponse<TResult> : HttpCallResponse
 {

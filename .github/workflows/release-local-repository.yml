@@ -13,13 +13,13 @@ jobs:
                 uses: actions/setup-dotnet@v1
                 with:
                     dotnet-version: 7.0.100
-            -   name: Build ridge
+            -   name: Build all
                 run: |
                     dotnet build src/Ridge/Ridge.csproj --configuration Release
                     dotnet build src/Ridge.AspNetCore/Ridge.AspNetCore.csproj --configuration Release
                     dotnet build src/Ridge.Extensions.Nunit/Ridge.Extensions.Nunit.csproj --configuration Release
                     dotnet build src/Ridge.Extensions.Xunit/Ridge.Extensions.Xunit.csproj --configuration Release
-            -   name: pack the nuget
+            -   name: Pack all
                 run: |
                     dotnet pack src/Ridge/Ridge.csproj --configuration Release /p:Version=${GITHUB_REF:10} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true
                     dotnet pack src/Ridge.AspNetCore/Ridge.AspNetCore.csproj --configuration Release /p:Version=${GITHUB_REF:10} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true
