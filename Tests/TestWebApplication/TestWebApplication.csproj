@@ -4,41 +4,41 @@
         <TargetFrameworks>net6;net7</TargetFrameworks>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.6.3"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.6.3"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.6.3"/>
-        <PackageReference Include="System.Text.Json" Version="6.0.7" Condition="'$(TargetFramework)' == 'net6'"/>
-        <PackageReference Include="System.Text.Json" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7'"/>
-        <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="5.6.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.6.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.6.3" />
+        <PackageReference Include="System.Text.Json" Version="6.0.7" Condition="'$(TargetFramework)' == 'net6'" />
+        <PackageReference Include="System.Text.Json" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7'" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Ridge\Ridge.csproj"/>
+        <ProjectReference Include="..\..\src\Ridge.AspNetCore\Ridge.AspNetCore.csproj" />
+        <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Pages\**"/>
-        <Compile Remove="ViewComponents\**"/>
+        <Compile Remove="Pages\**" />
+        <Compile Remove="ViewComponents\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Remove="Pages\**"/>
-        <EmbeddedResource Remove="ViewComponents\**"/>
+        <EmbeddedResource Remove="Pages\**" />
+        <EmbeddedResource Remove="ViewComponents\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Pages\**"/>
-        <None Remove="ViewComponents\**"/>
+        <None Remove="Pages\**" />
+        <None Remove="ViewComponents\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Remove="Pages\**"/>
-        <Content Remove="ViewComponents\**"/>
+        <Content Remove="Pages\**" />
+        <Content Remove="ViewComponents\**" />
     </ItemGroup>
     <ItemGroup>
-        <InternalsVisibleTo Include="RidgeXunitTest"/>
-        <InternalsVisibleTo Include="RidgeTests"/>
+        <InternalsVisibleTo Include="RidgeXunitTest" />
+        <InternalsVisibleTo Include="RidgeTests" />
     </ItemGroup>
 
 

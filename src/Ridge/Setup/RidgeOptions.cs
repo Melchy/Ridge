@@ -1,15 +1,21 @@
-﻿using Ridge.HttpRequestFactoryMiddlewares;
+﻿using Ridge.AspNetCore.Options;
+using Ridge.AspNetCore.Serialization;
+using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.LogWriter;
 using Ridge.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("TestWebApplication")]
+[assembly: InternalsVisibleTo("RidgeTests")]
 
 namespace Ridge.Setup;
 
 /// <summary>
 ///     Options used to configure Ridge.
 /// </summary>
-public class RidgeOptions
+public class RidgeOptions : RidgeAspNetCoreOptions
 {
     /// <summary>
     ///     <see cref="HttpRequestFactoryMiddleware" /> which will be used in pipeline to create
@@ -29,10 +35,4 @@ public class RidgeOptions
     ///     System.Text.Json is used as default.
     /// </summary>
     public IRequestResponseSerializer? RequestResponseSerializer { get; set; } = null;
-
-    /// <summary>
-    ///    Filter which can be used to decide if exception should be saved or not.
-    ///    When filter returns true exception is rethrown instead of returning response.
-    /// </summary>
-    public Func<Exception, bool>? ExceptionRethrowFilter { get; set; } = null;
 }

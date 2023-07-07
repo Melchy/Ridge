@@ -1,4 +1,6 @@
-﻿using Ridge.Serialization;
+﻿using Ridge.AspNetCore.Response;
+using Ridge.AspNetCore.Serialization;
+using Ridge.Serialization;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;

@@ -1,6 +1,4 @@
-﻿using Ridge.HttpRequestFactoryMiddlewares;
-
-namespace Ridge.GeneratorAttributes;
+﻿namespace Ridge.AspNetCore.GeneratorAttributes;
 
 /// <summary>
 ///     Decides how to map parameter when creating request.
@@ -10,12 +8,12 @@ public enum ParameterMapping
     /// <summary>
     ///     Parameter will be ignored by Ridge.
     ///     To use this parameter it is necessary to add custom
-    ///     <see cref="HttpRequestFactoryMiddleware" /> or DelegationHandler and map the parameter manually.
+    ///     HttpRequestFactoryMiddleware or DelegationHandler and map the parameter manually.
     /// </summary>
     None = 0,
 
     /// <summary>
-    ///     Parameter will be added to `UrlGenerationParameters` in <see cref="IRequestFactoryContext" />.
+    ///     Parameter will be added to `UrlGenerationParameters` in IRequestFactoryContext.
     ///     Those parameter are then mapped to Route or Query parameters using _linkGenerator.GetPathByRouteValues("",
     ///     routeParams);
     ///     where link generator is https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.routing.linkgenerator.

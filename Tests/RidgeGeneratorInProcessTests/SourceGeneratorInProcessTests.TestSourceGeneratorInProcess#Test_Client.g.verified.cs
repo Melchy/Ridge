@@ -9,19 +9,16 @@
 //------------------------------------------------------------------------------
 #nullable enable
 #pragma warning disable CS0419
-
-using Ridge.HttpRequestFactoryMiddlewares;
-using Ridge;
-using Ridge.LogWriter;
-using Ridge.Serialization;
-using Ridge.Response;
+using Ridge.AspNetCore;
+using Ridge.AspNetCore.Serialization;
+using Ridge.AspNetCore.Response;
+using Ridge.AspNetCore.Parameters;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
 using System.Threading.Tasks;
-using Ridge.Parameters.AdditionalParams;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace TestNamespace.Controller
 {
     /// <summary>
@@ -29,7 +26,7 @@ namespace TestNamespace.Controller
     /// </summary>
     public class TestClient
     {
-        private readonly ApplicationClient _applicationClient;
+        private readonly IApplicationClient _applicationClient;
         /// <summary>
         /// Creates client for controller. 
         /// </summary>
@@ -41,7 +38,15 @@ namespace TestNamespace.Controller
         /// </param>
         public TestClient(HttpClient httpClient, IServiceProvider serviceProvider)
         {
-            _applicationClient = new ApplicationClient(httpClient, serviceProvider);
+            var applicationClientFactory = serviceProvider.GetService<IApplicationClientFactory>();
+            if(applicationClientFactory == null)
+            {
+                throw new InvalidOperationException("'IApplicationClientFactory' could not be resolved. Did you forget to call WithRidge()?.");
+            }
+            else
+            {
+                _applicationClient = applicationClientFactory.CreateClient(serviceProvider, httpClient);
+            }
         }
                 /// <summary>
         ///     Calls <see cref="TestNamespace.Controller.Test.TokenRemoved" />. 

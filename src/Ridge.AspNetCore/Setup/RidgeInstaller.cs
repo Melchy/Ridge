@@ -1,13 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Ridge.ExceptionHandling;
-using System.Runtime.CompilerServices;
+using Ridge.AspNetCore.ExceptionHandling;
 
-[assembly: InternalsVisibleTo("TestWebApplication")]
-[assembly: InternalsVisibleTo("RidgeTests")]
-
-namespace Ridge.Setup;
+namespace Ridge.AspNetCore.Setup;
 
 /// <summary>
 ///     Ridge installer.

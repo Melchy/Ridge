@@ -1,4 +1,6 @@
-﻿namespace Ridge.Parameters.AdditionalParams;
+﻿using Ridge.AspNetCore.Parameters;
+
+namespace Ridge.Parameters.AdditionalParams;
 
 /// <summary>
 ///     Represents query parameter.

@@ -1,4 +1,4 @@
-﻿namespace Ridge.Serialization;
+﻿namespace Ridge.AspNetCore.Serialization;
 
 /// <summary>
 ///     Serializer which is used by ridge to serialize and deserialize request.

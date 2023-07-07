@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Ridge.GeneratorAttributes;
+using Ridge.AspNetCore.GeneratorAttributes;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;

@@ -1,4 +1,5 @@
-﻿using Ridge.GeneratorAttributes;
+﻿using Ridge.AspNetCore.GeneratorAttributes;
+using Ridge.AspNetCore.Parameters;
 using Ridge.Parameters.ActionAndClientParams;
 using Ridge.Parameters.ActionParams;
 using Ridge.Parameters.AdditionalParams;

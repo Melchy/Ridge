@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Ridge.GeneratorAttributes;
+using Ridge.AspNetCore.GeneratorAttributes;
 
 namespace TestWebApplication.Controllers;
 

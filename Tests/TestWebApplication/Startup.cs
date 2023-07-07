@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Ridge.Setup;
+using Ridge.AspNetCore.Setup;
 
 namespace TestWebApplication;
 

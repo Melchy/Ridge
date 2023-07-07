@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ridge.Parameters.AdditionalParams;
+namespace Ridge.AspNetCore.Parameters;
 
 /// <summary>
 ///     Additional parameters added to action call.

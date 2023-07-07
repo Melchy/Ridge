@@ -1,9 +1,10 @@
-﻿using Ridge.Serialization;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Ridge.AspNetCore.Serialization;
 using System;
 using System.Net;
 using System.Net.Http;
 
-namespace Ridge.Response;
+namespace Ridge.AspNetCore.Response;
 
 /// <inheritdoc />
 public class HttpCallResponse<TResult> : HttpCallResponse
@@ -15,7 +16,14 @@ public class HttpCallResponse<TResult> : HttpCallResponse
     /// </summary>
     public TResult Result => GetResultOrThrow();
 
-    internal HttpCallResponse(
+    /// <summary>
+    ///    Creates new instance of <see cref="HttpCallResponse{TResult}" />.
+    /// </summary>
+    /// <param name="httpResponseMessage">Http response message</param>
+    /// <param name="contentAsString">content as string</param>
+    /// <param name="statusCode">status code</param>
+    /// <param name="serializer">Serializer used to deserialize content</param>
+    public HttpCallResponse(
         HttpResponseMessage httpResponseMessage,
         string contentAsString,
         HttpStatusCode statusCode,

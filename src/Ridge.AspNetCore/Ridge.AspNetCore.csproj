@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <!--    Hide deprecated .net version warning    -->
+        <CheckEolTargetFramework>false</CheckEolTargetFramework>
+        <TargetFramework>net6</TargetFramework>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <PackageId>RidgeDotNet.AspNetCore</PackageId>
+        <Authors>Michal Motyčka</Authors>
+        <Product>Ridge</Product>
+        <Company>Michal Motyčka</Company>
+        <Description>
+            Ridge.AspNetCore containes dependencies which are neccessary to use in ASP.NET core app using Ridge.
+        </Description>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Melchy/Ridge</PackageProjectUrl>
+        <PackageTags>aspnetcore, aspnetcoremvc, aspnetcoremvctesting, source generator</PackageTags>
+        <PackageIcon>ridge.png</PackageIcon>
+        <PackageReleaseNotes>See https://github.com/Melchy/Ridge/releases</PackageReleaseNotes>
+        <RepositoryUrl>https://github.com/Melchy/Ridge</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <Copyright>Copyright Michal Motyčka 2010-2023</Copyright>
+    </PropertyGroup>
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    </ItemGroup>
+</Project>

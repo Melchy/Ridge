@@ -1,4 +1,5 @@
-﻿using Ridge.Parameters.ClientParams;
+﻿using Ridge.AspNetCore.Parameters;
+using Ridge.Parameters.ClientParams;
 using System;
 using System.Collections;
 using System.Collections.Generic;

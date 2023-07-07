@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
+using Ridge.AspNetCore.Parameters;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.Parameters.AdditionalParams;
 using System.Net.Http;

@@ -1,4 +1,4 @@
-﻿using Ridge.GeneratorAttributes;
+﻿using Ridge.AspNetCore.GeneratorAttributes;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;

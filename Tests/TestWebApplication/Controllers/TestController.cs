@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
-using Ridge.GeneratorAttributes;
+using Ridge.AspNetCore.GeneratorAttributes;
 using System;
 using System.Collections.Generic;
 using System.IO;

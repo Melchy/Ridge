@@ -3,6 +3,7 @@ using ApplicationWithDefaultSerialization.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
+using Ridge.Extensions.Nunit;
 using Ridge.LogWriter;
 using System;
 using System.Threading.Tasks;

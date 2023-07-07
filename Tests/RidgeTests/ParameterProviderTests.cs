@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using Ridge.GeneratorAttributes;
+using Ridge.AspNetCore.GeneratorAttributes;
+using Ridge.AspNetCore.Parameters;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.Parameters;
 using Ridge.Parameters.ActionParams;
