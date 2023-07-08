@@ -3,7 +3,7 @@ name: Release
 on:
     push:
         tags:
-            - '*-test'
+            - '*-alpha'
 jobs:
     deploy:
         runs-on: ubuntu-latest
