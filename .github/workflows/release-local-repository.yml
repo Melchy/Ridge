@@ -30,4 +30,4 @@ jobs:
                     dotnet pack src/Ridge.Extensions.Nunit/Ridge.Extensions.Nunit.csproj --configuration Release /p:Version=${GITHUB_REF:10} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true
                     dotnet pack src/Ridge.Extensions.Xunit/Ridge.Extensions.Xunit.csproj --configuration Release /p:Version=${GITHUB_REF:10} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true
             -   name: release package
-                run: dotnet nuget push **/**/*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} --source https://github.com/Melchy/Ridge/
+                run: dotnet nuget push **/**/*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} --source "github"
