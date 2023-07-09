@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Ridge.AspNetCore.Serialization;
 
 namespace Ridge.Serialization;
 

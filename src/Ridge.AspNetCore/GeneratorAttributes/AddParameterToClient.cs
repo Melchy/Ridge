@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ridge.GeneratorAttributes;
+namespace Ridge.AspNetCore.GeneratorAttributes;
 
 /// <summary>
 ///     Adds parameter to client methods

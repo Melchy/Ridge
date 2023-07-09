@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Ridge.Setup;
 
 namespace TestWebApplication;
 
@@ -37,9 +36,9 @@ public static class Startup
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
 
-        if (app.WasApplicationCalledFromTestClient())
+        if (app.WasApplicationCreatedFromTest())
         {
-            app.ThrowExceptionInsteadOfReturning500();
+            app.RethrowExceptionInsteadOfReturningHttpResponse();
         }
 
         app.UseHttpsRedirection();

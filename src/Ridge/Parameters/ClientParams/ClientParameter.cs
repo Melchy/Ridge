@@ -1,4 +1,4 @@
-﻿using Ridge.GeneratorAttributes;
+﻿using Ridge.AspNetCore.GeneratorAttributes;
 using System;
 
 namespace Ridge.Parameters.ClientParams;

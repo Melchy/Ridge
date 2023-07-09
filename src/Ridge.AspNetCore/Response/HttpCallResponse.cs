@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
 
-namespace Ridge.Response;
+namespace Ridge.AspNetCore.Response;
 
 /// <summary>
 ///     This class represents http call response.
@@ -44,7 +44,13 @@ public class HttpCallResponse
     /// </summary>
     public bool IsServerErrorStatusCode => (int)StatusCode >= 500 && (int)StatusCode <= 599;
 
-    internal HttpCallResponse(
+    /// <summary>
+    /// Creates new instance of <see cref="HttpCallResponse"/>.
+    /// </summary>
+    /// <param name="httpResponseMessage">Response message</param>
+    /// <param name="contentAsString">Content</param>
+    /// <param name="statusCode">Status code</param>
+    public HttpCallResponse(
         HttpResponseMessage httpResponseMessage,
         string contentAsString,
         HttpStatusCode statusCode)

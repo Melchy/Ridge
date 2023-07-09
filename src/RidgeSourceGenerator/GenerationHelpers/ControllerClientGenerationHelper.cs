@@ -28,19 +28,16 @@ public static class ControllerClientGenerationHelper
             """
             #nullable enable
             #pragma warning disable CS0419
-
-            using Ridge.HttpRequestFactoryMiddlewares;
-            using Ridge;
-            using Ridge.LogWriter;
-            using Ridge.Serialization;
-            using Ridge.Response;
+            using Ridge.AspNetCore;
+            using Ridge.AspNetCore.Serialization;
+            using Ridge.AspNetCore.Response;
+            using Ridge.AspNetCore.Parameters;
             using System;
             using System.Collections.Generic;
             using System.Net.Http;
-            using System.Net.Http.Headers;
-            using System.Reflection;
             using System.Threading.Tasks;
-            using Ridge.Parameters.AdditionalParams;
+            using Microsoft.Extensions.DependencyInjection;
+            
             """
         );
         
@@ -63,7 +60,7 @@ public static class ControllerClientGenerationHelper
                     /// </summary>
                     public class {{className}}
                     {
-                        private readonly ApplicationClient _applicationClient;
+                        private readonly IApplicationClient _applicationClient;
                         /// <summary>
                         /// Creates client for controller. 
                         /// </summary>
@@ -75,7 +72,15 @@ public static class ControllerClientGenerationHelper
                         /// </param>
                         public {{className}}(HttpClient httpClient, IServiceProvider serviceProvider)
                         {
-                            _applicationClient = new ApplicationClient(httpClient, serviceProvider);
+                            var applicationClientFactory = serviceProvider.GetService<IApplicationClientFactory>();
+                            if(applicationClientFactory == null)
+                            {
+                                throw new InvalidOperationException("'IApplicationClientFactory' could not be resolved. Did you forget to call WithRidge()?.");
+                            }
+                            else
+                            {
+                                _applicationClient = applicationClientFactory.CreateClient(serviceProvider, httpClient);
+                            }
                         }
                         
                 """);

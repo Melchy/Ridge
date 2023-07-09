@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using Ridge.GeneratorAttributes;
+using Ridge.AspNetCore.GeneratorAttributes;
+using Ridge.AspNetCore.Parameters;
 using Ridge.HttpRequestFactoryMiddlewares;
 using Ridge.Parameters;
 using Ridge.Parameters.ActionParams;
@@ -25,7 +26,7 @@ public class ParameterProviderTests
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
         using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+            x.UseHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         });
 
         var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
@@ -78,7 +79,7 @@ public class ParameterProviderTests
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
         using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+            x.UseHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         });
 
         var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
@@ -136,7 +137,7 @@ public class ParameterProviderTests
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
         using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+            x.UseHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         });
         var additionalParameters = new[]
         {

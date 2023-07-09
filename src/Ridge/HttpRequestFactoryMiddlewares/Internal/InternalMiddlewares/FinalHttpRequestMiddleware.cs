@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Routing;
+using Ridge.AspNetCore.Serialization;
 using Ridge.Serialization;
 using System;
 using System.Linq;

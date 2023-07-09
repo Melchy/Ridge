@@ -2,11 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Ridge.Setup;
+using Ridge.AspNetCore.Options;
 using System;
 using System.Threading.Tasks;
 
-namespace Ridge.ExceptionHandling;
+namespace Ridge.AspNetCore.ExceptionHandling;
 
 internal class ExceptionSavingMiddleware
 {
@@ -15,17 +15,10 @@ internal class ExceptionSavingMiddleware
     
     public ExceptionSavingMiddleware(
         RequestDelegate next,
-        IOptions<RidgeOptions> options)
+        IOptions<RidgeAspNetCoreOptions> options)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
-        if (options.Value?.ExceptionRethrowFilter != null)
-        {
-            _exceptionSavingFilter = options.Value.ExceptionRethrowFilter;
-        }
-        else
-        {
-            _exceptionSavingFilter = e => true;
-        }
+        _exceptionSavingFilter = options.Value?.ExceptionRethrowFilter ?? (_ => true);
     }
 
 

@@ -58,6 +58,9 @@ public async Task CallControllerUsingRidge()
 * Create instance of `*YourControllerName*Client`.
 * Create requests using `*YourControllerName*Client` instance.
 
+
+> Hint: Use package [`RidgeDotNet.AspNetCore`](https://www.nuget.org/packages/RidgeDotNet.AspNetCore) in your `AspNetCore` project instead of [`RidgeDotNet`](https://www.nuget.org/packages/RidgeDotNet). `RidgeDotNet.AspNetCore` has minimal dependencies, preventing unnecessary test code in your project.
+
 ## Best practices
 
 * Use `ActionResult<T>` when possible to enable strongly typed response generation.
@@ -65,7 +68,7 @@ public async Task CallControllerUsingRidge()
   mapping.
 * Add a logger to check generated requests and responses when
   necessary. More information [here](https://github.com/Melchy/Ridge/wiki/4.-Request-response-logging).
-* Use [`ThrowExceptionInsteadOfReturning500`](https://github.com/Melchy/Ridge/wiki/3.-Exceptions-instead-of-500-status-code)
+* Use [`RethrowExceptionInsteadOfReturningHttpResponse`](https://github.com/Melchy/Ridge/wiki/3.-rethrow-exceptions-instead-of-http-response)
   for improved test experience.
 
 

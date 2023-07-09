@@ -1,9 +1,9 @@
-﻿using Ridge.GeneratorAttributes;
+﻿using Ridge.AspNetCore.GeneratorAttributes;
 using System;
 using System.Linq;
 using System.Reflection;
 
-namespace Ridge;
+namespace Ridge.AspNetCore.Parameters;
 
 /// <summary>
 ///     Raw parameters created by source generator.

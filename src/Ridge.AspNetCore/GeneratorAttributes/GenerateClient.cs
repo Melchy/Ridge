@@ -1,8 +1,8 @@
-﻿using Ridge.Response;
+﻿using Ridge.AspNetCore.Response;
 using System;
 using System.Net.Http;
 
-namespace Ridge.GeneratorAttributes;
+namespace Ridge.AspNetCore.GeneratorAttributes;
 
 /// <summary>
 ///     Add to controller to indicate that class can be tested using strongly typed integration tests.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ridge.GeneratorAttributes;
+namespace Ridge.AspNetCore.GeneratorAttributes;
 
 /// <summary>
 ///     Transforms types of parameters in actions from one type to another.

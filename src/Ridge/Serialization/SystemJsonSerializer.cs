@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Ridge.AspNetCore.Serialization;
+using System.Text.Json;
 
 namespace Ridge.Serialization;
 

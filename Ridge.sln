@@ -9,6 +9,7 @@ ProjectSection(SolutionItems) = preProject
 	readme.md = readme.md
 	.github\workflows\release.yml = .github\workflows\release.yml
 	.github\workflows\test.yml = .github\workflows\test.yml
+	.github\workflows\release-local-repository.yml = .github\workflows\release-local-repository.yml
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RidgeTests", "Tests\RidgeTests\RidgeTests.csproj", "{58A161C4-F29D-47A5-BADA-98CE87ABBEDD}"
@@ -26,6 +27,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RidgeSourceGenerator", "src\RidgeSourceGenerator\RidgeSourceGenerator.csproj", "{383F891C-70F9-4803-8D81-D017C896BAFF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RidgeGeneratorInProcessTests", "Tests\RidgeGeneratorInProcessTests\RidgeGeneratorInProcessTests.csproj", "{ABC22890-3E1B-48A1-A677-B4B8CE4A9A0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ridge.Extensions.Xunit", "src\Ridge.Extensions.Xunit\Ridge.Extensions.Xunit.csproj", "{F0BA4040-3BDB-4C7E-B1F2-CAB9C39684E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ridge.Extensions.Nunit", "src\Ridge.Extensions.Nunit\Ridge.Extensions.Nunit.csproj", "{DF5C243D-639D-4848-B4EC-BC2EA814376F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ridge.AspNetCore", "src\Ridge.AspNetCore\Ridge.AspNetCore.csproj", "{403E9BF4-FE59-4B87-AFE0-5ADE7506DB4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +72,18 @@ Global
 		{ABC22890-3E1B-48A1-A677-B4B8CE4A9A0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABC22890-3E1B-48A1-A677-B4B8CE4A9A0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABC22890-3E1B-48A1-A677-B4B8CE4A9A0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0BA4040-3BDB-4C7E-B1F2-CAB9C39684E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0BA4040-3BDB-4C7E-B1F2-CAB9C39684E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0BA4040-3BDB-4C7E-B1F2-CAB9C39684E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0BA4040-3BDB-4C7E-B1F2-CAB9C39684E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF5C243D-639D-4848-B4EC-BC2EA814376F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF5C243D-639D-4848-B4EC-BC2EA814376F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF5C243D-639D-4848-B4EC-BC2EA814376F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF5C243D-639D-4848-B4EC-BC2EA814376F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{403E9BF4-FE59-4B87-AFE0-5ADE7506DB4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{403E9BF4-FE59-4B87-AFE0-5ADE7506DB4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{403E9BF4-FE59-4B87-AFE0-5ADE7506DB4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{403E9BF4-FE59-4B87-AFE0-5ADE7506DB4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{58A161C4-F29D-47A5-BADA-98CE87ABBEDD} = {6A1FC042-4E2E-4F0C-9EC0-50FDF6E8EC97}

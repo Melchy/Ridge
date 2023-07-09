@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Ridge.ExceptionHandling;
+using Ridge;
+using Ridge.AspNetCore;
+using Ridge.AspNetCore.ExceptionHandling;
+using Ridge.AspNetCore.Options;
 using Ridge.HttpRequestFactoryMiddlewares.Internal;
 using Ridge.LogWriter.Internal;
 using Ridge.Response;
@@ -28,17 +31,26 @@ public static class WebApplicationFactoryExtensions
         where TEntryPoint : class
     {
         setupAction ??= _ => { };
-
+        
         var webApplicationFactoryEdited = webApplicationFactory.WithWebHostBuilder(x =>
         {
             x.ConfigureServices(x =>
             {
                 x.Configure(setupAction);
+                x.Configure<RidgeAspNetCoreOptions>(ridgeAspNetCoreOptions =>
+                {
+                    var ridgeOptions = new RidgeOptions();
+                    setupAction(ridgeOptions);
+                    ridgeAspNetCoreOptions.ExceptionRethrowFilter = ridgeOptions.ExceptionRethrowFilter;
+                });
+
                 x.AddSingleton<ExceptionManager>();
                 x.AddSingleton<SerializerProvider>();
                 x.AddSingleton<HttpRequestFactoryMiddlewareBuilder>();
                 x.AddSingleton<HttpResponseCallFactory>();
+                x.AddSingleton<CompositeLogWriter>();
                 x.AddSingleton<RidgeLogger>();
+                x.AddSingleton<IApplicationClientFactory, ApplicationClientFactory>();
             });
 
             x.UseSetting("Ridge:IsTestCall", "true");

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Ridge.GeneratorAttributes;
+using Ridge.AspNetCore.GeneratorAttributes;
 using RidgeSourceGenerator;
 
 namespace RidgeSourceGeneratorTest;
@@ -17,17 +17,17 @@ public class SourceGeneratorInProcessTests
 
                     namespace TestNamespace.Controller;
                     
-                    [Ridge.GeneratorAttributes.TransformActionParameter(fromType: typeof(float), toType: typeof(string), Ridge.GeneratorAttributes.ParameterMapping.None, Optional = true, GeneratedParameterName = "parameterName")]
-                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int?), "addedParameterOptional", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = true)]
-                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameter", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = false)]
-                    [Ridge.GeneratorAttributes.TransformActionParameter(fromType: typeof(int), toType: typeof(string), Ridge.GeneratorAttributes.ParameterMapping.None, GeneratedParameterName = "renamed")]
-                    [Ridge.GeneratorAttributes.AddParameterToClient()]
-                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int))]
-                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), )]
-                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int)]
-                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterZ", Ridge.GeneratorAttributes.ParameterMapping.None, Op)]
-                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterX", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = fae)]
-                    [Ridge.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterY", Ridge.GeneratorAttributes.ParameterMapping.None, Optional = fae)
+                    [Ridge.AspNetCore.GeneratorAttributes.TransformActionParameter(fromType: typeof(float), toType: typeof(string), Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Optional = true, GeneratedParameterName = "parameterName")]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int?), "addedParameterOptional", Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Optional = true)]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameter", Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Optional = false)]
+                    [Ridge.AspNetCore.GeneratorAttributes.TransformActionParameter(fromType: typeof(int), toType: typeof(string), Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, GeneratedParameterName = "renamed")]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient()]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int))]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int), )]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int)]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterZ", Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Op)]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterX", Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Optional = fae)]
+                    [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterY", Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Optional = fae)
                     [GenerateClient()]
                     public class Test
                     {

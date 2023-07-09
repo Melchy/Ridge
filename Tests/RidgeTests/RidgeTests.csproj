@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Ridge.Extensions.Nunit\Ridge.Extensions.Nunit.csproj" />
         <ProjectReference Include="..\..\src\Ridge\Ridge.csproj" />
         <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" />
         <ProjectReference Include="..\ApplicationWithDefaultSerialization\ApplicationWithDefaultSerialization.csproj" />

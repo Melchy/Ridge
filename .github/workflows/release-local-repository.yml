@@ -3,7 +3,11 @@ name: Release
 on:
     push:
         tags:
-            - '*.*.*'
+            - '*-alpha'
+
+permissions:
+    packages: write
+
 jobs:
     deploy:
         runs-on: ubuntu-latest
@@ -25,5 +29,8 @@ jobs:
                     dotnet pack src/Ridge.AspNetCore/Ridge.AspNetCore.csproj --configuration Release /p:Version=${GITHUB_REF:10} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true
                     dotnet pack src/Ridge.Extensions.Nunit/Ridge.Extensions.Nunit.csproj --configuration Release /p:Version=${GITHUB_REF:10} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true
                     dotnet pack src/Ridge.Extensions.Xunit/Ridge.Extensions.Xunit.csproj --configuration Release /p:Version=${GITHUB_REF:10} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true
+            -   name: Add github as local repository
+                run: dotnet nuget add source --username Melchy --password ${{ secrets.REPOSITORY_PAT_GITHUB }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Melchy/index.json"
+            
             -   name: release package
-                run: dotnet nuget push **/*.nupkg --api-key ${{secrets.nuget}} --source https://api.nuget.org/v3/index.json
+                run: dotnet nuget push **/**/*.nupkg --api-key ${{secrets.REPOSITORY_PAT_GITHUB}} --source "github"

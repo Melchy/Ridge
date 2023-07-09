@@ -1,3 +1,5 @@
+using Ridge.AspNetCore.Parameters;
+
 namespace Ridge.Parameters.AdditionalParams;
 
 /// <summary>

@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Ridge.ExceptionHandling;
+using Ridge.AspNetCore;
+using Ridge.AspNetCore.ExceptionHandling;
+using Ridge.AspNetCore.Parameters;
+using Ridge.AspNetCore.Response;
 using Ridge.HttpRequestFactoryMiddlewares.Internal;
 using Ridge.LogWriter.Internal;
 using Ridge.Parameters;
-using Ridge.Parameters.AdditionalParams;
 using Ridge.Response;
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ namespace Ridge;
 /// <summary>
 ///     Helpers used to simplify generated code.
 /// </summary>
-public class ApplicationClient
+public class ApplicationClient : IApplicationClient
 {
     private readonly HttpClient _httpClient;
     private readonly IServiceProvider _serviceProvider;

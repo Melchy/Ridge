@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
+using Ridge.LogWriter;
 
-namespace Ridge.LogWriter;
+namespace Ridge.Extensions.Nunit;
 
 /// <summary>
 ///     Nunit logger which uses TestContext.Out.WriteLine. See

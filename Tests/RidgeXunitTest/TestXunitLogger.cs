@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Ridge.Extensions.Xunit;
 using Ridge.LogWriter;
 using System;
 using System.Threading.Tasks;
