@@ -1,6 +1,8 @@
-﻿using Ridge.Setup;
+﻿using Ridge.LogWriter;
+using Ridge.Setup;
 
-namespace Ridge.LogWriter;
+// Namespace is correct
+namespace Microsoft.AspNetCore.Mvc.Testing;
 
 /// <summary>
 ///     Ridge logging options extensions.
@@ -17,7 +19,7 @@ public static class RidgeOptionsLoggingExtensions
         this RidgeOptions ridgeOptions,
         ILogWriter logWriter)
     {
-        ridgeOptions.LogWriter = logWriter;
+        ridgeOptions.LogWriter.Add(logWriter);
         return ridgeOptions;
     }
 }

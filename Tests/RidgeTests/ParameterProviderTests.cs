@@ -26,7 +26,7 @@ public class ParameterProviderTests
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
         using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+            x.UseHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         });
 
         var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
@@ -79,7 +79,7 @@ public class ParameterProviderTests
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
         using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+            x.UseHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         });
 
         var response = await new ControllerWithSpecialGenerationSettingsClient(applicationFactory.CreateClient(), applicationFactory.Services)
@@ -137,7 +137,7 @@ public class ParameterProviderTests
         var testRequestFactoryMiddleware = new ParameterProviderFactoryMiddleware();
         using var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(testRequestFactoryMiddleware);
+            x.UseHttpRequestFactoryMiddleware(testRequestFactoryMiddleware);
         });
         var additionalParameters = new[]
         {

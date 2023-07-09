@@ -2,7 +2,8 @@
 using Ridge.Setup;
 using System;
 
-namespace Ridge.ExceptionHandling;
+// Namespace is correct
+namespace Microsoft.AspNetCore.Mvc.Testing;
 
 /// <summary>
 /// Exception rethrow options.

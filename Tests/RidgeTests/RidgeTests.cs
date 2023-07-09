@@ -3,13 +3,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
 using Ridge.AspNetCore.Parameters;
 using Ridge.AspNetCore.Response;
-using Ridge.ExceptionHandling;
-using Ridge.Extensions.Nunit;
 using Ridge.HttpRequestFactoryMiddlewares;
-using Ridge.LogWriter;
 using Ridge.Parameters;
 using Ridge.Parameters.AdditionalParams;
-using Ridge.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -403,7 +399,7 @@ public class RidgeTests
         using var application = CreateApplication();
         var applicationFactory = application.WebApplicationFactory.WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(new TestObjectAddHttpRequestFactoryMiddleware());
+            x.UseHttpRequestFactoryMiddleware(new TestObjectAddHttpRequestFactoryMiddleware());
         });
         var testClient = new TestControllerClient(applicationFactory.CreateClient(), applicationFactory.Services);
 
@@ -430,10 +426,10 @@ public class RidgeTests
         using var application = CreateApplication();
         var app = application.WebApplicationFactory.WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(new HttpRequestFactoryMiddlewareOrder(1));
-            x.HttpRequestFactoryMiddlewares.Add(new HttpRequestFactoryMiddlewareOrder(2));
-            x.HttpRequestFactoryMiddlewares.Add(new HttpRequestFactoryMiddlewareOrder(3));
-            x.HttpRequestFactoryMiddlewares.Add(new HttpRequestFactoryMiddlewareOrder(4));
+            x.UseHttpRequestFactoryMiddleware(new HttpRequestFactoryMiddlewareOrder(1));
+            x.UseHttpRequestFactoryMiddleware(new HttpRequestFactoryMiddlewareOrder(2));
+            x.UseHttpRequestFactoryMiddleware(new HttpRequestFactoryMiddlewareOrder(3));
+            x.UseHttpRequestFactoryMiddleware(new HttpRequestFactoryMiddlewareOrder(4));
         });
         var testClient = new TestControllerClient(app.CreateClient(), app.Services);
         var result = await testClient.ReturnsBody("");

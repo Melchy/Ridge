@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 
 namespace Ridge.AspNetCore.ExceptionHandling;
-// TODO namespace ridge to match tests
+
 /// <summary>
 /// Helper class used to transfer exception from asp.net application to ridge.
 /// </summary>

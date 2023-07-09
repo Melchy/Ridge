@@ -8,12 +8,12 @@ namespace Ridge.LogWriter.Internal;
 
 internal class RidgeLogger
 {
-    private readonly ILogWriter? _logger;
+    private readonly CompositeLogWriter? _logger;
 
     public RidgeLogger(
-        IOptions<RidgeOptions>? ridgeOptions)
+        CompositeLogWriter? compositeLogWriter)
     {
-        _logger = ridgeOptions?.Value.LogWriter;
+        _logger = compositeLogWriter;
     }
 
     public async Task LogRequest(

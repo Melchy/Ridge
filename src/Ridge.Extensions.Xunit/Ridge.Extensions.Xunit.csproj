@@ -28,13 +28,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Ridge.AspNetCore\Ridge.AspNetCore.csproj"/>
-        <ProjectReference Include="..\Ridge\Ridge.csproj"/>
+        <ProjectReference Include="..\Ridge.AspNetCore\Ridge.AspNetCore.csproj" />
+        <ProjectReference Include="..\Ridge\Ridge.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="xunit.abstractions" Version="2.0.1"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+        <PackageReference Include="xunit.abstractions" Version="2.0.1" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 
     </ItemGroup>
     <ItemGroup>

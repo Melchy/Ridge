@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Ridge;
 using Ridge.AspNetCore;
 using Ridge.AspNetCore.ExceptionHandling;
 using Ridge.AspNetCore.Options;
-using Ridge.ExceptionHandling;
 using Ridge.HttpRequestFactoryMiddlewares.Internal;
 using Ridge.LogWriter.Internal;
 using Ridge.Response;
@@ -50,6 +48,7 @@ public static class WebApplicationFactoryExtensions
                 x.AddSingleton<SerializerProvider>();
                 x.AddSingleton<HttpRequestFactoryMiddlewareBuilder>();
                 x.AddSingleton<HttpResponseCallFactory>();
+                x.AddSingleton<CompositeLogWriter>();
                 x.AddSingleton<RidgeLogger>();
                 x.AddSingleton<IApplicationClientFactory, ApplicationClientFactory>();
             });

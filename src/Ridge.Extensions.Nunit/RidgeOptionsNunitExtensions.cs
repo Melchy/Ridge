@@ -1,12 +1,14 @@
-﻿using Ridge.LogWriter;
+﻿using Ridge.Extensions.Nunit;
+using Ridge.LogWriter;
 using Ridge.Setup;
 
-namespace Ridge.Extensions.Nunit;
+// Namespace is correct
+namespace Microsoft.AspNetCore.Mvc.Testing;
 
 /// <summary>
 ///     Ridge logging options extensions.
 /// </summary>
-public static class RidgeOptionsLoggingExtensions
+public static class RidgeOptionsNunitExtensions
 {
     /// <summary>
     ///     Use Nunit logger which uses TestContext.Out.WriteLine. See
@@ -17,7 +19,7 @@ public static class RidgeOptionsLoggingExtensions
     public static RidgeOptions UseNunitLogWriter(
         this RidgeOptions ridgeOptions)
     {
-        ridgeOptions.LogWriter = new NunitLogWriter();
+        ridgeOptions.UseCustomLogWriter(new NunitLogWriter());
         return ridgeOptions;
     }
 }

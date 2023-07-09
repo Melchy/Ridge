@@ -26,7 +26,7 @@ public class RidgeOptions : RidgeAspNetCoreOptions
     /// <summary>
     ///     Log writer used to log requests and responses.
     /// </summary>
-    public ILogWriter? LogWriter { get; set; } = null;
+    public List<ILogWriter> LogWriter { get; set; } = new();
 
     /// <summary>
     ///     Sets request/response serializer which will be used by ridge. If no serializer is provided then

@@ -60,7 +60,7 @@ public class ExampleTests
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(new AddEnglishLanguageHeader());
+            x.UseHttpRequestFactoryMiddleware(new AddEnglishLanguageHeader());
         });
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
@@ -99,7 +99,7 @@ public class ExampleTests
     {
         using var webApplicationFactory = new WebApplicationFactory<Program>().WithRidge(x =>
         {
-            x.HttpRequestFactoryMiddlewares.Add(new SetAgeFromAdditionalParameter());
+            x.UseHttpRequestFactoryMiddleware(new SetAgeFromAdditionalParameter());
         });
         var ridgeHttpClient = webApplicationFactory.CreateClient();
         var examplesControllerClient = new ExamplesControllerClient(ridgeHttpClient, webApplicationFactory.Services);
