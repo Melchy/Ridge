@@ -58,6 +58,9 @@ public async Task CallControllerUsingRidge()
 * Create instance of `*YourControllerName*Client`.
 * Create requests using `*YourControllerName*Client` instance.
 
+
+> Hint: Use package [`RidgeDotNet.AspNetCore`](https://www.nuget.org/packages/RidgeDotNet.AspNetCore) in your `AspNetCore` project instead of [`RidgeDotNet`](https://www.nuget.org/packages/RidgeDotNet). `RidgeDotNet.AspNetCore` has minimal dependencies, preventing unnecessary test code in your project.
+
 ## Best practices
 
 * Use `ActionResult<T>` when possible to enable strongly typed response generation.
