@@ -1,3 +1,4 @@
-﻿## Minimal possible setup
+﻿## RethrowExceptionInsteadOfReturningHttpResponse
 
-This example shows minimal asp application and test using ridge.
+This is simplified example of setup that we usually use in our projects.
+This example contains RethrowExceptionMiddleware and RequestResponseLogging from previous examples.

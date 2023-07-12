@@ -38,12 +38,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{1F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1_SimpleExample", "1_SimpleExample", "{302A80A8-5146-4BAB-8725-1F0282DA456C}"
 	ProjectSection(SolutionItems) = preProject
-		Examples\4_RecommendedSetup\readme.md = Examples\4_RecommendedSetup\readme.md
+		Examples\1_SimpleExample\readme.md = Examples\1_SimpleExample\readme.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2_RequestResponseLoggingExample", "2_RequestResponseLoggingExample", "{CFA28366-CB1F-4AA1-B90B-7C689123713A}"
 	ProjectSection(SolutionItems) = preProject
-		Examples\4_RecommendedSetup\readme.md = Examples\4_RecommendedSetup\readme.md
+		Examples\2_RequestResponseLogging\readme.md = Examples\2_RequestResponseLogging\readme.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleExample.Mvc", "Examples\1_SimpleExample\SimpleExample.Mvc\SimpleExample.Mvc.csproj", "{7C1E7FC3-7719-4634-AF1C-3336BBFFD4E1}"
@@ -56,7 +56,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestResponseLogging.Test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3_RethrowExceptionInsteadOfHttpResponse", "3_RethrowExceptionInsteadOfHttpResponse", "{A16F5EF6-A0F3-4333-AB10-149128BBB93B}"
 	ProjectSection(SolutionItems) = preProject
-		Examples\4_RecommendedSetup\readme.md = Examples\4_RecommendedSetup\readme.md
+		Examples\3_RethrowExceptionInsteadOfHttpResponse\readme.md = Examples\3_RethrowExceptionInsteadOfHttpResponse\readme.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4_RecommendedSetup", "4_RecommendedSetup", "{5A9ECF39-933B-4A37-83D7-89FB676D144A}"
