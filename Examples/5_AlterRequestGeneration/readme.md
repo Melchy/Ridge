@@ -21,3 +21,5 @@ As you can see client must define query parameter `api-version` or header `X-Ver
 
 Ridge does not support VersionApi by default, but we can easily alter the request generation by adding
 custom `HttpRequestFactoryMiddleware`. See `ApiVersionMiddleware` file.
+
+Full documentation can be found [here](https://github.com/Melchy/Ridge/wiki/2.-Request-creation).
