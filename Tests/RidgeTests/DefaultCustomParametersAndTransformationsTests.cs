@@ -35,12 +35,14 @@ public class ParametersAddedOrTransformedAutoMappingTests
             TransformedParametersWithDefaultMappingController.TestEnum.None,
             "route",
             10,
-            2.3);
+            2.3,
+            "CZ");
 
         response.Result.fromRouteParameter.Should().Be("route");
         response.Result.fromQueryParameter.Should().Be(TransformedParametersWithDefaultMappingController.TestEnum.None);
         response.Result.body.Should().Be(2.3);
         response.Result.fromHeaderParameter.Should().Be(10);
+        response.Result.parameterWithNameFromTransformer.Should().Be("CZ");
     }
 
     internal static Application CreateApplication()

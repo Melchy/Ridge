@@ -11,9 +11,20 @@ internal static class ParameterAnalyzer
     public static string GetAttributeNamePropertyOrParameterName(
         ActionAndClientParameterLinked actionAndClientParameterLinked)
     {
-        if (actionAndClientParameterLinked.ActionParameter == null)
+        // if parameter was added
+        if (!actionAndClientParameterLinked.DoesParameterExistInAction())
         {
-            return actionAndClientParameterLinked.ClientParameter!.Name;
+            return actionAndClientParameterLinked.ClientParameter.Name;
+        }
+
+        // if parameter was transformed
+        if (actionAndClientParameterLinked.WasParameterAddedOrTransformed && actionAndClientParameterLinked.DoesParameterExistsInClient())
+        {
+            // Name was transformed using attribute
+            if (actionAndClientParameterLinked.ClientParameter.Name != actionAndClientParameterLinked.ActionParameter?.Name)
+            {
+                return actionAndClientParameterLinked.ClientParameter.Name;
+            } 
         }
 
         var parameter = actionAndClientParameterLinked.ActionParameter.ParameterInfo;
