@@ -15,13 +15,9 @@ public class ControllerClientGenerator : IIncrementalGenerator
         IncrementalGeneratorInitializationContext context)
     {
         var controllerDeclarations = context.SyntaxProvider
-           .CreateSyntaxProvider(
-                predicate: static (
-                    s,
-                    _) => IsSyntaxTargetForGeneration(s),
-                transform: static (
-                    ctx,
-                    ct) => new MethodClassAndAttributeSyntax(GetSemanticTargetForGeneration(ctx), ctx.SemanticModel, ct))
+           .ForAttributeWithMetadataName("Ridge.AspNetCore.GeneratorAttributes.GenerateClient",
+                (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax,
+                (context, cancellationToken) => new MethodClassAndAttributeSyntax(context, cancellationToken))
            .Select(GetTypesToGenerate)
            .Collect()
            .SelectMany((
@@ -49,47 +45,6 @@ public class ControllerClientGenerator : IIncrementalGenerator
             static (
                 spc,
                 source) => Execute(source, spc));
-    }
-
-    private static bool IsSyntaxTargetForGeneration(
-        SyntaxNode node)
-    {
-        if (node is not AttributeSyntax attribute)
-        {
-            return false;
-        }
-
-        var name = ExtractName(attribute.Name);
-
-        return IsMainCorrectAttribute(name);
-    }
-
-    private static bool IsMainCorrectAttribute(
-        string? name)
-    {
-        if (name is "GenerateClient" or "GenerateClientAttribute")
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private static string? ExtractName(
-        NameSyntax? name)
-    {
-        return name switch
-        {
-            SimpleNameSyntax ins => ins.Identifier.Text,
-            QualifiedNameSyntax qns => qns.Right.Identifier.Text,
-            _ => null,
-        };
-    }
-
-    private static AttributeSyntax GetSemanticTargetForGeneration(
-        GeneratorSyntaxContext context)
-    {
-        return (AttributeSyntax)context.Node;
     }
 
     private static void Execute(
@@ -138,7 +93,7 @@ public class ControllerClientGenerator : IIncrementalGenerator
         }
 
         var attributes = controllerSymbol.GetAttributes();
-        var generatorAttribute = attributes.FirstOrDefault(x => IsMainCorrectAttribute(x.AttributeClass?.Name));
+        var generatorAttribute = methodClassAndAttributeSyntax.GenerateClientAttribute;
         var mainAttributeSettings = generatorAttribute?.NamedArguments ?? ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty;
 
         var typeTransformerAttributes = attributes

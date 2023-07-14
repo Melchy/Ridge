@@ -1,5 +1,6 @@
 ﻿using Ridge.Parameters.ActionParams;
 using Ridge.Parameters.ClientParams;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ridge.Parameters.ActionAndClientParams;
 
@@ -44,6 +45,8 @@ public class ActionAndClientParameterLinked
     ///     Parameter might not exist in action when it was added using source generator.
     /// </summary>
     /// <returns>True if parameter exists in action.</returns>
+    [MemberNotNullWhen(true, nameof(ActionParameter))]
+    [MemberNotNullWhen(false, nameof(ClientParameter))]
     public bool DoesParameterExistInAction()
     {
         return ActionParameter != null;
@@ -54,6 +57,8 @@ public class ActionAndClientParameterLinked
     ///     Parameter might not exist in client when it was removed using source generator.
     /// </summary>
     /// <returns>True if parameter exists in client.</returns>
+    [MemberNotNullWhen(true, nameof(ClientParameter))]
+    [MemberNotNullWhen(false, nameof(ActionParameter))]
     public bool DoesParameterExistsInClient()
     {
         return ClientParameter != null;

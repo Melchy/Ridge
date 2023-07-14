@@ -28,7 +28,7 @@ public class SourceGeneratorInProcessTests
                     [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterZ", Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Op)]
                     [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterX", Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Optional = fae)]
                     [Ridge.AspNetCore.GeneratorAttributes.AddParameterToClient(typeof(int), "addedParameterY", Ridge.AspNetCore.GeneratorAttributes.ParameterMapping.None, Optional = fae)
-                    [GenerateClient()]
+                    [Ridge.AspNetCore.GeneratorAttributes.GenerateClient()]
                     public class Test
                     {
                         public MethodWithoutReturn(){}

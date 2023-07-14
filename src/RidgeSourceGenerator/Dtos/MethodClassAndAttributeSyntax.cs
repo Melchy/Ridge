@@ -10,46 +10,69 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
     public List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclarationHash)> Methods { get; set; } = new List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclaration)>();
     public readonly int AttributesClassNameAndMethodsHashCode;
     public readonly int AttributesHashCode;
+    public readonly AttributeData? GenerateClientAttribute;
 
     public MethodClassAndAttributeSyntax(
-        AttributeSyntax attributeSyntax,
-        SemanticModel semanticModel,
+        GeneratorAttributeSyntaxContext context,
         CancellationToken cancellationToken)
     {
-        SemanticModel = semanticModel;
-        ClassDeclarationSyntax = (ClassDeclarationSyntax?)attributeSyntax.Parent?.Parent;
+        GenerateClientAttribute = context.Attributes.FirstOrDefault();
+        SemanticModel = context.SemanticModel;
+        // target node must be class because of filter we used previously
+        ClassDeclarationSyntax = (ClassDeclarationSyntax)context.TargetNode;
         if (ClassDeclarationSyntax == null)
         {
             return;
         }
-
+        
         cancellationToken.ThrowIfCancellationRequested();
         var attributesDeclaration = ClassDeclarationSyntax.AttributeLists.ToString();
-        var className = ClassDeclarationSyntax.Identifier.ToString();
+        var className = context.TargetSymbol.ToDisplayString();
         var methodDeclarations = string.Join(";",
             ClassDeclarationSyntax?.ChildNodes()
                .OfType<MethodDeclarationSyntax>()
                .Select(x =>
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    string methodDeclaration;
-                    var methodAsString = x.ToString();
-                    var index = methodAsString.IndexOf("{");
-                    if (index == -1)
-                    {
-                        methodDeclaration = methodAsString;
-                    }
-                    else
-                    {
-                        methodDeclaration = x.ToString().Substring(0, index);
-                    }
-
+                    var methodDeclaration = GetMethodWithoutBody(x);
                     Methods.Add((x, methodDeclaration.GetHashCode()));
                     return methodDeclaration;
                 }) ?? Array.Empty<string>());
         cancellationToken.ThrowIfCancellationRequested();
         AttributesHashCode = attributesDeclaration.GetHashCode();
-        AttributesClassNameAndMethodsHashCode = GetHashCode(className, methodDeclarations);
+        AttributesClassNameAndMethodsHashCode = GetFullHashCode(AttributesHashCode, className, methodDeclarations);
+    }
+    
+    private static int GetFullHashCode(
+        int attributesHashCode,
+        string className,
+        string methodDeclarations)
+    {
+        unchecked
+        {
+            var hashCode = 397 ^ attributesHashCode;
+            hashCode = (hashCode * 397) ^ className.GetHashCode();
+            hashCode = (hashCode * 397) ^ methodDeclarations.GetHashCode();
+            return hashCode;
+        }
+    }
+
+    private static string GetMethodWithoutBody(
+        MethodDeclarationSyntax x)
+    {
+        string methodDeclaration;
+        var methodAsString = x.ToString();
+        var index = methodAsString.IndexOf("{");
+        if (index == -1)
+        {
+            methodDeclaration = methodAsString;
+        }
+        else
+        {
+            methodDeclaration = x.ToString().Substring(0, index);
+        }
+
+        return methodDeclaration;
     }
 
     public bool Equals(
@@ -92,18 +115,5 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
     public override int GetHashCode()
     {
         return AttributesClassNameAndMethodsHashCode;
-    }
-
-    private int GetHashCode(
-        string className,
-        string methodDeclarations)
-    {
-        unchecked
-        {
-            var hashCode = 397 ^ AttributesHashCode;
-            hashCode = (hashCode * 397) ^ className.GetHashCode();
-            hashCode = (hashCode * 397) ^ methodDeclarations.GetHashCode();
-            return hashCode;
-        }
     }
 }
