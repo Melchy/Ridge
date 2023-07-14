@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ridge.AspNetCore.GeneratorAttributes;
 
-namespace RecommendedSetup.Controllers;
+namespace SimpleExample.Controllers;
 
 [ApiController]
 [Route("[controller]")]

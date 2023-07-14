@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Testing;
-using AlterClientGeneration.Controllers;
+using AlterClientGeneration.Mvc.Controllers;
 using Asp.Versioning;
 using System.Reflection;
 using Xunit;

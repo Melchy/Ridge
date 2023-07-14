@@ -1,6 +1,4 @@
-using Asp.Versioning;
-
-namespace AlterClientGeneration.Controllers;
+namespace AlterClientGeneration.Mvc.Controllers;
 
 public record WeatherForecast(
     DateOnly Date,

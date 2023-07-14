@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Ridge.AspNetCore.GeneratorAttributes;
 
-namespace AlterClientGeneration.Controllers;
+namespace AlterClientGeneration.Mvc.Controllers;
 
 [ApiController]
 [Route("[controller]")]

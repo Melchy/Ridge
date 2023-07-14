@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
-using RecommendedSetup.Controllers;
+using SimpleExample.Controllers;
 using Xunit.Abstractions;
 
 namespace SimpleExample.Tests;

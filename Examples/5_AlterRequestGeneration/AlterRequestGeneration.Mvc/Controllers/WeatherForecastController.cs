@@ -2,7 +2,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Ridge.AspNetCore.GeneratorAttributes;
 
-namespace AlterRequestGeneration.Controllers;
+namespace AlterRequestGeneration.Mvc.Controllers;
 
 [ApiController]
 [Route("[controller]")]

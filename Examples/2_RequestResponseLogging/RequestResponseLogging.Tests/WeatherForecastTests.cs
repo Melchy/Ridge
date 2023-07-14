@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Testing;
-using SimpleExample.Controllers;
+using RequestResponseLogging.Mvc.Controllers;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ridge.AspNetCore.GeneratorAttributes;
 
-namespace SimpleExample.Controllers;
+namespace RequestResponseLogging.Mvc.Controllers;
 
 [ApiController]
 [Route("[controller]")]
