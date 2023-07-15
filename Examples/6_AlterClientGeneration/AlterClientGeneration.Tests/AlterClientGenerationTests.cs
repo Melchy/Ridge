@@ -50,8 +50,6 @@ public class AlterClientGenerationTests
         var webApplicationClient = webApplicationFactory.CreateClient();
         TransformParameterControllerClient clientController = new(webApplicationClient, webApplicationFactory.Services);
 
-        // Parameter IServiceCollection is not present in the generated client
-        // Note that parameters with attribute [FromServices] and CancellationToken are removed by default
         var response = await clientController.Get("CZ");
         
         Assert.True(response.IsSuccessStatusCode);
