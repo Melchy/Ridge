@@ -43,7 +43,7 @@ public class ParameterProviderTests
                 addedOptionalParameter: "addedOptionalParameter",
                 defaultStruct: DateTime.MinValue);
 
-        testRequestFactoryMiddleware.ParameterProvider!.GetaActionParameters().Should().HaveCount(16);
+        testRequestFactoryMiddleware.ParameterProvider!.GetaActionParameters().Should().HaveCount(17);
         testRequestFactoryMiddleware.ParameterProvider!
            .GetaActionParameters()
            .Should()
@@ -65,6 +65,7 @@ public class ParameterProviderTests
                     new ActionParameter(null!, "optional", typeof(int)),
                     new ActionParameter(null!, "fromServices", typeof(object)),
                     new ActionParameter(null!, "fromServices2", typeof(object)),
+                    new ActionParameter(null!, "fromQuery", typeof(bool))
                 },
                 (
                     x,
@@ -96,7 +97,7 @@ public class ParameterProviderTests
                 addedOptionalParameter: "addedOptionalParameter",
                 defaultStruct: DateTime.MinValue);
 
-        testRequestFactoryMiddleware.ParameterProvider!.GetClientParameters().Should().HaveCount(18);
+        testRequestFactoryMiddleware.ParameterProvider!.GetClientParameters().Should().HaveCount(19);
         testRequestFactoryMiddleware.ParameterProvider!
            .GetClientParameters()
            .OrderBy(x => x.Name)
@@ -124,6 +125,7 @@ public class ParameterProviderTests
                 new ClientParameter("defaultConst", typeof(int), 1, ParameterMapping.None),
                 new ClientParameter("defaultStruct", typeof(DateTime), default(DateTime), ParameterMapping.None),
                 new ClientParameter("optional", typeof(int), 0, ParameterMapping.None),
+                new ClientParameter("fromQuery", typeof(bool), true, ParameterMapping.None),
                 new ClientParameter("addedOptionalParameter", typeof(string), "addedOptionalParameter", ParameterMapping.None),
                 new ClientParameter("addedGenericOptionalParameter", typeof(Task<string>), null, ParameterMapping.None),
                 new ClientParameter("renamed2", typeof(object), null, ParameterMapping.None),
