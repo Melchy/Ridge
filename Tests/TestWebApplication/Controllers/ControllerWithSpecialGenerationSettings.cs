@@ -50,7 +50,8 @@ public class ControllerWithSpecialGenerationSettings : ControllerBase
         DateTime defaultStruct = new(),
         int optional = default,
         [FromServices] object? fromServices = default,
-        [FromServicesAttribute] object? fromServices2 = default)
+        [FromServicesAttribute] object? fromServices2 = default,
+        [FromQuery] bool fromQuery = true)
     {
         return optional;
     }

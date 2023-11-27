@@ -240,6 +240,10 @@ public static class ClientMethodGenerationHelper
                         {
                             defaultValue = $"\'{parameter.OriginalParameterSymbol!.ExplicitDefaultValue}'";
                         }
+                        else if (parameter.OriginalParameterSymbol!.ExplicitDefaultValue is bool)
+                        {
+                            defaultValue = parameter.OriginalParameterSymbol!.ExplicitDefaultValue.ToString().ToLowerInvariant();
+                        }
                         else
                         {
                             defaultValue = parameter.OriginalParameterSymbol!.ExplicitDefaultValue.ToString();
