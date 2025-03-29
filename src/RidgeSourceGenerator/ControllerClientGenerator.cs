@@ -56,7 +56,7 @@ public class ControllerClientGenerator : IIncrementalGenerator
         {
             return;
         }
-
+        
         var generatedMethods = controllerAndMethods.MethodsToGenerate
            .Where(x => x?.ContainingControllerFullyQualifiedName == controllerAndMethods.ControllerToGenerate.FullyQualifiedName);
         
@@ -66,7 +66,7 @@ public class ControllerClientGenerator : IIncrementalGenerator
             controllerAndMethods.ControllerToGenerate,
             generatedMethods!,
             context.CancellationToken);
-        context.AddSource(controllerAndMethods.ControllerToGenerate.Name + "_Client.g.cs", SourceText.From(result, Encoding.UTF8));
+        context.AddSource($"{controllerAndMethods.ControllerToGenerate.FullyQualifiedName}_Client.g.cs", SourceText.From(result, Encoding.UTF8));
     }
 
 

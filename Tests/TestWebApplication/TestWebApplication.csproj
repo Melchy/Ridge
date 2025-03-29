@@ -14,6 +14,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Ridge.AspNetCore\Ridge.AspNetCore.csproj" />
         <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\TestWebApplicationSecondAssembly\TestWebApplicationSecondAssembly.csproj" />
     </ItemGroup>
 
     <ItemGroup>
