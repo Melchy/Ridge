@@ -16,7 +16,7 @@ jobs:
             -   name: Setup .NET Core
                 uses: actions/setup-dotnet@v1
                 with:
-                    dotnet-version: 9.0
+                    dotnet-version: 9.0.0
             -   name: Build all
                 run: |
                     dotnet build src/Ridge/Ridge.csproj --configuration Release
