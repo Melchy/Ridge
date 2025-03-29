@@ -12,7 +12,7 @@ public class JsonNetSerializer : IRequestResponseSerializer
     public TResult Deserialize<TResult>(
         string data)
     {
-        return JsonConvert.DeserializeObject<TResult>(data);
+        return JsonConvert.DeserializeObject<TResult>(data)!;
     }
 
     /// <inheritdoc />
