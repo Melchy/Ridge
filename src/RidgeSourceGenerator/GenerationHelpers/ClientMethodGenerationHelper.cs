@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using RidgeSourceGenerator.Dtos;
+using System.Globalization;
 using System.Text;
 
 namespace RidgeSourceGenerator.GenerationHelpers;
@@ -246,7 +247,7 @@ public static class ClientMethodGenerationHelper
                         }
                         else
                         {
-                            defaultValue = parameter.OriginalParameterSymbol!.ExplicitDefaultValue.ToString();
+                            defaultValue = Convert.ToString(parameter.OriginalParameterSymbol!.ExplicitDefaultValue, CultureInfo.InvariantCulture)!;
                         }
                     }
                     else
