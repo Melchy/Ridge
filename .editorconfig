@@ -495,3 +495,4 @@ dotnet_diagnostic.IDE0058.severity = suggestion # Remove unnecessary expression 
 dotnet_diagnostic.IDE0078.severity = suggestion # Use pattern matching
 
 dotnet_diagnostic.CS1998.severity = suggestion
+
