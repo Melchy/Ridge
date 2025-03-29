@@ -8,7 +8,7 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
     public SemanticModel SemanticModel;
     public ClassDeclarationSyntax? ClassDeclarationSyntax { get; set; }
     public List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclarationHash)> Methods { get; set; } = new List<(MethodDeclarationSyntax methodDeclarationSyntax, int methodDeclaration)>();
-    public readonly int AttributesClassNameAndMethodsHashCode;
+    public readonly int AttributesAndClassNameAndMethodsAndNamespaceHashCode;
     public readonly int AttributesHashCode;
     public readonly AttributeData? GenerateClientAttribute;
 
@@ -27,6 +27,7 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
         
         cancellationToken.ThrowIfCancellationRequested();
         var attributesDeclaration = ClassDeclarationSyntax.AttributeLists.ToString();
+        var containingNamespace = context.TargetSymbol.ContainingNamespace.ToDisplayString();
         var className = context.TargetSymbol.ToDisplayString();
         var methodDeclarations = string.Join(";",
             ClassDeclarationSyntax?.ChildNodes()
@@ -40,19 +41,21 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
                 }) ?? Array.Empty<string>());
         cancellationToken.ThrowIfCancellationRequested();
         AttributesHashCode = attributesDeclaration.GetHashCode();
-        AttributesClassNameAndMethodsHashCode = GetFullHashCode(AttributesHashCode, className, methodDeclarations);
+        AttributesAndClassNameAndMethodsAndNamespaceHashCode = GetFullHashCode(AttributesHashCode, className, methodDeclarations, containingNamespace);
     }
     
     private static int GetFullHashCode(
         int attributesHashCode,
         string className,
-        string methodDeclarations)
+        string methodDeclarations,
+        string containingNamespace)
     {
         unchecked
         {
             var hashCode = 397 ^ attributesHashCode;
             hashCode = (hashCode * 397) ^ className.GetHashCode();
             hashCode = (hashCode * 397) ^ methodDeclarations.GetHashCode();
+            hashCode = (hashCode * 397) ^ containingNamespace.GetHashCode();
             return hashCode;
         }
     }
@@ -88,7 +91,7 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
             return true;
         }
 
-        return AttributesClassNameAndMethodsHashCode == other.AttributesClassNameAndMethodsHashCode;
+        return AttributesAndClassNameAndMethodsAndNamespaceHashCode == other.AttributesAndClassNameAndMethodsAndNamespaceHashCode;
     }
 
     public override bool Equals(
@@ -114,6 +117,6 @@ public class MethodClassAndAttributeSyntax : IEquatable<MethodClassAndAttributeS
 
     public override int GetHashCode()
     {
-        return AttributesClassNameAndMethodsHashCode;
+        return AttributesAndClassNameAndMethodsAndNamespaceHashCode;
     }
 }

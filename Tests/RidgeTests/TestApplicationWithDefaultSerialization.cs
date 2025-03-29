@@ -3,6 +3,7 @@ using ApplicationWithDefaultSerialization.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
+using Ridge.AspNetCore;
 using Ridge.Extensions.Nunit;
 using Ridge.LogWriter;
 using System;
@@ -15,7 +16,7 @@ public class TestApplicationWithDefaultSerialization
     [Test]
     public async Task ArgumentsWithoutAttributesAreSupported()
     {
-        using var application = CreateApplication();
+        using var application = DefaultSerializationApp.CreateApplication();
         var complexObject = new ComplexObject()
         {
             Str = "foo",
@@ -25,38 +26,38 @@ public class TestApplicationWithDefaultSerialization
                 Str = "br",
             },
         };
-        var response = await application.TestControllerClient.ArgumentsWithoutAttributes(complexObject,
+        var response = await application.ApiClient.ArgumentsWithoutAttributes(complexObject,
             1,
             2);
         response.Result.ComplexObject.Should().BeEquivalentTo(complexObject);
         response.Result.FromQuery.Should().Be(2);
         response.Result.FromRoute.Should().Be(1);
     }
+}
 
-    internal static Application CreateApplication()
+internal sealed class DefaultSerializationApp : IDisposable
+{
+    public WebApplicationFactory<Program> WebApplicationFactory { get; set; }
+    public ApiClient ApiClient { get; set; }
+    
+    internal static DefaultSerializationApp CreateApplication()
     {
-        return new Application(new WebApplicationFactory<Program>());
+        return new DefaultSerializationApp(new WebApplicationFactory<Program>());
     }
 
-    internal sealed class Application : IDisposable
+    private DefaultSerializationApp(
+        WebApplicationFactory<Program> webApplicationFactory)
     {
-        public WebApplicationFactory<Program> WebApplicationFactory { get; set; }
-        public TestControllerClient TestControllerClient { get; set; }
-
-        public Application(
-            WebApplicationFactory<Program> webApplicationFactory)
+        WebApplicationFactory = webApplicationFactory.WithRidge(x =>
         {
-            WebApplicationFactory = webApplicationFactory.WithRidge(x =>
-            {
-                x.UseNunitLogWriter();
-            });
-            TestControllerClient = new TestControllerClient(WebApplicationFactory.CreateClient(), WebApplicationFactory.Services);
-        }
+            x.UseNunitLogWriter();
+        });
+        ApiClient = new ApiClient(WebApplicationFactory.CreateClient(), WebApplicationFactory.Services);
+    }
 
-        public void Dispose()
-        {
-            WebApplicationFactory?.Dispose();
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        WebApplicationFactory?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

@@ -21,6 +21,7 @@ public class TestController : ControllerBase
             FromQuery = fromQuery,
             FromRoute = fromRoute,
         };
+        
         return foo;
     }
 }
@@ -43,3 +44,4 @@ public class SpecialComplexObject
     public int FromRoute { get; set; }
     public int FromQuery { get; set; }
 }
+

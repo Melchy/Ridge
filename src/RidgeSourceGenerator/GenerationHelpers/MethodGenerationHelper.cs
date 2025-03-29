@@ -5,10 +5,14 @@ using System.Text;
 
 namespace RidgeSourceGenerator.GenerationHelpers;
 
-public static class ClientMethodGenerationHelper
+public static class MethodGenerationHelper
 {
+    private static string[] _namesOfEndpointMethods = ["Execute", "ExecuteAsync", "HandleAsync", "Handle", "Invoke", "InvokeAsync"];
+    private const string _endpointsSuffix = "Endpoint";
+        
     public static string GenerateMethod(
         MethodToGenerate methodToGenerate,
+        bool isExtensionMethod,
         CancellationToken cancellationToken)
     {
         StringBuilder sb = new StringBuilder(1024);
@@ -33,9 +37,11 @@ public static class ClientMethodGenerationHelper
             }
         }
 
+        sb.AppendLine();
+        cancellationToken.ThrowIfCancellationRequested();
         ParameterNamePostfixTransformer parameterNamePostfixTransformer = null!;
         // Small optimization. If there are no user parameterNames then we wont use ParameterNamePostfixTransformer 
-        if (methodToGenerate.ParameterTransformations.Count() + methodToGenerate.ParametersToAdd.Length > 0)
+        if (methodToGenerate.ParameterTransformations.Count + methodToGenerate.ParametersToAdd.Length > 0)
         {
             parameterNamePostfixTransformer = new ParameterNamePostfixTransformer(methodToGenerate.PublicMethod.Parameters.Select(x => x.Name));
         }
@@ -44,13 +50,29 @@ public static class ClientMethodGenerationHelper
         string? returnType = publicMethod.ReturnType.Name;
 
         GenerateMethodComment(methodToGenerate, sb, publicMethod);
-        sb.Append(@"        public async ");
+        
+        sb.Append(@"        public ");
+        if (isExtensionMethod)
+        {
+            sb.Append("static ");
+        }
+        
+        sb.Append(@"async ");
 
         returnType = AddReturnType(methodToGenerate, sb, returnType, fullReturnType);
 
         cancellationToken.ThrowIfCancellationRequested();
-
-        sb.Append($" {publicMethod.Name}(");
+        sb.Append(" ");
+        if (isExtensionMethod && isExtensionMethod && _namesOfEndpointMethods.Contains(publicMethod.Name))
+        {
+            sb.Append(RemoveSuffix(methodToGenerate.ControllerName, _endpointsSuffix));
+        }
+        else
+        {
+            sb.Append(publicMethod.Name);
+        }
+        
+        sb.Append("(");
 
         var stringBuilderForOptionalParameters = new StringBuilder();
         var transformedParameters = ParameterTransformationService.GetTransformation(
@@ -59,6 +81,11 @@ public static class ClientMethodGenerationHelper
             parameterNamePostfixTransformer,
             methodToGenerate.ParametersToAdd);
 
+        if (isExtensionMethod)
+        {
+            sb.Append("this Ridge.AspNetCore.ApiClient apiClient, ");
+        }
+        
         ProcessParameters(sb,
             stringBuilderForOptionalParameters,
             transformedParameters,
@@ -70,10 +97,10 @@ public static class ClientMethodGenerationHelper
         cancellationToken.ThrowIfCancellationRequested();
         
         sb.AppendLine(@"        {");
-        AddMethodBody(methodToGenerate, cancellationToken, sb, publicMethod, transformedParameters, returnType);
+        AddMethodBody(methodToGenerate, cancellationToken, sb, publicMethod, transformedParameters, returnType, isExtensionMethod);
         sb.AppendLine(@"        }");
-        sb.AppendLine();
 
+        cancellationToken.ThrowIfCancellationRequested();
         return sb.ToString();
     }
 
@@ -83,8 +110,27 @@ public static class ClientMethodGenerationHelper
         StringBuilder sb,
         IMethodSymbol publicMethod,
         ParameterAndTransformationInfo[] parametersAndTransformationsInfo,
-        string? returnType)
+        string? returnType,
+        bool isExtensionMethod)
     {
+        if (isExtensionMethod)
+        {
+            sb.Append($$"""
+                                    Ridge.AspNetCore.IApplicationClient _applicationClient;
+                                    var applicationClientFactory = apiClient.ServiceProvider.GetService<IApplicationClientFactory>();
+                                    if(applicationClientFactory == null)
+                                    {
+                                        throw new InvalidOperationException("'IApplicationClientFactory' could not be resolved. Did you forget to call WithRidge()?.");
+                                    }
+                                    else
+                                    {
+                                        _applicationClient = applicationClientFactory.CreateClient(apiClient.ServiceProvider, apiClient.HttpClient);
+                                    }
+                        """);
+            sb.AppendLine();
+        }
+        
+        cancellationToken.ThrowIfCancellationRequested();
         sb.Append($$"""
                                 var methodName = nameof({{methodToGenerate.ContainingControllerFullyQualifiedName}}.{{publicMethod.Name}});
                     """);
@@ -151,6 +197,7 @@ public static class ClientMethodGenerationHelper
             }
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         sb.AppendLine($"{methodToGenerate.ContainingControllerFullyQualifiedName}>(methodName, actionParameters, additionalParameters, parametersAndTransformations);");
     }
 
@@ -337,5 +384,17 @@ public static class ClientMethodGenerationHelper
         // Generic<XXX>
 
         return returnType.ToString();
+    }
+    
+    private static string RemoveSuffix(
+        string s, 
+        string suffix)
+    {
+        if (s.EndsWith(suffix))
+        {
+            return s.Substring(0, s.Length - suffix.Length);
+        }
+
+        return s;
     }
 }

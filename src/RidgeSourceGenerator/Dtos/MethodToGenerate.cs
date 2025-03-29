@@ -10,10 +10,11 @@ public class MethodToGenerate : IEquatable<MethodToGenerate>
     public readonly bool UseHttpResponseMessageAsReturnType;
     public readonly Dictionary<ITypeSymbol, ParameterTransformation> ParameterTransformations;
     public readonly string ContainingControllerFullyQualifiedName;
+    public readonly string ControllerName;
+    public bool SingleMethodInController { get; set; }
 
     private readonly int _methodHash;
     private readonly int _classAttributesHash;
-    private readonly Lazy<string> _generatedMethod;
 
     public MethodToGenerate(
         IMethodSymbol publicMethod,
@@ -23,22 +24,23 @@ public class MethodToGenerate : IEquatable<MethodToGenerate>
         int methodHash,
         AddParameter[] parametersToAdd,
         int classAttributesHash,
-        CancellationToken cancellationToken)
+        string controllerName)
     {
         ParametersToAdd = parametersToAdd;
         _classAttributesHash = classAttributesHash;
+        ControllerName = controllerName;
         PublicMethod = publicMethod;
         UseHttpResponseMessageAsReturnType = useHttpResponseMessageAsReturnType;
         ParameterTransformations = parameterTransformations;
         ContainingControllerFullyQualifiedName = containingControllerFullyQualifiedName;
         _methodHash = methodHash;
-        _generatedMethod = new Lazy<string>(() => ClientMethodGenerationHelper.GenerateMethod(this, cancellationToken));
     }
 
     public string GenerateMethod(
+        bool isExtensionMethod,
         CancellationToken cancellationToken)
     {
-        return _generatedMethod.Value;
+        return MethodGenerationHelper.GenerateMethod(this, isExtensionMethod, cancellationToken);
     }
 
     public bool Equals(
