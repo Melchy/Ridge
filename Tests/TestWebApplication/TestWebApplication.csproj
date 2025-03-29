@@ -13,7 +13,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Ridge.AspNetCore\Ridge.AspNetCore.csproj" />
-        <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false">
+            <IncludeTargetsInPackage>true</IncludeTargetsInPackage>
+        </ProjectReference>
         <ProjectReference Include="..\TestWebApplicationSecondAssembly\TestWebApplicationSecondAssembly.csproj" />
     </ItemGroup>
 
@@ -30,6 +32,7 @@
     <ItemGroup>
         <None Remove="Pages\**" />
         <None Remove="ViewComponents\**" />
+        <None Remove="build_log.txt" />
     </ItemGroup>
 
     <ItemGroup>
@@ -40,6 +43,4 @@
         <InternalsVisibleTo Include="RidgeXunitTest" />
         <InternalsVisibleTo Include="RidgeTests" />
     </ItemGroup>
-
-
 </Project>

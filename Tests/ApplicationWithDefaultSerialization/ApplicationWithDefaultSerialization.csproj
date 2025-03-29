@@ -17,4 +17,11 @@
         <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <Ridge_GenerateEndpointCallsAsExtensionMethods>enable</Ridge_GenerateEndpointCallsAsExtensionMethods>
+    </PropertyGroup>
+    <ItemGroup>
+        <CompilerVisibleProperty Include="Ridge_GenerateEndpointCallsAsExtensionMethods" />
+    </ItemGroup>
+    
 </Project>

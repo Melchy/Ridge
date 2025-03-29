@@ -5,7 +5,7 @@ namespace RidgeSourceGenerator.Dtos;
 
 public class ControllerToGenerate : IEquatable<ControllerToGenerate>
 {
-    public readonly IEnumerable<(IMethodSymbol MethodSymbol, int MethodHash)> PublicMethods;
+    public readonly (IMethodSymbol MethodSymbol, int MethodHash)?[] PublicMethods;
     public readonly string Name;
     public readonly string FullyQualifiedName;
     public readonly string Namespace;
@@ -21,7 +21,7 @@ public class ControllerToGenerate : IEquatable<ControllerToGenerate>
         string name,
         string fullyQualifiedName,
         string @namespace,
-        IEnumerable<(IMethodSymbol MethodSymbol, int MethodHash)> publicMethods,
+        (IMethodSymbol MethodSymbol, int MethodHash)?[] publicMethods,
         ImmutableArray<KeyValuePair<string, TypedConstant>> mainAttributeSettings,
         IEnumerable<AttributeData> typeTransformerAttributes,
         IEnumerable<AttributeData> addParameterAttributes,

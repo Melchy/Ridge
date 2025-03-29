@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using RidgeSourceGenerator.Dtos;
 using RidgeSourceGenerator.GenerationHelpers;
+using RidgeSourceGenerator.GeneratorOptions;
 using System.Collections.Immutable;
 using System.Text;
 
@@ -25,48 +26,66 @@ public class ControllerClientGenerator : IIncrementalGenerator
                 x,
                 _) => x.Distinct());
 
-        var methodsToGenerate = controllerDeclarations.Where(x => x is not null)
-           .SelectMany((
-                    controllerToGenerate,
-                    ct) =>
-                controllerToGenerate!.PublicMethods.Select(methodSymbolAndHash =>
-                    new MethodToGenerate(methodSymbolAndHash.MethodSymbol,
-                        controllerToGenerate.UseHttpResponseMessageAsReturnType,
-                        controllerToGenerate.ParameterTransformations,
-                        controllerToGenerate.FullyQualifiedName,
-                        methodSymbolAndHash.MethodHash,
-                        controllerToGenerate.ParametersToAdd,
-                        controllerToGenerate.AttributesHash,
-                        ct)))
-           .Collect();
+        var controllersWithMethods = controllerDeclarations.Where(x => x is not null)
+           .Select((
+                controllerToGenerate,
+                ct) =>
+            {
+                MethodToGenerate?[] methodsToGenerate = new MethodToGenerate[controllerToGenerate!.PublicMethods.Length];
+                var numberOfMethods = 0;
+                int lastMethodIndex = 0;
+                for (var i = 0; i < controllerToGenerate.PublicMethods.Length; i++)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    if (controllerToGenerate.PublicMethods[i] == null)
+                    {
+                        methodsToGenerate[i] = null;
+                    }
+                    else
+                    {
+                        numberOfMethods++;
+                        lastMethodIndex = i;
+                        methodsToGenerate[i] = new MethodToGenerate(controllerToGenerate.PublicMethods[i]!.Value.MethodSymbol,
+                            controllerToGenerate.UseHttpResponseMessageAsReturnType,
+                            controllerToGenerate.ParameterTransformations,
+                            controllerToGenerate.FullyQualifiedName,
+                            controllerToGenerate.PublicMethods[i]!.Value.MethodHash,
+                            controllerToGenerate.ParametersToAdd,
+                            controllerToGenerate.AttributesHash,
+                            controllerToGenerate.Name);
+                    }
+                }
 
-        var controllersWithMethods = controllerDeclarations.Combine(methodsToGenerate);
+                if (numberOfMethods == 1)
+                {
+                    methodsToGenerate[lastMethodIndex]!.SingleMethodInController = true;
+                }
 
-        context.RegisterSourceOutput(controllersWithMethods,
+                ct.ThrowIfCancellationRequested();
+                return new ControllerWithMethodsToGenerate(controllerToGenerate, methodsToGenerate);
+            });
+
+        var options = GeneratorOptionsService.GetGeneratorOptions(context);
+        context.RegisterSourceOutput(controllersWithMethods.Combine(options),
             static (
                 spc,
                 source) => Execute(source, spc));
     }
 
     private static void Execute(
-        (Dtos.ControllerToGenerate? ControllerToGenerate, ImmutableArray<MethodToGenerate> MethodsToGenerate) controllerAndMethods,
+        (ControllerWithMethodsToGenerate ControllerAndMethods, RidgeOptions Options) inputData,
         SourceProductionContext context)
     {
-        if (controllerAndMethods.ControllerToGenerate == null)
-        {
-            return;
-        }
+        var controllerAndMethods = inputData.ControllerAndMethods;
+        var options = inputData.Options;
         
-        var generatedMethods = controllerAndMethods.MethodsToGenerate
-           .Where(x => x?.ContainingControllerFullyQualifiedName == controllerAndMethods.ControllerToGenerate.FullyQualifiedName);
-        
-        
-        StringBuilder sb = new StringBuilder(2048);
-        var result = ControllerClientGenerationHelper.GenerateExtensionClass(sb,
+        var sb = new StringBuilder(2048);
+        ControllerClientGenerationHelper.Generate(sb,
             controllerAndMethods.ControllerToGenerate,
-            generatedMethods!,
+            controllerAndMethods.MethodsToGenerate,
+            options,
             context.CancellationToken);
-        context.AddSource($"{controllerAndMethods.ControllerToGenerate.FullyQualifiedName}_Client.g.cs", SourceText.From(result, Encoding.UTF8));
+        context.AddSource($"{controllerAndMethods.ControllerToGenerate.FullyQualifiedName}_Client.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
 
@@ -115,10 +134,11 @@ public class ControllerClientGenerator : IIncrementalGenerator
         string name = controllerSymbol.Name;
         string classNamespace = controllerSymbol.ContainingNamespace.IsGlobalNamespace ? string.Empty : controllerSymbol.ContainingNamespace.ToString();
 
-        var publicMethods = new List<(IMethodSymbol MethodSymbol, int MethodHash)>();
+        var publicMethods = new (IMethodSymbol MethodSymbol, int MethodHash)?[methodClassAndAttributeSyntax.Methods.Count];
 
-        foreach (var methodDeclarationAndHash in methodClassAndAttributeSyntax.Methods)
+        for (var index = 0; index < methodClassAndAttributeSyntax.Methods.Count; index++)
         {
+            var methodDeclarationAndHash = methodClassAndAttributeSyntax.Methods[index];
             var potentialMethodSymbol = ModelExtensions.GetDeclaredSymbol(methodClassAndAttributeSyntax.SemanticModel, methodDeclarationAndHash.methodDeclarationSyntax);
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -154,7 +174,7 @@ public class ControllerClientGenerator : IIncrementalGenerator
                 continue;
             }
 
-            publicMethods.Add((methodSymbol, methodDeclarationAndHash.methodDeclarationHash));
+            publicMethods[index] = (methodSymbol, methodDeclarationAndHash.methodDeclarationHash);
         }
 
         string fullyQualifiedName = controllerSymbol.ToString();
@@ -167,7 +187,7 @@ public class ControllerClientGenerator : IIncrementalGenerator
             mainAttributeSettings: mainAttributeSettings,
             typeTransformerAttributes: typeTransformerAttributes,
             addParameterAttributes: addParameterAttributes,
-            attributesClassNameAndMethodsHashCode: methodClassAndAttributeSyntax.AttributesClassNameAndMethodsHashCode,
+            attributesClassNameAndMethodsHashCode: methodClassAndAttributeSyntax.AttributesAndClassNameAndMethodsAndNamespaceHashCode,
             attributesHash: methodClassAndAttributeSyntax.AttributesHashCode);
     }
 }
