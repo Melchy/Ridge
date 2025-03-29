@@ -18,7 +18,6 @@ public static class Startup
            .AddControllersAsServices()
            .AddNewtonsoftJson();
         services.AddTransient<object>();
-        services.AddSwaggerGen();
     }
 
     public static void SetupPipeline(
@@ -29,12 +28,6 @@ public static class Startup
         {
             app.UseDeveloperExceptionPage();
         }
-
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        });
 
         if (app.WasApplicationCreatedFromTest())
         {
