@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using RidgeSourceGenerator.Dtos;
 using RidgeSourceGenerator.GenerationHelpers;
+using RidgeSourceGenerator.GeneratorOptions;
 using System.Collections.Immutable;
 using System.Text;
 
@@ -42,16 +43,19 @@ public class ControllerClientGenerator : IIncrementalGenerator
 
         var controllersWithMethods = controllerDeclarations.Combine(methodsToGenerate);
 
-        context.RegisterSourceOutput(controllersWithMethods,
+        var options = GeneratorOptionsService.GetGeneratorOptions(context);
+        context.RegisterSourceOutput(controllersWithMethods.Combine(options),
             static (
                 spc,
                 source) => Execute(source, spc));
     }
 
     private static void Execute(
-        (Dtos.ControllerToGenerate? ControllerToGenerate, ImmutableArray<MethodToGenerate> MethodsToGenerate) controllerAndMethods,
+        ((ControllerToGenerate? ControllerToGenerate, ImmutableArray<MethodToGenerate> MethodsToGenerate) ControllerAndMethods, RidgeOptions Options) inputData,
         SourceProductionContext context)
     {
+        var controllerAndMethods = inputData.ControllerAndMethods;
+        var options = inputData.Options;
         if (controllerAndMethods.ControllerToGenerate == null)
         {
             return;
@@ -59,9 +63,13 @@ public class ControllerClientGenerator : IIncrementalGenerator
         
         var generatedMethods = controllerAndMethods.MethodsToGenerate
            .Where(x => x?.ContainingControllerFullyQualifiedName == controllerAndMethods.ControllerToGenerate.FullyQualifiedName);
+
+        if (options.UseSingleClient == true)
+        {
+            throw new InvalidOperationException("Error");
+        }
         
-        
-        StringBuilder sb = new StringBuilder(2048);
+        var sb = new StringBuilder(2048);
         var result = ControllerClientGenerationHelper.GenerateExtensionClass(sb,
             controllerAndMethods.ControllerToGenerate,
             generatedMethods!,

@@ -13,7 +13,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Ridge.AspNetCore\Ridge.AspNetCore.csproj" />
-        <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\..\src\RidgeSourceGenerator\RidgeSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false">
+            <IncludeTargetsInPackage>true</IncludeTargetsInPackage>
+        </ProjectReference>
         <ProjectReference Include="..\TestWebApplicationSecondAssembly\TestWebApplicationSecondAssembly.csproj" />
     </ItemGroup>
 
@@ -41,5 +43,7 @@
         <InternalsVisibleTo Include="RidgeTests" />
     </ItemGroup>
 
-
+    <PropertyGroup>
+        <Ridge_UseSingleClient>enable</Ridge_UseSingleClient>
+    </PropertyGroup>
 </Project>
