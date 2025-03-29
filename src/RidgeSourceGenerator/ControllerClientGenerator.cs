@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using RidgeSourceGenerator.Dtos;
@@ -79,10 +80,15 @@ public class ControllerClientGenerator : IIncrementalGenerator
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        var semanticModel = methodClassAndAttributeSyntax.SemanticModel.GetDeclaredSymbol(methodClassAndAttributeSyntax.ClassDeclarationSyntax);
+        var semanticModel = ModelExtensions.GetDeclaredSymbol(methodClassAndAttributeSyntax.SemanticModel, methodClassAndAttributeSyntax.ClassDeclarationSyntax);
 
 
         if (methodClassAndAttributeSyntax.ClassDeclarationSyntax.Arity != 0)
+        {
+            return null;
+        }
+        
+        if (!methodClassAndAttributeSyntax.ClassDeclarationSyntax.Modifiers.Any(x => x.IsKind(SyntaxKind.PublicKeyword)))
         {
             return null;
         }
@@ -113,7 +119,7 @@ public class ControllerClientGenerator : IIncrementalGenerator
 
         foreach (var methodDeclarationAndHash in methodClassAndAttributeSyntax.Methods)
         {
-            var potentialMethodSymbol = methodClassAndAttributeSyntax.SemanticModel.GetDeclaredSymbol(methodDeclarationAndHash.methodDeclarationSyntax);
+            var potentialMethodSymbol = ModelExtensions.GetDeclaredSymbol(methodClassAndAttributeSyntax.SemanticModel, methodDeclarationAndHash.methodDeclarationSyntax);
 
             cancellationToken.ThrowIfCancellationRequested();
 

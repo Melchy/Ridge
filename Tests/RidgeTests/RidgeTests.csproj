@@ -30,6 +30,7 @@
 
     <ItemGroup>
         <Compile Remove="PagesTests\**" />
+        <Compile Remove="InternalKeywordTests.cs" />
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Remove="PagesTests\**" />
