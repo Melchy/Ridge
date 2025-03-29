@@ -4,7 +4,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <!--    Hide deprecated .net version warning    -->
         <CheckEolTargetFramework>false</CheckEolTargetFramework>
-        <TargetFrameworks>net6;net7</TargetFrameworks>
+        <TargetFrameworks>net6;net7;net8;net9</TargetFrameworks>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
@@ -35,8 +35,12 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.11" Condition="'$(TargetFramework)' == 'net6'" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7'" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8'" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9'" />
         <PackageReference Include="System.Text.Json" Version="6.0.7" Condition="'$(TargetFramework)' == 'net6'" />
         <PackageReference Include="System.Text.Json" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7'" />
+        <PackageReference Include="System.Text.Json" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8'" />
+        <PackageReference Include="System.Text.Json" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9'" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     </ItemGroup>
