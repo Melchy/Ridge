@@ -42,4 +42,7 @@
             <IncludeAssets>RidgeSourceGenerator.dll</IncludeAssets>
         </ProjectReference>
     </ItemGroup>
+    <ItemGroup>
+        <CompilerVisibleProperty Include="Ridge_UseSingleClient" />
+    </ItemGroup>
 </Project>
