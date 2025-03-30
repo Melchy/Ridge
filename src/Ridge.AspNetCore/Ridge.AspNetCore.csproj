@@ -41,8 +41,6 @@
             <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
             <IncludeAssets>RidgeSourceGenerator.dll</IncludeAssets>
         </ProjectReference>
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="RidgeDotNet.AspNetCore.props" Pack="true" PackagePath="buildTransitive\" Visible="true" />
+        <None Include="buildTransitive\RidgeDotNet.AspNetCore.props" Pack="true" PackagePath="buildTransitive\" />
     </ItemGroup>
 </Project>
