@@ -2,9 +2,6 @@ using Microsoft.CodeAnalysis;
 
 namespace RidgeSourceGenerator.GeneratorOptions;
 
-// TODO by convention if controller contains single method called - run, execute or handle it will not be used in the name
-// TODO if controller contains name endpoint than it is removed from the client method name
-// TODO split to partial classes if too long
 public static class GeneratorOptionsService
 {
     public static IncrementalValueProvider<RidgeOptions> GetGeneratorOptions(
